@@ -117,11 +117,11 @@ body,html{
 <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
 <script>
 	$(function(){
+    var currentIndex=0
 		// 减少上一曲下一曲的bug
       var ado=document.getElementsByTagName('audio')[0]
      function currentPlay(index){  
-          
-         $(".showList li").eq(index).find("div").css("display","block")
+         $(".showList li").eq(index).find("mnm, kmlew").css("display","block")
          $("audio").attr("src",$(".showList li").eq(index).attr("src"))
          // if(ado.src==""||ado.src==".mp3"){
          //       ado.src="千千阙歌.mp3"
@@ -193,11 +193,13 @@ body,html{
      // 下一曲
        $("button").eq(9).mousedown(function(){
        	var str=null;
-            $(".showList li").each(function(i){
-            	if($(this).attr("src")==$("audio").attr("src")){
-                 currentPlay($(this).attr("index")-0+1)
-            	}
-            })
+        currentIndex++
+        currentPlay(currentIndex)
+            // $(".showList li").each(function(i){
+            // 	if($(this).attr("src")==$("audio").attr("src")){
+            //      currentPlay($(this).attr("index")-0+1)
+            // 	}
+            // })
        
      })
           
@@ -220,7 +222,7 @@ body,html{
      	$("audio").attr("loop","loop")
      })
       // 顺序
-        $("button").eq(11).mousedown(function(){
+      $("button").eq(11).mousedown(function(){
      	$("audio").removeAttr("loop")
         $("audio").get(0).onended=function(){
         	var str=null;
@@ -277,6 +279,7 @@ body,html{
 
       //上传文件mp3
       $("#upfile").change(function(e){
+         if($('#upfile')[0].files.length==0) return 
           var formData = new FormData();
           console.log($('#upfile'))
           formData.append('file/upload', $('#upfile')[0].files[0]);
@@ -290,26 +293,48 @@ body,html{
           }).done(function(res) {
              if(res.code==200){
               console.log({res})
-                $("pre").html(res.files)
+                $("pre").html(res.files )
                 getInitSrc()
              }
           }).fail(function(err) {
             console.log({err})
           });
       })
+      //删除
+      $("#removefielSrc").click(function(){
+          removeFile()
+
+      })
+      // 刷新列表
       $("#getfileSrc").click(function(){
             getInitSrc()
       })
-       getInitSrc()
+      getInitSrc()
+
+
+
       function getInitSrc(){
             $.get("/file/getfileSrc",function(res){
             var html=''
                for (var i = res.length - 1; i >= 0; i--) {
                    if(res[i].slice(-3)!=="mp3") continue
-                    html+='<li  index="'+i+'" isplay="false" src="'+res[i].slice(6)+'">'+res[i].slice(11,-4)+'<div><img src="play.gif" alt=""></div></li>'
+                    html+='<li  index="'+i+'" isplay="false" data-src="'+res[i]+'" src="'+res[i].slice(6)+'">'+res[i].slice(11,-4)+'<div><img src="play.gif" alt=""></div><input type="checkbox"></li>'
                };
             $(".showList").html(html)
         })
+      }
+      function removeFile(){
+             var removeList=[]
+             $("input:checked").parent().each(function(i,el){
+                  removeList.push($(el).attr("data-src")) 
+             })
+             console.log(removeList)
+            $.get("/file/removeFile",{removeList},function(res){
+               if(res.code==200){
+                alert(res.info)
+                  getInitSrc()
+               }
+            })
       }
 }) 
 </script>
@@ -318,11 +343,11 @@ body,html{
 <div class="big"> 
 <h3>双击播放</h3>
 <ul class="showList">
-	<li>千千阙歌<div><img src="play.gif" alt=""></div></li>
+	<!-- <li>千千阙歌<div><img src="play.gif" alt=""></div></li>
 	<li>夜的钢琴曲<div><img src="play.gif" alt=""></div></li>
 	<li>小苹果<div><img src="play.gif" alt=""></div></li>
 	<li>时间都去哪儿了<div><img src="play.gif" alt=""></div></li>
-	<li>雨的印记<div><img src="play.gif" alt=""></div></li>
+	<li>雨的印记<div><img src="play.gif" alt=""></div></li> -->
 </ul>
 <div class="pro">
 	<div class="progress"></div>
@@ -373,9 +398,10 @@ body,html{
   <input type="file" id="upfile" >
 </div>
 <div>
-  <button id="getfileSrc">获取列表</button>
+  <button id="getfileSrc">刷新列表</button>
+  <button id="removefielSrc">删除歌曲</button>
    <ul>
-    
+       
    </ul>
 </div>
 <div >
