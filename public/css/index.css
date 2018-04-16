@@ -4,40 +4,64 @@
 	cursor: pointer
 }
 body,html{
+  width: 100%;
   height: 100%;
-	background-color: black;
+  background-color: black;
+  font-size:0.16rem;
 }
-
+.github{
+	position: fixed;
+	top:0.4rem;
+	transform:rotate(30deg);
+	-ms-transform:rotate(30deg); 	/* IE 9 */
+	-moz-transform:rotate(30deg); 	/* Firefox */
+	-webkit-transform:rotate(30deg); /* Safari 和 Chrome */
+	-o-transform:rotate(30deg);
+	width:1rem;
+    right:0.4rem;
+	height: 0.3rem;
+	line-height: 0.3rem;
+	font-style:0.16rem;
+	background: -webkit-linear-gradient(left, red , blue); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(right, red, blue); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(right, red, blue); /* Firefox 3.6 - 15 */
+	background: linear-gradient(to right, red , blue); /* 标准的语法 */
+	text-align: center;
+	opacity:0.6;
+}
+.github a{
+	color:#fff;
+}
 	.pro{
-		width:300px;
-		height:10px;
-		border:5px double #22393F;
-		margin:10px 0px;
-		margin:0 auto;
-		box-shadow:0px 10px 100px #210E4E;
-		box-shadow:0px -10px 100px #210E4E;
+		width:3rem;
+		height:0.10rem;
+		border:0.05rem double #22393F;
+		margin:0.10rem auto;
+		/* margin:0 auto; */
+		box-shadow:0rem 0.10rem 1rem #210E4E;
+		/* box-shadow:0rem -0.10rem 1rem #210E4E; */
 
 	}
 	.progress{
-		width:0px;
-		height:10px;
+		width:0rem;
+		height:0.10rem;
 		background-color:#7454F8;
 	}
 	.big{
-		width: 400px;
-     	margin: 100px auto;
+		width: 4rem;
+     	margin: 1rem auto;
      	background:lightblue;
      	text-align:center;
-     	border:10px groove blue;
-     	padding:10px;
-     	box-shadow:0px 10px 200px blue;
-     	box-shadow:0px -10px 200px blue;
+     	border:0.1rem groove blue;
+     	padding:0.1rem;
+     	box-shadow:0rem 0.1rem 2rem blue;
+     	box-shadow:0rem -0.1rem 2rem blue;
 	}
 	ul li {
-		font:400 14px 微软雅黑;
+		font:400 0.14rem 微软雅黑;
 		list-style-type: none;
-		text-shadow:0px 3px 50px black;
-		text-shadow:0px -3px 50px black;
+		text-shadow:0rem 0.03rem 0.5rem black;
+		text-shadow:0rem -0.03rem 0.5rem black;
 		color: gray;
 	}
 	ul li:hover{
@@ -51,56 +75,57 @@ body,html{
 	button{
 		background:#04272F;
 		color:#8CCDDC;
-		padding:10px;
-		margin-bottom:5px;
+		padding:0.10rem;
+		margin-bottom:0.05rem;
+		font-size:0.14rem;
 	}
 	.font{
 		color: white;
-		width: 300px;
+		width: 3rem;
 		margin:0 auto;
 		text-align: center;
-		margin-top: -80px;
-		height: 20px;
-    overflow: hidden;
-   position: relative;
+		margin-top: -0.80rem;
+		height:0.20rem;
+	    overflow: hidden;
+	   position: relative;
 
 	}.font div{
-		width: 300px;
+		width: 3rem;
 		position:absolute;
-		 height:300px;
+		 height:3rem;
 	}
   .timer{
-    width:100px;
+    width:1rem;
     margin: 0 auto;
-    font:400 12px 微软雅黑;
+    font:400 0.12rem 微软雅黑;
   }
   .upfile{
-    width:100px;
+    width:1rem;
     overflow: hidden;
     position:relative;
-    height:30px;
-    margin: 30px auto;
-    border:1px solid blue;
-    line-height:30px;
+    height:0.30rem;
+    margin: 0.30rem auto;
+    border:0.01rem solid blue;
+    line-height:0.30rem;
     text-align: center;
     color:#fff;
-    border-radius:2px;
-    font-size: 12px;
+    border-radius:0.02rem;
+    font-size: 0.12rem;
   }
   .upfile:hover{
-    box-shadow:0px 2px 3px blue;
+    box-shadow:0rem 0.02rem 0.03rem blue;
   }
   .upfile input{
     position: absolute;
-    top:0px;
-    left:0px;
-    width: 100px;
-    height: 30px;
+    top:0rem;
+    left:0rem;
+    width: 0.50rem;
+    height: 0.30rem;
     opacity:0;
   }
   pre{
-    border:1px solid red;
+    border:0.01rem solid red;
     color:#fff;
-    height:300px;
+    height:3rem;
     overflow: auto;
   }

@@ -147,8 +147,8 @@
          //滚动条
         $("audio").get(0).ontimeupdate=function(){
         	var num=$("audio").get(0).currentTime/$("audio").get(0).duration
-         $(".progress").get(0).style.width=300*num+"px"
-         $(".font div").get(0).style.top=-300*num+"px"
+         $(".progress").get(0).style.width=3*num+"rem"
+         $(".font div").get(0).style.top=-3*num+"rem"
           // 显示时间
           var minute=parseInt($("audio").get(0).currentTime/60)
           var ss=parseInt($("audio").get(0).currentTime%60)
@@ -156,7 +156,7 @@
             $(".timer span").eq(2).html(ss)
         }
         $(".pro").click(function(e){
-        	 $("audio").get(0).currentTime=e.offsetX/300*$("audio").get(0).duration
+        	 $("audio").get(0).currentTime=e.offsetX/$(".pro").width()*$("audio").get(0).duration
         })
 
       //上传文件mp3
