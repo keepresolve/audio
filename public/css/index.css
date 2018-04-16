@@ -32,6 +32,29 @@ body,html{
 .github a{
 	color:#fff;
 }
+.example{
+	position: fixed;
+	top:0.4rem;
+	transform:rotate(-30deg);
+	-ms-transform:rotate(-30deg); 	/* IE 9 */
+	-moz-transform:rotate(-30deg); 	/* Firefox */
+	-webkit-transform:rotate(-30deg); /* Safari 和 Chrome */
+	-o-transform:rotate(-30deg);
+	width:1rem;
+    left:0.4rem;
+	height: 0.3rem;
+	line-height: 0.3rem;
+	font-style:0.16rem;
+	background: -webkit-linear-gradient(left, red , blue); /* Safari 5.1 - 6.0 */
+	background: -o-linear-gradient(right, red, blue); /* Opera 11.1 - 12.0 */
+	background: -moz-linear-gradient(right, red, blue); /* Firefox 3.6 - 15 */
+	background: linear-gradient(to right, red , blue); /* 标准的语法 */
+	text-align: center;
+	opacity:0.6;
+}
+.example a{
+	color:#fff;
+}
 	.pro{
 		width:3rem;
 		height:0.10rem;
