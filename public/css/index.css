@@ -1,0 +1,106 @@
+*{
+	padding:0;
+	margin:0;
+	cursor: pointer
+}
+body,html{
+  height: 100%;
+	background-color: black;
+}
+
+	.pro{
+		width:300px;
+		height:10px;
+		border:5px double #22393F;
+		margin:10px 0px;
+		margin:0 auto;
+		box-shadow:0px 10px 100px #210E4E;
+		box-shadow:0px -10px 100px #210E4E;
+
+	}
+	.progress{
+		width:0px;
+		height:10px;
+		background-color:#7454F8;
+	}
+	.big{
+		width: 400px;
+     	margin: 100px auto;
+     	background:lightblue;
+     	text-align:center;
+     	border:10px groove blue;
+     	padding:10px;
+     	box-shadow:0px 10px 200px blue;
+     	box-shadow:0px -10px 200px blue;
+	}
+	ul li {
+		font:400 14px 微软雅黑;
+		list-style-type: none;
+		text-shadow:0px 3px 50px black;
+		text-shadow:0px -3px 50px black;
+		color: gray;
+	}
+	ul li:hover{
+		background-color:blue;
+		color: pink;
+	}
+	ul li div{
+		float: right;
+		display: none;
+	}
+	button{
+		background:#04272F;
+		color:#8CCDDC;
+		padding:10px;
+		margin-bottom:5px;
+	}
+	.font{
+		color: white;
+		width: 300px;
+		margin:0 auto;
+		text-align: center;
+		margin-top: -80px;
+		height: 20px;
+    overflow: hidden;
+   position: relative;
+
+	}.font div{
+		width: 300px;
+		position:absolute;
+		 height:300px;
+	}
+  .timer{
+    width:100px;
+    margin: 0 auto;
+    font:400 12px 微软雅黑;
+  }
+  .upfile{
+    width:100px;
+    overflow: hidden;
+    position:relative;
+    height:30px;
+    margin: 30px auto;
+    border:1px solid blue;
+    line-height:30px;
+    text-align: center;
+    color:#fff;
+    border-radius:2px;
+    font-size: 12px;
+  }
+  .upfile:hover{
+    box-shadow:0px 2px 3px blue;
+  }
+  .upfile input{
+    position: absolute;
+    top:0px;
+    left:0px;
+    width: 100px;
+    height: 30px;
+    opacity:0;
+  }
+  pre{
+    border:1px solid red;
+    color:#fff;
+    height:300px;
+    overflow: auto;
+  }
