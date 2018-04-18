@@ -142,7 +142,7 @@ body,html{
     position: absolute;
     top:0rem;
     left:0rem;
-    width: 0.50rem;
+    width: 1rem;
     height: 0.30rem;
     opacity:0;
   }
@@ -151,4 +151,15 @@ body,html{
     color:#fff;
     height:3rem;
     overflow: auto;
+  }
+  .upfileProgress{
+	  display: none;
+	  text-align: center;
+	  font-size:12px;
+	  background:#7454F8;
+	  color: #fff;
+	  margin:0 auto;
+	  width:0rem;
+	  height:2vh;
+	  border:1px solid blue;
   }
