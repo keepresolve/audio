@@ -27,7 +27,7 @@ var server = http.createServer(app);
 
 server.listen(port,function(){
  console.log("autoOpen at localhost:3000")
- opn('http://localhost:3000')
+//  opn('http://localhost:3000')
 });
 server.on('error', onError);
 server.on('listening', onListening);
