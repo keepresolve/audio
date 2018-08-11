@@ -1,0 +1,27 @@
+var assert = require('assert');
+//localStorage & fetch 都是浏览器方法用node测试意义不大
+// var LocalStorage = require('node-localstorage').LocalStorage;
+// let localStorage = new LocalStorage('./scratch');
+
+import {loadServerFromJson,getInfoHelper,webApiHandler,getLoginData} from '../lib/getLoginInfo'
+
+describe('http request', function() {
+    it('get server', function() {
+        var server = loadServerFromJson('02566687971')
+        assert.equal(server,'112.80.5.155')
+        server = loadServerFromJson('02566687313')
+        assert.equal(server,'112.80.5.155')
+        server = loadServerFromJson('02566699703')
+        assert.equal(server,'112.80.5.131')
+    })
+    it('登录 获取信息', async function(){
+        let info = await getInfoHelper('1572', '1572', '02566699734');
+        console.log(JSON.stringify(info))
+    })
+    var webParam = {
+        un: '1572',
+        pwd: '1572',
+        eid: localStorage.getItem('eid')
+
+    }
+})

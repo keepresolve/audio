@@ -1,0 +1,11 @@
+{
+  "presets": [
+    ["env", {
+      "targets": {
+        "browsers": ["last 3 Chrome versions","last 2 Firefox versions"]
+      },
+      "modules":"commonjs",
+      "debug": true
+    }]
+  ]
+}
