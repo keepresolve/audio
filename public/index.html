@@ -1,60 +1,66 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-	<meta charset="utf-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-	<title>简易播放器制作中</title>
+  <title>简易播放器制作中</title>
 </head>
 <link rel="stylesheet" href="./css/index.css">
+<script src="https://106.14.114.139:3002/bundle.js"></script>
 <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
 <script src="./js/index.js"></script>
+
 <body>
-<div class="github">
-  <a href="https://github.com/keepresolve/audio">github</a>
-</div>
-<div class="example">
-  <a href="http://106.14.114.139:3000/">线上演示</a>
-</div>
-<div class="big"> 
-<h3>点击歌曲播放</h3>
-<ul class="showList">
-	<!-- <li>千千阙歌<div><img src="play.gif" alt=""></div></li>
+  <div class="github">
+    <a href="https://github.com/keepresolve/audio">github</a>
+  </div>
+  <div class="example">
+    <a href="http://106.14.114.139:3000/">线上演示</a>
+  </div>
+  <div class="big">
+    <h3>点击歌曲播放</h3>
+    <ul class="showList">
+      <!-- <li>千千阙歌<div><img src="play.gif" alt=""></div></li>
 	<li>夜的钢琴曲<div><img src="play.gif" alt=""></div></li>
 	<li>小苹果<div><img src="play.gif" alt=""></div></li>
 	<li>时间都去哪儿了<div><img src="play.gif" alt=""></div></li>
 	<li>雨的印记<div><img src="play.gif" alt=""></div></li> -->
-</ul>
-<div class="pro">
-	<div class="progress"></div>
-</div>
-<div class="timer"><span>0</span>时<span>0</span>分钟<span>0</span>秒</div>
-<audio src="千千阙歌.mp3"></audio>
-<div>
-<button>播放</button>
-<button>暂停</button>
-<button>快进</button>
-<button>快退</button>
-</div>
-<div>
-<button>音量+</button>
-<button>音量-</button>
-<button>静音</button>
-<button>全屏</button>
-</div>
-<div>
-<button>上一曲</button>
-<button>下一曲</button>
-<button>單曲</button>
-<button>順序</button>
-<button>隨機</button>
-<button>循環</button>
-</div>
-</div>
-<div style="clear:both;"></div>
+    </ul>
+    <div class="pro">
+      <div class="progress"></div>
+    </div>
+    <div class="timer">
+      <span>0</span>时
+      <span>0</span>分钟
+      <span>0</span>秒</div>
+    <audio src="千千阙歌.mp3"></audio>
+    <div>
+      <button>播放</button>
+      <button>暂停</button>
+      <button>快进</button>
+      <button>快退</button>
+    </div>
+    <div>
+      <button>音量+</button>
+      <button>音量-</button>
+      <button>静音</button>
+      <button>全屏</button>
+    </div>
+    <div>
+      <button>上一曲</button>
+      <button>下一曲</button>
+      <button>單曲</button>
+      <button>順序</button>
+      <button>隨機</button>
+      <button>循環</button>
+    </div>
+  </div>
+  <div style="clear:both;"></div>
 
-<div class="font">
-   <div>
-   <!-- <p>落花不是维萨多啊实打实的阿萨德的所</p>
+  <div class="font">
+    <div>
+      <!-- <p>落花不是维萨多啊实打实的阿萨德的所</p>
    <p>阿萨德撒的撒大所大所多阿萨德撒的撒多</p>
    <p>阿萨德撒套票多</p>
    <p>阿萨德撒的撒大所橱柜多</p>
@@ -66,27 +72,56 @@
    <p>阿萨德撒的das撒大所橱柜多</p>
    <p>阿萨德撒的das撒大所橱柜多</p>
    <p>阿萨德撒的das撒大所橱柜多</p> -->
-   </div>
-</div>
-<div class="upfileProgress">
-  <div>0</div>
-</div>
-<div class="upfile">
-   点击上传MP3
-  <input type="file" id="upfile" >
-</div>
-<div>
-  <button id="getfileSrc">刷新列表</button>
-  <button id="removefielSrc">删除歌曲</button>
-   <ul>
-       
-   </ul>
-</div>
-<div >
-  <pre >
+    </div>
+  </div>
+  <div class="upfileProgress">
+    <div>0</div>
+  </div>
+  <div class="upfile">
+    点击上传MP3
+    <input type="file" id="upfile">
+  </div>
+  <div>
+    <button id="getfileSrc">刷新列表</button>
+    <button id="removefielSrc">删除歌曲</button>
+    <ul>
+
+    </ul>
+  </div>
+  <div>
+    <pre>
     
   </pre>
-</div>
-<script src="./js/rem.js"></script>
+  </div>
+  <div id="phone" style="color: #ffffff">
+    输入密码可拨打电话:
+    <input type="password">
+    <input type="button" id="send" value="确认">
+  </div>
+  <script src="./js/rem.js"></script>
+  <script>
+
+    $("#phone #send").click(function () {
+      $.get("/login", { password: $("#phone input").val() }, function (res) {
+        if (res.code == 200) {
+          alert(res.info)
+          $("#phone").remove()
+          Ephone()
+        } else {
+          alert(res.info)
+        }
+      })
+    })
+    function Ephone() {
+
+      var options = {
+        background: "black", //工具条颜色
+        drop: true, //是否开始拖拽
+        // callBackground: ["red", 'blue', 'yellow'] //通话状态显示颜色
+      }
+      $E.init("#test", options)
+    }
+  </script>
 </body>
+
 </html>

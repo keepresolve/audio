@@ -1,11 +1,12 @@
+
 $(function () {
   var currentIndex = 0
   // 减少上一曲下一曲的bug
   var ado = document.getElementsByTagName('audio')[0]
-  function currentPlay(index,arg) {
-    if(index==$(".showList li").length&&arg!=0)index=0
-    if(index==-1)index=$(".showList li").length-1
-    $(".showList li div").css("display","none")
+  function currentPlay(index, arg) {
+    if (index == $(".showList li").length && arg != 0) index = 0
+    if (index == -1) index = $(".showList li").length - 1
+    $(".showList li div").css("display", "none")
     $(".showList li").eq(index).find("div").css("display", "block")
     $("audio").attr("src", $(".showList li").eq(index).attr("src"))
     $("audio").attr("index", $(".showList li").eq(index).attr("index"))
@@ -76,13 +77,13 @@ $(function () {
   })
   // 下一曲
   $("button").eq(9).mousedown(function () {
-    var currentIndex=$("audio").attr("index")-0+1
+    var currentIndex = $("audio").attr("index") - 0 + 1
     currentPlay(currentIndex)
   })
 
   // 上一曲
   $("button").eq(8).mousedown(function () {
-    var currentIndex=$("audio").attr("index")-1
+    var currentIndex = $("audio").attr("index") - 1
     currentPlay(currentIndex)
     $("audio").get(0).play()
   })
@@ -94,14 +95,14 @@ $(function () {
   $("button").eq(11).mousedown(function () {
     $("audio").removeAttr("loop")
     $("audio").get(0).onended = function () {
-      var currentIndex=$("audio").attr("index")-0+1
-      currentPlay(currentIndex,0)
+      var currentIndex = $("audio").attr("index") - 0 + 1
+      currentPlay(currentIndex, 0)
     }
   })
   // 随机
   $("button").eq(12).mousedown(function () {
     $("audio").get(0).onended = function () {
-      var currentIndex = Math.ceil(Math.random() * $(".showList li").length-1)
+      var currentIndex = Math.ceil(Math.random() * $(".showList li").length - 1)
       currentPlay(currentIndex)
     }
   })
@@ -109,7 +110,7 @@ $(function () {
   $("button").eq(13).mousedown(function () {
     $("audio").removeAttr("loop")
     $("audio").get(0).onended = function () {
-      var currentIndex=$("audio").attr("index")-0+1
+      var currentIndex = $("audio").attr("index") - 0 + 1
       currentPlay(currentIndex)
     }
 
@@ -130,7 +131,7 @@ $(function () {
   })
 
   //上传文件mp3
-  var timer=null
+  var timer = null
   $("#upfile").change(function (e) {
     if ($('#upfile')[0].files.length == 0) return
     var formData = new FormData();
@@ -144,17 +145,17 @@ $(function () {
         var xhr = jQuery.ajaxSettings.xhr();
         xhr.upload.onload = function () {
           clearTimeout(timer)
-          timer=setTimeout(function(){
-            $(".upfileProgress").css("display","none")  
+          timer = setTimeout(function () {
+            $(".upfileProgress").css("display", "none")
             alert("上传成功")
-          },500)
+          }, 500)
         }
         xhr.upload.onprogress = function (ev) {
           if (ev.lengthComputable) {
             var percent = ev.loaded / ev.total;
-            $(".upfileProgress").css("display","block")
-            $(".upfileProgress").css("width",4*percent+"rem")
-            $(".upfileProgress>div").text(parseInt(percent*100))
+            $(".upfileProgress").css("display", "block")
+            $(".upfileProgress").css("width", 4 * percent + "rem")
+            $(".upfileProgress>div").text(parseInt(percent * 100))
           }
         }
         return xhr;
@@ -181,17 +182,17 @@ $(function () {
   $("#getfileSrc").click(function () {
     getInitSrc()
   })
- 
-  
-  var init=function(){
+
+
+  var init = function () {
     $.get("/file/getfileSrc", function (res) {
       var html = ''
-      for (var i = 0; i <res.length; i++) {
+      for (var i = 0; i < res.length; i++) {
         if (res[i].slice(-3) !== "mp3") continue
         html += '<li  index="' + i + '" isplay="false" data-src="' + res[i] + '" src="' + res[i].slice(6) + '">' + res[i].slice(11, -4) + '<div><img src="play.gif" alt=""></div><input type="checkbox"></li>'
       };
       $(".showList").html(html)
-      $("audio").attr("src",res[i].slice(6))
+      $("audio").attr("src", res[i].slice(6))
     })
   }
   init()

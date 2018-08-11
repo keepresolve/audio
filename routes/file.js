@@ -42,6 +42,7 @@ router.get('/getfileSrc',function(req, res, next){
 router.get('/removefile',function(req, res, next){
 	// console.log({query:req.query.removeList})
 		deleteFolder(req.query.removeList,req,res)
+	
 })
 //获取文件目录下的所有文件名字
 function findSync(startPath) {
