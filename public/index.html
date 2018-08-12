@@ -93,7 +93,7 @@
   </pre>
   </div>
   <div id="phone" style="color: #ffffff">
-    输入密码可拨打电话:
+    输入正确的名字可拨打电话可拨打电话:
     <input type="password">
     <input type="button" id="send" value="确认">
   </div>
@@ -101,6 +101,7 @@
   <script>
     var timer = null
     $("#phone #send").click(function () {
+      $("#phone").hide()
       $.get("/login", { password: $("#phone input").val() }, function (res) {
         if (res.code == 200) {
           alert(res.info)
@@ -108,19 +109,12 @@
           var head = document.getElementsByTagName("head")[0]
           script.src = res.src
           head.appendChild(script)
-          if (script.onload) {
-            script.onload = function () {
-              $("#phone").remove()
-              Ephone()
-            }
-          } else {
-            clearTimeout(timer)
-            timer = setTimeout(function () {
-              $("#phone").remove()
-              Ephone()
-            }, 3000)
+          script.onload = function () {
+            $("#phone").remove()
+            Ephone()
           }
         } else {
+          $("#phone").show()
           alert(res.info)
         }
       })
