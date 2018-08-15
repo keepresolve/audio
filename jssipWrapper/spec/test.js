@@ -3,9 +3,9 @@ var assert = require('assert');
 require('mocha-steps')
 var debug = require('debug')('unit-test')
 // 引入jssipwarp
-import JsSIP from '../src/lib'
+import sipWrapper from '../src/lib'
 import webApi from '../src/lib/getLoginInfo'
-import {xmlToJs,jsToXml} from '../src/lib/xmljs.js'
+import { xmlToJs, jsToXml } from '../src/lib/xmljs.js'
 
 let switchNumber = '02566699734'
 let yunwei = 'kfyw.emic.com.cn'
@@ -13,9 +13,9 @@ let WebRTC_gateway = 'wss://s01.vsbc.com:9060'
 let account = '1043'
 let pass = '1043'
 // 内呼分机号
-let callInsideLine = '****'
-let callPhone = '913910134045'
-//2 是云总机企业，实际使用是呼叫中心企业 4，但测试用例测试登录和外呼没有问题
+let callInsideLine = '1026'
+let callPhone = '910086'
+//2 VoIP 模式
 let callinType = 2
 
 describe('webApi', function () {
@@ -26,19 +26,19 @@ describe('webApi', function () {
   })
   describe('登录 获取信息', function () {
     step('获取运维服务器地址：loadServerFromJson', async function () {
-      var server = webApi.loadServerFromJson(switchNumber);
+      var server = webApi._loadServerFromJson(switchNumber);
       assert.equal(server, yunwei);
     })
     step('loadServerFromJson 区号测试: 0555-534543', async function () {
-      var server = webApi.loadServerFromJson('0555-534543');
+      var server = webApi._loadServerFromJson('0555-534543');
       assert.equal(server, 'ah.emic.com.cn');
     })
     step('loadServerFromJson 区号测试: 02153454378', async function () {
-      var server = webApi.loadServerFromJson('02153454378');
+      var server = webApi._loadServerFromJson('02153454378');
       assert.equal(server, "sh.emic.com.cn");
     })
     step('获取运维信息:getInfo,获取eid', async function () {
-      var info = await webApi.getInfo(account, pass, switchNumber, yunwei);
+      var info = await webApi._getInfo(account, pass, switchNumber, yunwei);
       assert.equal(info.status, '200', `调用getInfo失败,返回:${info.status}`);
       assert.notEqual(info.data.real_domain, null);
       debug('获取实际的注册地址:' + info.data.real_domain)
@@ -139,9 +139,9 @@ describe('webApi', function () {
       var returnData = await webApi.webApiHandler('searchEpMembers', webParam);
       // 这个返回的是所有用户的信息 如果用户增加 修改数值
       debug(returnData.returnData)
-      assert.ok(returnData.returnData.data.length>0)
-      assert.ok(returnData.returnData.recordsTotal>0)
-      assert.ok(returnData.returnData.recordsFiltered>0)
+      assert.ok(returnData.returnData.data.length > 0)
+      assert.ok(returnData.returnData.recordsTotal > 0)
+      assert.ok(returnData.returnData.recordsFiltered > 0)
       assert.equal(returnData.status, 200);
     })
   })
@@ -151,35 +151,34 @@ describe('sip相关消息测试', function () {
   let _ua;
   var registerted;
   before(function () {
-    localStorage.setItem("debug","unit-test,*index");
+    localStorage.setItem("debug", "unit-test,*index");
   })
   //@todo 反复重连的处理
   step('注册登录', async function (done) {
     // 有时测试用例会超时，所以设置下时间
     this.timeout(50000);
-    _ua = new JsSIP();
-    var remoteAudio = document.getElementById("peeraideo")
+    _ua = new sipWrapper();
     var loginParam = {
       un: account,
       pwd: pass,
       switchNumber: switchNumber,
       callintype: callinType,
       socketUri: WebRTC_gateway,
-      remoteAudio: remoteAudio
+      remoteAudio: "peeraideo"
     }
     debug('ua.login')
     _ua.login(loginParam);
     _ua.on('connecting', () => {
       debug('尝试连接WebRTC网关')
     });
-    _ua.on('connected', () => {
+    _ua.once('connected', () => {
       debug('连接到WebRTC网关')
       var para = document.createElement("div");
       var node = document.createTextNode(`连接消息：socket连接成功`);
       para.appendChild(node);
       document.getElementById('info').appendChild(para)
     });
-    _ua.on('disconnected', () => {
+    _ua.once('disconnected', () => {
       var para = document.createElement("div");
       var node = document.createTextNode(`连接消息：socket断开`);
       para.appendChild(node);
@@ -187,7 +186,7 @@ describe('sip相关消息测试', function () {
       debug('从WebRTC网关断开')
     });
     // 注册成功事件 事件触发 说明测试用例通过
-    _ua.on('registered', (data) => {
+    _ua.once('registered', (data) => {
       var para = document.createElement("div");
       var node = document.createTextNode(`注册消息：注册成功`);
       para.appendChild(node);
@@ -195,23 +194,23 @@ describe('sip相关消息测试', function () {
       debug('注册成功')
     });
 
-    _ua.on('statusChanged', () => {
+    _ua.once('statusChanged', () => {
       debug('sip注册成功紧接着改变用户状态也成功')
       if (registerted) return;//防止重连情况 done被多次调用
       registerted = true;
       done()
     });
-      /**
-       * 注册失败
-       */
+    /**
+     * 注册失败
+     */
     _ua.on('getLoginDataFailed', (data) => {
-        debug(`getLoginDataFailed 失败原因:`)
-        debug(data)
-        //本来调用assert.fail()是最直接方式，但是因为引入EventEmitter，处理逻辑变复杂
-        //AssertionError会造成registrationFailed消息再次抛出
-        //所以用done(error) 方式表示失败
-        //https://stackoverflow.com/a/40539753/301513
-        done(new Error('注册失败,getLoginDataFailed'));
+      debug(`getLoginDataFailed 失败原因:`)
+      debug(data)
+      //本来调用assert.fail()是最直接方式，但是因为引入EventEmitter，处理逻辑变复杂
+      //AssertionError会造成registrationFailed消息再次抛出
+      //所以用done(error) 方式表示失败
+      //https://stackoverflow.com/a/40539753/301513
+      done(new Error('注册失败,getLoginDataFailed'));
     });
 
     _ua.on('registrationFailed', (data) => {
@@ -262,38 +261,38 @@ describe('sip相关消息测试', function () {
   //   session = _ua.call(callPhone, 1, eventHandlers)
   //   let peerconnection = session.connection;
   //   // 拨打电话 通了之后大概十秒钟 自动挂断电话 未写
-    // peerconnection.addEventListener('addstream', (event) => {
-    //     let remoteAudio = document.getElementById("peeraideo")
-    //     // 设置音频
-    //     remoteAudio.srcObject = event.stream;
-    //     event.stream.addEventListener('addtrack', (event) => {
-    //         let track = event.track;
-    //         if (remoteAudio.srcObject !==  event.stream)   
-    //          return;
-    //         remoteAudio.srcObject =  event.stream;
-    //         track.addEventListener('ended', () => {
-    //         });
-    //     });
-    //     event.stream.addEventListener('removetrack', () => {
-    //         if (remoteAudio.srcObject !==  event.stream)  
-    //          return;
-    //         remoteAudio.srcObject =  event.stream;
-    //     });
-    // });
+  // peerconnection.addEventListener('addstream', (event) => {
+  //     let remoteAudio = document.getElementById("peeraideo")
+  //     // 设置音频
+  //     remoteAudio.srcObject = event.stream;
+  //     event.stream.addEventListener('addtrack', (event) => {
+  //         let track = event.track;
+  //         if (remoteAudio.srcObject !==  event.stream)   
+  //          return;
+  //         remoteAudio.srcObject =  event.stream;
+  //         track.addEventListener('ended', () => {
+  //         });
+  //     });
+  //     event.stream.addEventListener('removetrack', () => {
+  //         if (remoteAudio.srcObject !==  event.stream)  
+  //          return;
+  //         remoteAudio.srcObject =  event.stream;
+  //     });
+  // });
   // })
-  step("回拨方式 呼外线 call", function(done){
+  step("回拨方式 呼外线 call", function (done) {
     this.timeout(500000);
     //http://jssip.net/documentation/3.2.x/api/session/
     _ua.call(callPhone, 2)
     // 来电 ---
-    _ua.once("incomingCall", function(data){
-      let session  = data.session
+    _ua.once("incomingCall", function (data) {
+      let session = data.session
       debug(session)
       // 定时器 挂断电话  50s
-      setTimeout(function(){
+      setTimeout(function () {
         _ua.hangUpPBXCall(session.ccNumber)
-      }, 50000)
-      session.on("progress", (data) => { 
+      }, 25000)
+      session.on("progress", (data) => {
         // 在接收或生成INVITE请求的1XX SIP类响应（> 100）时触发
         debug('progress')
       })
@@ -307,35 +306,37 @@ describe('sip相关消息测试', function () {
         done(new Error("failed"))
       })
       session.on('ended', (data) => { // 建立的呼叫结束时触发
+        debug('call finished')
         done()
       });
     })
   })
-  step("呼内线 call", function(done) {
-      this.timeout(500000);
-      _ua.call(callInsideLine, 3)
-      _ua.once("incomingCall", function(data){
-        // 定时器 挂断电话  50s
-        setTimeout(function(){
-          _ua.hangUpPBXCall(session.ccNumber)
-        }, 50000)
-        data.session.on("progress", (data) => { 
-          // 在接收或生成INVITE请求的1XX SIP类响应（> 100）时触发
-          debug('progress')
-        })
-        data.session.on("accepted", (data) => { // 接听电话时触发
-          debug('accepted')
-        })
-        data.session.on("connecting", (data) => { //接受会话正在连接
-          debug("connecting")
-        })
-        data.session.on("failed", (data) => { // 当会话无法建立时被触发
-          done(new Error("failed"))
-        })
-        data.session.on('ended', (data) => { // 建立的呼叫结束时触发
-          done()
-        });
+  step("呼内线 call", function (done) {
+    this.timeout(500000);
+    _ua.call(callInsideLine, 3)
+    _ua.once("incomingCall", function (data) {
+      // 定时器 挂断电话  50s
+      setTimeout(function () {
+        _ua.hangUpPBXCall(session.ccNumber)
+      }, 25000)
+      data.session.on("progress", (data) => {
+        // 在接收或生成INVITE请求的1XX SIP类响应（> 100）时触发
+        debug('progress')
       })
+      data.session.on("accepted", (data) => { // 接听电话时触发
+        debug('accepted')
+      })
+      data.session.on("connecting", (data) => { //接受会话正在连接
+        debug("connecting")
+      })
+      data.session.on("failed", (data) => { // 当会话无法建立时被触发
+        done(new Error("failed"))
+      })
+      data.session.on('ended', (data) => { // 建立的呼叫结束时触发
+        debug('call finished')
+        done()
+      });
+    })
   })
 })
 describe('xml-js相互转换', function () {
@@ -362,25 +363,25 @@ describe('xml-js相互转换', function () {
     </cc>`
     var returnJs = xmlToJs(xml)
     debug(xml)
-    assert.equal('82',returnJs.cc.a)
-    assert.equal('6',returnJs.cc.n)
-    assert.equal('s_636581765458956378',returnJs.cc.i)
-    assert.equal(6,returnJs.cc.u.length)
-    var obj = [{b: "1522550821", m: "2", n: "1001_00010078", s: "0"},
-    {b: "1522550732", m: "2", n: "1003_00010078", s: "1"},
-    {b: "1522550243", m: "1", n: "1009_00010078", s: "1"},
-    {b: "1522550244", m: "2", n: "1012_00010078", s: "0"},
-    {b: "1522550245", m: "2", n: "1013_00010078", s: "0"},
-    {b: "1522550246", m: "2", n: "1572_00010078", s: "0"}]
-    for(var i = 0, len = returnJs.cc.u.length; i< len; i++){
+    assert.equal('82', returnJs.cc.a)
+    assert.equal('6', returnJs.cc.n)
+    assert.equal('s_636581765458956378', returnJs.cc.i)
+    assert.equal(6, returnJs.cc.u.length)
+    var obj = [{ b: "1522550821", m: "2", n: "1001_00010078", s: "0" },
+    { b: "1522550732", m: "2", n: "1003_00010078", s: "1" },
+    { b: "1522550243", m: "1", n: "1009_00010078", s: "1" },
+    { b: "1522550244", m: "2", n: "1012_00010078", s: "0" },
+    { b: "1522550245", m: "2", n: "1013_00010078", s: "0" },
+    { b: "1522550246", m: "2", n: "1572_00010078", s: "0" }]
+    for (var i = 0, len = returnJs.cc.u.length; i < len; i++) {
       assert.equal(obj[i].b, returnJs.cc.u[i].b)
       assert.equal(obj[i].m, returnJs.cc.u[i].m)
       assert.equal(obj[i].n, returnJs.cc.u[i].n)
       assert.equal(obj[i].s, returnJs.cc.u[i].s)
     }
   })
-  step('sip-info', function(){
-    var rs=xmlToJs(`<?xml version="1.0" encoding="UTF-8"?><i n="1026_00010078conf0_1533280532501" s="*"> <u n="918550259787" a="i" l="m" /></i>`);
+  step('sip-info', function () {
+    var rs = xmlToJs(`<?xml version="1.0" encoding="UTF-8"?><i n="1026_00010078conf0_1533280532501" s="*"> <u n="918550259787" a="i" l="m" /></i>`);
     debug(rs)
     assert.equal('1026_00010078conf0_1533280532501', rs.i.n)
     assert.equal('*', rs.i.s)
@@ -388,9 +389,21 @@ describe('xml-js相互转换', function () {
     assert.equal('i', rs.i.u[0].a)
     assert.equal('m', rs.i.u[0].l)
   })
-  step('js-xml', function(){
-    var JsObj = {a: "103", c: "02557926526conf0_1522749264981"}
+  step('js-xml', function () {
+    var JsObj = { a: "103", c: "02557926526conf0_1522749264981" }
     var returnXml = jsToXml(JsObj);
     assert.equal('<?xml version="1.0" encoding="utf-8"?><cc a="103" c="02557926526conf0_1522749264981"></cc>', returnXml);
+  })
+  step('三级', function () {
+    var xml = `<?xml version="1.0" encoding="UTF-8"?>
+    <o>
+     <a>
+      <u n="1006_00010078" a="o" nm="fengchunyan" r="895" />
+     </a>
+    </o>`
+    var returnJs = xmlToJs(xml)
+    assert.equal('fengchunyan', returnJs.o.a.u[0].nm)
+    assert.equal('895', returnJs.o.a.u[0].r)
+    debug(returnJs)
   })
 })

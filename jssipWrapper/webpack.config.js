@@ -7,7 +7,7 @@ const path = require("path");
 //webpack-dev-server 目前只能用"webpack-cli"不能用"webpack-command"
 
 module.exports = {
-    entry: './src/ui/script.js',
+    entry: './src/ui/index.js',
     output:{
         path: path.resolve(__dirname, './dist-wp'),
         filename: 'bundle.js'

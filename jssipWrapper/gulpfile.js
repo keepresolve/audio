@@ -16,7 +16,7 @@ let cache = require('gulp-cache');
 
 gulp.task('build', function () {
   // app.js is your main JS file with all your module inclusions
-  var entryFiles = ['src/ui/script.js']
+  var entryFiles = ['src/ui/index.js']
   var tasks = entryFiles.map(function (entry) {
     return browserify({ entries: [entry], debug: true })
     //browserify针对webpack对css处理引入的模块
@@ -46,7 +46,8 @@ gulp.task('images', function(){
 gulp.task('css', function () {
   gulp.src('resources/css/*.css')
     .pipe(cssUglify())
-    .pipe(gulp.dest('dist/css'))
+    .pipe(rename('main.css'))
+    .pipe(gulp.dest('dist'))
     .pipe(browserSync.reload({ stream: true }))
 })
 gulp.task('watch', ['css', 'images','build'], function () {

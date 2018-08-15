@@ -3,7 +3,7 @@ import Phone from './phone'
 import { log, setting } from './store'
 import { getLoginData, webApiHandler } from '../lib/getLoginInfo'
 import creatHtml from "./html"
-import '../../resources/css/phone.css' //webpack specfic
+// import '../../resources/css/phone.css' //webpack specfic
 
 (function (global, doc) {
     class Ephone {
@@ -40,11 +40,11 @@ import '../../resources/css/phone.css' //webpack specfic
                 this._addDrop(toolbar)
             }
             // css
-            // link.href = './main.css';
-            // link.setAttribute('rel', 'stylesheet');
-            // link.setAttribute('media', 'all');
-            // link.setAttribute('type', 'text/css');
-            // head.appendChild(link);
+            link.href = './dist-wp/main.css';
+            link.setAttribute('rel', 'stylesheet');
+            link.setAttribute('media', 'all');
+            link.setAttribute('type', 'text/css');
+            head.appendChild(link);
 
             //html
             // toolbar.style.position = ''

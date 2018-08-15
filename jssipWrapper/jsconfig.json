@@ -1,0 +1,7 @@
+{
+    "include": [
+        "src/lib/*.js",
+        "src/ui/*.js",
+        "spec/**/*"
+    ]
+}

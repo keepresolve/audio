@@ -9,9 +9,8 @@
     "test": "live-server --port=9999 ./gen_wptest",
     "test2": "http-server -p 9999 ./gen_wptest",
     "ut": "webpack --config ./spec/webpack.config.js --mode=development",
-    "wpserver": "webpack-dev-server --mode development --open",
-    "build": "webpack --mode production",
-    "gulp": "gulp"
+    "wpser": "webpack-dev-server --mode development --open",
+    "build": "webpack --mode production"
   },
   "repository": {
     "type": "git",
