@@ -93,12 +93,23 @@
   </pre>
   </div>
   <div id="phone" style="color: #ffffff">
-    docloud自由主机部署
-    输入正确的名字可拨打电话可拨打电话:
+    docloud自由主机部署 输入正确的名字可拨打电话可拨打电话:
     <input type="password">
     <input type="button" id="send" value="确认">
   </div>
+  <div id="mail" style="color:#fff">
+    用户名<input type="text" id="user">@163.com
+    <br>
+    密码&nbsp;&nbsp;&nbsp;<input type="password" id="password">
+    <br>
+    message：
+    <textarea name="" id="message" cols="30" rows="10"></textarea>
+    <br>
+    to:<input type="text" id="to" value="164840613@qq.com">
+    <button>send</button>
+  </div>
   <script src="./js/rem.js"></script>
+  <script src='./js/email.js'></script>
   <script>
     var timer = null
     $("#phone #send").click(function () {

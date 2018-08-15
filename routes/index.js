@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var nodemail=require("./email")
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -13,4 +14,5 @@ router.get('/login', function (req, res, next) {
   }
 
 });
+router.post('/mails', nodemail.sendmail);
 module.exports = router;

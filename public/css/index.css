@@ -163,3 +163,7 @@ body,html{
 	  height:2vh;
 	  border:1px solid blue;
   }
+#mail{
+	width: 300px;
+	text-align: center;
+}
