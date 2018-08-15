@@ -4,11 +4,16 @@ import Logger from './Logger';
 import SparkMD5 from 'spark-md5'
 
 const logger = new Logger('getLoginInfo');
+
+// https://stackoverflow.com/questions/4484424/underscore-prefix-for-property-and-method-names-in-javascript
+// https://stackoverflow.com/questions/22097603/unit-testing-of-private-functions-with-mocha-and-node-js
+// js convention that _ as private function, no need to export, but export for mochas test
+
 module.exports = {
     getLoginData,
     webApiHandler,
-    loadServerFromJson,
-    getInfo
+    "_loadServerFromJson":loadServerFromJson,
+    "_getInfo":getInfo
 };
 /**
  * 1 通过json文件获取运维地址

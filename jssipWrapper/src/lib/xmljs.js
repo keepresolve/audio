@@ -20,7 +20,7 @@ function xmlToJs(str) {
   // n 分机号_企业号
   // v 2:网络 4：回拨 5：sip话机
   // z
-  var arr = ['a', 'b', 'c', 'f', 'g', 'k', 'o', 'i', 'm', 'n', 'p', 'r', 's', 't', 'q', 'n', 'v', 'z','l']
+  var arr = ['a', 'b', 'c', 'f', 'g', 'k', 'o', 'i', 'm', 'n', 'p', 'r', 's', 't', 'q', 'v', 'z', 'l', 'u', 'nm']
   var arrlen = arr.length
   var topName = ['cc', 'o', 'mn', 'i']
   var a = {}
@@ -28,7 +28,7 @@ function xmlToJs(str) {
     if (xmlToDom(str).getElementsByTagName(topName[j]).length) {
       var top;
       top = topName[j]
-      var xmlDom = xmlToDom(str).getElementsByTagName(topName[j])[0]
+      var xmlDom = xmlToDom(str).firstChild
       var obj = {}
       for (var i = 0; i < arrlen; i++) {
         if (xmlDom.getAttribute(arr[i])) {
@@ -37,22 +37,39 @@ function xmlToJs(str) {
       }
       // 一级赋值
       a[top] = obj
-      if (xmlToDom(str).getElementsByTagName(topName[j])[0].childNodes.length > 0) {
+      if (xmlToDom(str).firstChild.childNodes.length > 0) {
         // 获取所有子节点
-        var childNodes = xmlToDom(str).getElementsByTagName(topName[j])[0]
+        var childNodes = xmlToDom(str).firstChild
         var childArray = [];
         for (var i = 0, len = childNodes.children.length; i < len; i++) {
           var childObj = {};
-          var demo = xmlToDom(childNodes.children[i].outerHTML).getElementsByTagName(childNodes.children[0].localName)[0]
+          var demo = childNodes.children[i]
+
           for (var k = 0; k < arrlen; k++) {
             if (demo.getAttribute(arr[k])) {
               childObj[arr[k]] = demo.getAttribute(arr[k])
             }
           }
           childArray.push(childObj)
+          // 二级赋值
+          a[top][xmlToDom(str).firstChild.children[0].tagName] = childArray
+          if (childNodes.children[0].children.length > 0) {
+            var childArray1 = [];
+            for (var p = 0; p < childNodes.children[0].children.length; p++) {
+              var obj = childNodes.children[0].children[p];
+              var childObj1 = {};
+              for (var k = 0; k < arrlen; k++) {
+                if (obj.getAttribute(arr[k])) {
+                  childObj1[arr[k]] = obj.getAttribute(arr[k])
+                }
+              }
+              childArray1.push(childObj1)
+              // 三级赋值
+              a[top][xmlToDom(str).firstChild.children[0].tagName][childNodes.children[0].children[0].tagName] = childArray1
+            }
+
+          }
         }
-        // 二级赋值
-        a[top][xmlToDom(str).getElementsByTagName(topName[j])[0].children[0].localName] = childArray
       }
     }
   }
@@ -89,14 +106,14 @@ function xmlToDom(xmlString) {
         xmlDoc.async = false;
         xmlDoc.loadXML(xmlString); //loadXML方法载入xml字符串
         break;
-      } catch (e) {}
+      } catch (e) { }
     }
   } else if (window.DOMParser && document.implementation && document.implementation.createDocument) {
     try {
       var domParser = null
       domParser = new DOMParser();
       xmlDoc = domParser.parseFromString(xmlString, 'text/xml');
-    } catch (e) {}
+    } catch (e) { }
   } else {
     return null;
   }

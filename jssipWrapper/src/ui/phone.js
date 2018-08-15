@@ -1,23 +1,21 @@
 
 import { log, setting, state } from './store'
-import JsSIP from '../lib/index'
+import sipWrapper from '../lib/index'
 // import audioPlayer from './audioPlayer'
 class Phone {
     constructor() {
         this._ua = null  //jssipwrapper实例 ._ua==UA实例
         this._session = null //当前会话
-        this.incomingSession = null; //呼入会话
         this._sipStatus = false //注册状态
         this._socketStatus = false //socket状态
-        this._kefuStatus = '0' //会话状态   0 离线  1 空闲  2暂离
+        this._kefuStatus = '1' //会话状态   0 离线  1 空闲  2暂离
         this.callType = "2"  // type = 1 外线拨号  type = 2 回拨  type = 3 内线互拨
-
+        //可能需要有一个标识当前会话是呼入还是呼出的设置，但不需要保存incomingSession
         this.log = log("phone")
     }
     // 注册
     register(params, cb) {
-        var that = this
-        this._ua = new JsSIP();
+        this._ua = new sipWrapper();
         var loginParam = params ? {
             un: params.seatnumber,
             pwd: params.password,
@@ -25,21 +23,17 @@ class Phone {
             callintype: params.callintype,
             socketUri: params.socketUri,
             gid: params.gid,
-            remoteAudio:params.remoteAudio
+            audioId: params.audioId,
+            status: this._kefuStatus
         } : undefined
         this.log(`login param :${loginParam}`);
         this._ua.login(loginParam);
-
+        //登录状态的回调，可去重
         this.eventLogin(cb)
-        //状态
+        //状态，置忙置闲
         this.eventStatus()
         //呼入会话监听
         this.eventIncoming(cb)
-
-        // 接受sip message消息
-        this._ua.on('newMessage', (data) => {
-            this.log("newMessage", data)
-        });
         this.log("call register");
     }
     eventLogin(cb) {
@@ -70,9 +64,9 @@ class Phone {
             }
         });
 
-        // this._ua.on('unregistered', (data) => {
-        //     this.log("unregistered", { data })
-        // });
+        this._ua.on('unregistered', (data) => {
+            this.log("unregistered", { data })
+        });
 
         this._ua.on('registrationFailed', (data) => {
 
@@ -91,44 +85,42 @@ class Phone {
                 this.socketStatus = false
 
         });
+         // 被踢下线
+        this._ua.on("kickedOffLine", (data) => {
+            this.log("kickedOffLine, ", { data });
+            cb({ code: 300, data })
+        });
     }
     //状态   0 离线  1 空闲  2暂离
     eventStatus() {
         //状态
         this._ua.on("statusChanged", (data) => {
-
-            var busyBtn = document.querySelector('#EphoneBar li[data-phone-type="busy"]')
-            var leisureBtn = document.querySelector('#EphoneBar li[data-phone-type="leisure"]')
-            var circleStatus = document.querySelector("#PHONE-LEFT-STATUS>div[data-type='circle']>div")
-            var status = circleStatus.querySelector("span[data-type='status']")
-            var bg = circleStatus.querySelector("span[data-type='bg']")
-            var bgList = ["#a6a6a6", "#19C583", "#FED300"]
-            var textList = ["离线", "空闲", "忙碌"]
-
+            var toggleStatus = document.querySelector("li[data-phone-type='register'] span")
+            var bgList = ["#19C583", "rgb(254, 211, 0)"]
             if (data.status == "0") {  //等jsswrapper 没有返回状态
+
                 this.sipStatus = false
-                // status.innerText = textList[0]
-                // bg.style.background = bgList[0]
+
             }
             if (data.status == "1") {
 
                 this.sipStatus = true
-                leisureBtn.dataset.hide = '0'
-                busyBtn.dataset.hide = '1'
-                // busyBtn.classList.remove("gray")
-                // status.innerText = textList[1]
-                // bg.style.background = bgList[1]
+                toggleStatus.dataset.hide = '1'
+                toggleStatus.style.background = bgList[0]
+
             }
             if (data.status == "2") {
 
                 this.sipStatus = true
-                busyBtn.dataset.hide = '0'
-                leisureBtn.dataset.hide = '1'
-                // leisureBtn.classList.remove("gray")
-                // status.innerText = textList[2]
-                // bg.style.background = bgList[2]
+                toggleStatus.dataset.hide = '1'
+                toggleStatus.style.background = bgList[1]
+
             }
             this._kefuStatus = data.status
+            // 状态改变，修改localStorage里的值
+            var obj = JSON.parse(localStorage.userData)
+            obj.status = data.status
+            localStorage.setItem("userData", JSON.stringify(obj))
             this.log("statusChanged:", data)
         })
     }
@@ -145,6 +137,7 @@ class Phone {
 
             let session = data.session;
 
+            // 这个判断可能还是需要
             // if (this.session || this.incomingSession) {
             //     that.log('"Busy Here"');
             //     session.terminate(
@@ -154,12 +147,10 @@ class Phone {
             //         });
             //     return;
             // }
-
-            this.incomingSession = data.session;
-
+    
             data.session.on("progress", (data) => { //呼叫接通等待接听
-                this.session = this.incomingSession
-                this.incomingSession = null
+
+                this.session = session;
                 cb({ code: 100, type: "progress", data })
             })
 
@@ -169,21 +160,20 @@ class Phone {
             })
             //本地接听会话
             data.session.on("accepted", (data) => {
-                cb({ code: 100, type: "accepted", data })
+
+                cb({ code: 100, type: "accepted", res })
             })
 
             data.session.on("failed", (data) => { //未接听
 
                 this.session = null
-                this.incomingSession = null
                 cb({ code: 100, type: "failed", data })
             })
 
-            data.session.on('ended', (data) => { //结束会话
+            data.session.on('ended', (data) => { //结束会
 
                 this.log('ended', { data })
                 this.session = null
-                this.incomingSession = null
                 cb({ code: 100, type: "ended", data })
             });
 
@@ -235,7 +225,6 @@ class Phone {
     }
     //打电话
     call(params) {
-        var that = this
         var session = null
         this.callType = params.callType
         this._ua.call(params.peerID, this.callType, {})
@@ -273,18 +262,18 @@ class Phone {
     }
     // 注销
     stop(cb) {
-        if (this._ua._ua.isRegistered()) {
-            this._ua.stop()
-            this._ua.once('unregistered', (data) => {
-                this.log("unregistered", { data })
-                var res = data.response
-                if (res.reason_phrase == 'OK' && res.status_code == 200 && res.method == "REGISTER") {
-                    cb({ code: res.status_code, info: res.reason_phrase, res })
-                } else {
-                    cb({ code: res.status_code, info: res.reason_phrase, res })
-                }
-            });
-        }
+        if (!this._ua._ua.isRegistered()) return
+        this._ua.stop()
+        this._ua.once('unregistered', (data) => {
+            this.log("unregistered", { data })
+            var res = data.response
+            if (res.reason_phrase == 'OK' && res.status_code == 200 && res.method == "REGISTER") {
+                this.sipStatus = false
+                cb({ code: res.status_code, info: res.reason_phrase, res })
+            } else {
+                cb({ code: res.status_code, info: res.reason_phrase, res })
+            }
+        });
     }
     //呼叫保持
     hold() {
@@ -316,7 +305,6 @@ class Phone {
                 cb({ type: "transferCallFaild", data })
             })
         }
-
     }
     //修改坐席状态  
     changeStaus(status) {
@@ -341,6 +329,12 @@ class Phone {
             'eventHandlers': msgEventHandlers
         };
         this._ua.sendMessage(callId + "_00013093", content, msgOptions);
+    }
+
+    // 修改坐席模式
+    setSeatMode(seatMode) {
+        this._ua.setSeatMode(seatMode, false)
+        this.log("setSeatMode:", seatMode)
     }
     // _RemoteStream(stream) {
     //     this.log("stream", stream, stream.getTracks());

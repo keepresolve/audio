@@ -1,15 +1,11 @@
 import JsSIP from 'jssip';
-import webApi from './getLoginInfo'
 import Logger from './Logger';
-import {
-    xmlToJs,
-    jsToXml
-} from './xmljs'
+import { xmlToJs, jsToXml } from './xmljs'
 
 const EventEmitter = require('events').EventEmitter;
 const logger = new Logger('index');
 
-module.exports = class JsSipWrap extends EventEmitter {
+module.exports = class JsSipWrapper extends EventEmitter {
 
     constructor() {
         super();
@@ -24,6 +20,7 @@ module.exports = class JsSipWrap extends EventEmitter {
         if (param) {
             userData.loginGid = param.gid;
             userData.socketUri = param.socketUri;
+            userData.status = param.status;
             localStorage.setItem("userData", JSON.stringify(userData));
         }
 
@@ -34,8 +31,8 @@ module.exports = class JsSipWrap extends EventEmitter {
         this.registerEvents();
 
         this.receiveNewMsg();
-
-        var audioId =  param ? param.audioId:localStorage.getItem('audioId')
+        //如何进一步保障这个值一定能取到？
+        var audioId = (param && param.remoteAudio) || localStorage.getItem('audioId')
         // 此处接受 audio 元素 播放声音
         this.newSessionEvent(document.getElementById(audioId));
 
@@ -110,10 +107,19 @@ module.exports = class JsSipWrap extends EventEmitter {
                 }
             } else if (top == 'o') {
                 // o 应该是踢下线的消息
+                /**
+                    * <o> <a>  <u n="1006_00010078" a="o" nm="fengchunyan" r="895" /> </a></o>
+                    * 895 被踢下线
+                    * 897 注册超时被踢下线 
+                    * 898 账号过期/账号被删/账号修改被踢下线
+                    * 899 企业停止后被踢下线
+                */
+                this.emit('kickedOffLine', result.o.a.u[0]);
+
             } else if (top == 'mn') {
                 // mn 应该是总机的离线同步消息
             }
-            this.emit('newMessage', data);
+            // this.emit('newMessage', data);
         });
 
     }
@@ -133,9 +139,14 @@ module.exports = class JsSipWrap extends EventEmitter {
 
         this._ua.on('registered', (data) => {
             this.emit('registered', data);
-            // 默认设置 坐席模式为固定坐席模式,
-            this.setSeatMode(52);
             let userData = JSON.parse(localStorage.getItem('userData'));
+            this.changeStaus(userData.status.toString());
+            // 默认设置 坐席模式为固定坐席模式,
+            if (userData.seatMode) {
+                this.setSeatMode(userData.seatMode == 1 ? 51 : 52, true);
+            }else {
+                this.setSeatMode(52, true);
+            }
             this.logonWithGroup(userData.loginGid, userData.eid);
         });
 
@@ -159,21 +170,21 @@ module.exports = class JsSipWrap extends EventEmitter {
             session.answer({ 'mediaConstraints': { 'audio': true, 'video': false } })
             let peerconnection = session.connection;
             peerconnection.addEventListener('addstream', (event) => {
-              // 设置音频
-              remoteAudio.srcObject = event.stream;
-              event.stream.addEventListener('addtrack', (event) => {
-                  let track = event.track;
-                  if (remoteAudio.srcObject !==  event.stream)   
-                   return;
-                  remoteAudio.srcObject =  event.stream;
-                  track.addEventListener('ended', () => {
-                  });
-              });
-              event.stream.addEventListener('removetrack', () => {
-                  if (remoteAudio.srcObject !==  event.stream)  
-                   return;
-                  remoteAudio.srcObject =  event.stream;
-              });
+                // 设置音频
+                remoteAudio.srcObject = event.stream;
+                event.stream.addEventListener('addtrack', (event) => {
+                    let track = event.track;
+                    if (remoteAudio.srcObject !== event.stream)
+                        return;
+                    remoteAudio.srcObject = event.stream;
+                    track.addEventListener('ended', () => {
+                    });
+                });
+                event.stream.addEventListener('removetrack', () => {
+                    if (remoteAudio.srcObject !== event.stream)
+                        return;
+                    remoteAudio.srcObject = event.stream;
+                });
             });
             this.emit('incomingCall', data);
             this.setSessionInfo(session);
@@ -319,10 +330,10 @@ module.exports = class JsSipWrap extends EventEmitter {
      * 对应 localStorage 值存储为  1 移动模式 2 固定模式
      */
     // 设置座席模式  
-    setSeatMode(seatMode) {
+    setSeatMode(seatMode, isLogin) {
         //<?xml version="1.0" encoding="utf-8"?><cc a="52" />
-        if (seatMode == 52) this.changeStaus('1');
-        
+        if (!isLogin && seatMode == 52) this.changeStaus('1');//登录后设置成固定模式时，必须置闲
+
         var mode = (seatMode == 52) ? 2 : 1  // 1 移动模式 2 固定模式
         var userData = JSON.parse(localStorage.getItem('userData'));
         userData.seatMode = mode;
