@@ -26,71 +26,53 @@ class Phone {
             audioId: params.audioId,
             status: this._kefuStatus
         } : undefined
-        this.log(`login param :${loginParam}`);
-        this._ua.login(loginParam);
-        //登录状态的回调，可去重
-        this.eventLogin(cb)
+        this.log("login param :", loginParam);
+        // //登录状态的回调，可去重
+        this._ua.login(loginParam, (result) => {
+            this.handlerResult(result, cb)
+        });
+
         //状态，置忙置闲
         this.eventStatus()
         //呼入会话监听
         this.eventIncoming(cb)
         this.log("call register");
-    }
-    eventLogin(cb) {
-
-        this._ua.on('connecting', () => {
-
-            this.log('UA "connecting" event');
-            this.socketStatus = false
-        });
-
-        this._ua.on('connected', () => {
-
-            this.log('UA "connected" event');
-            this.socketStatus = true
-        });
-
-        this._ua.on('disconnected', () => {
-
-            this.log('UA "disconnected" event');
-            this.socketStatus = false
-        });
-
-        this._ua.on('registered', (data) => {
-
-            this.log("registered: ", data.response.status_code, ",", data.response.reason_phrase, { data });
-            if (data.response.status_code == 200) {
-                cb({ code: data.response.status_code, info: "登陆成功", data })
-            }
-        });
-
-        this._ua.on('unregistered', (data) => {
-            this.log("unregistered", { data })
-        });
-
-        this._ua.on('registrationFailed', (data) => {
-
-            this.log("registrationFailed, ", { data });
-            cb({ code: 301, info: "登录失败", data })
-
-        });
-
-        this._ua.on('registrationExpiring', (data) => {
-
-            this.log("registrationExpiring", { data });
-            // cb({ code: 401, info: "registrationExpiring", data })
-            if (this._ua.isConnected())
-                this.socketStatus = true
-            else
-                this.socketStatus = false
-
-        });
-         // 被踢下线
+        // 被踢下线
         this._ua.on("kickedOffLine", (data) => {
             this.log("kickedOffLine, ", { data });
             cb({ code: 300, data })
         });
     }
+    handlerResult(result, cb) {
+        var code = result.code;
+        this.log(`UA ${result.code} event  ${result.data}}`);
+        switch (code) {
+            case 'connecting':
+            case 'disconnected':
+                this.socketStatus = false
+                break;
+            case 'connected':
+                this.socketStatus = true
+                break;
+            case 'registered':
+                this.log("registered: ", result.data.response.status_code, ",", result.data.response.reason_phrase, { data: result.data });
+                if (result.data.response.status_code == 200) {
+                    cb({ code: result.data.response.status_code, info: "登陆成功", data: result.data })
+                }
+                break;
+            case 'registrationFailed':
+                cb({ code: 301, info: "登录失败", data: result.data })
+                break;
+            case 'registrationExpiring':
+                if (this._ua.isConnected())
+                    this.socketStatus = true
+                else
+                    this.socketStatus = false
+                break;
+
+        }
+    }
+
     //状态   0 离线  1 空闲  2暂离
     eventStatus() {
         //状态
@@ -147,7 +129,7 @@ class Phone {
             //         });
             //     return;
             // }
-    
+
             data.session.on("progress", (data) => { //呼叫接通等待接听
 
                 this.session = session;
@@ -263,17 +245,11 @@ class Phone {
     // 注销
     stop(cb) {
         if (!this._ua._ua.isRegistered()) return
-        this._ua.stop()
-        this._ua.once('unregistered', (data) => {
-            this.log("unregistered", { data })
-            var res = data.response
-            if (res.reason_phrase == 'OK' && res.status_code == 200 && res.method == "REGISTER") {
+        this._ua.stop((res) => {
+            if (res.code == 200)
                 this.sipStatus = false
-                cb({ code: res.status_code, info: res.reason_phrase, res })
-            } else {
-                cb({ code: res.status_code, info: res.reason_phrase, res })
-            }
-        });
+            cb(res)
+        })
     }
     //呼叫保持
     hold() {

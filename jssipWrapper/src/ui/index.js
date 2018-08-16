@@ -8,9 +8,8 @@ import creatHtml from "./html"
 (function (global, doc) {
     class Ephone {
         constructor() {
-            this.target = null
             this.options = {
-                width: "600px",
+                width: "500px",
                 height: "50px",
                 background: "#c3c3c3",
                 callBackground: ["#1E59B9", '#19C583', '#FF6754'],
@@ -18,6 +17,8 @@ import creatHtml from "./html"
             }
             this.closeTimer = null
             this.watchTimer = null
+            this.gid = null // 转接坐席的组id
+            this.recordsTotal = null // 某组坐席总数 滚动加载时使用
             this.log = log('script')
         }
         init(targetID, options) {
@@ -25,7 +26,7 @@ import creatHtml from "./html"
             var target = doc.querySelector(targetID) || doc.querySelector("body")
             var head = document.getElementsByTagName('head')[0]
             var link = document.createElement('link')
-            var postion = localStorage.getItem("postion")
+            var setting = localStorage.getItem("setting") ? JSON.parse(localStorage.getItem("setting")) : false
             //初始化配置
             if (typeof options == 'object' && options) {
                 this.options.width = options.width ? options.width : this.options.width
@@ -56,13 +57,14 @@ import creatHtml from "./html"
             target.appendChild(toolbar)
             //添加DOM事件处理
             this.eventListener()
+            this._hideAllMode()
             window.onbeforeunload = function (event) {
                 Phone._beforeunload()
                 event.returnValue = "离开取消会话";
             };
             // 初始位置 功能按钮位置  配置项可配
-            if (postion) {
-                this.setTogglePosition(postion)
+            if (setting) {
+                this.setTogglePosition(setting)
             }
         }
         eventListener() {
@@ -73,7 +75,7 @@ import creatHtml from "./html"
             let actionButtons = document.querySelectorAll('#EphoneBar li[data-phone-key]')
             Array.from(actionButtons).forEach(v => {
                 stopProList.push(v)
-                v.onclick = async function (e) {
+                v.onclick = function (e) {
                     e.stopPropagation()
                     var type = this.getAttribute("data-phone-type")
                     var key = this.getAttribute("data-phone-key")
@@ -101,74 +103,33 @@ import creatHtml from "./html"
                             var hide = that._Sel("#PHONE-ENTRY-SWITCH[data-hide]").dataset.hide
 
                             if (hide == 0) {
-                                var userData = JSON.parse(localStorage.userData)
-                                localStorage.setItem('gid', userData.loginGid ? userData.loginGid : 0)
                                 // 获取技能组
+                                that.getGroup()
+
+                                // 获取坐席  getMembers
+                                var userData = JSON.parse(localStorage.userData)
+                                that.gid = userData.loginGid ? userData.loginGid : -1
                                 var webParam = {
                                     un: userData.userInfo.number,
                                     pwd: userData.pwd,
                                     eid: userData.eid,
-                                    // needPbxFields: 1
-                                }
-                                var res = await webApiHandler("getGroups", webParam)
-                                that.log({ getGroups: res })
-                                var groups = "<li>未分组</li>"
-                                var searchName
-                                res.returnData.map((v, i) => {
-                                    v.id == userData.loginGid && (searchName = v.name)
-                                    groups += "<li data-eid='" + v.eid + "' data-id='" + v.id + "' data-level='" + v.level + "' data-name='" + v.name + "' data-oid='" + v.oid + "' data-pid='" + v.pid + "'>" + v.name + "</li>"
-                                })
-                                that._Sel("#PHONE-ENTRY-SWITCH[data-hide] [data-type='select_text']").innerText = searchName ? searchName : '未分组'
-                                var selectDom = that._Sel('#PHONE-ENTRY-SWITCH ul[data-type="group"]')
-                                selectDom.innerHTML = groups
-
-
-                                var webParam1 = {
-                                    un: userData.userInfo.number,
-                                    pwd: userData.pwd,
-                                    eid: userData.eid,
-                                    searchGid: userData.loginGid ? userData.loginGid : -1,
+                                    searchGid: that.gid,
                                     length: 20
                                 }
-
-                                // 获取坐席  getMembers
-                                var res2 = await webApiHandler("searchEpMembers", webParam1)
-                                that.log({ searchEpMembers: res2 })
-                                localStorage.setItem('recordsTotal', res2.returnData.recordsTotal)
-                                var members = ''
-                                if (res2.returnData.data.length) {
-                                    res2.returnData.data.map((v, i) => {
-                                        var status
-                                        if (v.service_control == 0 || v.service_control == 2) {
-                                            status = 'offLine'
-                                        } else if (v.service_control == 1) {
-                                            status = ''
-                                        } else if (v.service_control > 2) {
-                                            status = 'busy'
-                                        }
-                                        members += "<li title='" + v.displayname + "' data-status_code='" + v.service_control + "' data-status='" + status + "' data-gids='" + localStorage.gid + "' data-number='" + v.number + "'>" + v.displayname + "<span></span></li>"
-                                    })
-                                } else {
-                                    members += "<li data-type='noOne'>暂无坐席</li>"
-                                }
-                                var liDom = that._Sel('#PHONE-ENTRY-SWITCH>#SWITCH_PlATE>ul')
-                                liDom.innerHTML = members
+                                that.getMembers(webParam)
 
                                 // 获取技能组状态 getMemberCallStates
                                 // var res3 = await webApiHandler("getMemberCallStates", webParam)
                                 // console.log({ getMemberCallStates: res3 })
                             }
                             that.setDisplayNone("switchPage")
-                            if (that._Sel("#PHONE-ENTRY-SWITCH[data-toggle='switchPage']").dataset.hide == "0") {
-                                localStorage.removeItem('gid')
-                            }
                             break;
                         case '4':
-                            that.setDisplayNone("setting")
                             var setting = that._Sel("#PHONE-ENTRY-SETTING[data-hide]")
                             var moveBtn = that._Sel("#PHONE-ENTRY-SETTING input[data-type='move']")
                             var fixBtn = that._Sel("#PHONE-ENTRY-SETTING input[data-type='fix']")
                             var userData = JSON.parse(localStorage.userData)
+                            that.setDisplayNone("setting")
                             if (userData) {
                                 that.log("seatMode", userData.seatMode)
                                 if (userData.seatMode == "1") {
@@ -194,6 +155,7 @@ import creatHtml from "./html"
             let seatnumber = this._Sel("#PHONE-ENTRY-LOGIN[data-hide] input[data-type='seatnumber'] ")
             let password = this._Sel("#PHONE-ENTRY-LOGIN[data-hide] input[data-type='password']")
             var error = this._Sel("#PHONE-ENTRY-LOGIN[data-hide] span[data-type='error']") // 错误提示
+            var statusBtn = this._Sel("#PHONE-ENTRY-LOGIN[data-hide] [data-type='loginStatus']")
             var status_text = this._Sel("#PHONE-ENTRY-LOGIN[data-hide] [data-type='loginStatus']>span") // 示忙/示闲
             // 切换坐席状态、退出
             let toggleTarget = this._Sel("#PHONE-ENTRY-TOGGLE[data-hide]")
@@ -225,13 +187,13 @@ import creatHtml from "./html"
 
                 }
                 if (target.dataset.type == 'loginStatus' || target.parentNode.dataset.type == 'loginStatus') {
-                    if (target.parentNode.classList.contains('busy')) {
-                        target.parentNode.classList.remove('busy')
+                    if (statusBtn.classList.contains('busy')) {
+                        statusBtn.classList.remove('busy')
                         status_text.innerText = "示闲"
                         Phone._kefuStatus = "1"
 
                     } else {
-                        target.parentNode.classList.add('busy')
+                        statusBtn.classList.add('busy')
                         status_text.innerText = "示忙"
                         Phone._kefuStatus = "2"
                     }
@@ -254,7 +216,8 @@ import creatHtml from "./html"
                         error.innerText = '请输入密码'
                         return false;
                     } else {
-                        var res = await getLoginData(seatnumber.value, password.value, switchnumber.value, '2')
+                        var callType = loginTarget.querySelector("input[type='radio'][name='callType']:checked").value
+                        var res = await getLoginData(seatnumber.value, password.value, switchnumber.value, callType)
                         that.log({ res: res })
 
                         if (res.status == 50000) {
@@ -286,7 +249,7 @@ import creatHtml from "./html"
                             seatnumber: seatnumber.value,
                             password: password.value,
                             gid: groupInfo[0] ? groupInfo[0].id : 0,
-                            callintype: "2",
+                            callintype: callType,
                             socketUri: setting.socket.uri,
                             status: Phone._kefuStatus
                         }
@@ -333,12 +296,9 @@ import creatHtml from "./html"
                     })
                 }
                 toggleTarget.dataset.hide = "0"
+                that.setArrowNone()
 
             })
-
-            // 刷新页面判断坐席模式
-
-
 
 
             // PHONE-ENTRY-SETTING 更改设置
@@ -354,12 +314,31 @@ import creatHtml from "./html"
                     moveInp.checked = false
                     seatMode = target.value
                 }
-                that.log(target.dataset.type)
+
                 if (target.dataset.type == 'confirm') {
                     var bar = that._Sel("#EphoneBar")
                     var status = that._Sel("#PHONE-LEFT-STATUS")
+                    var title = that._Sel("#PHONE-LEFT-STATUS div[data-type='pattern']>div")
                     var postionRadio = settingTarget.querySelector("input[type='radio'][name='postionButton']:checked")
                     var postion = postionRadio.getAttribute("value")
+                    var setting = { postion }
+                    //模式
+                    if (seatMode == "51") {
+                        that.sethighlight("register,setting", true)
+                        title.dataset.hide = '1'
+                    } else if (seatMode == "52") {
+                        that.sethighlight("register,open,setting", true)
+                        title.dataset.hide = '0'
+                    }
+                    Phone.setSeatMode(seatMode)
+
+                    //定位
+                    that.setTogglePosition(setting)
+                    localStorage.setItem("setting", JSON.stringify(setting))
+
+                    that.setArrowNone()
+                    settingTarget.dataset.hide = 0
+                    //wss
                     // for(var i = 0;i<optionInp.length;i++) {
                     //     if (optionInp[i].selected) {
                     //         wssMode = optionInp[i].innerText
@@ -367,17 +346,6 @@ import creatHtml from "./html"
                     // }
                     // setting.socket.uri = wssMode   // 更改wss地址
                     // loginTarget.dataset.hide = 1
-                    settingTarget.dataset.hide = 0
-                    if (seatMode == "51") {
-                        that.sethighlight("register,setting", true)
-                    } else if (seatMode == "52") {
-                        that.sethighlight("register,open,setting", true)
-                    }
-
-                    Phone.setSeatMode(seatMode)
-                    that.setArrowNone()
-                    that.setTogglePosition(postion)
-                    localStorage.setItem("postion", postion)
                     // var userData = JSON.parse(localStorage.userData)
                     // var params = {
                     //     switchnumber: userData.switchnumber,
@@ -390,6 +358,7 @@ import creatHtml from "./html"
                     // }
                     // that.register(params)
                 }
+
                 if (target.dataset.type == 'close') {
                     settingTarget.dataset.hide = 0
                     that.setArrowNone()
@@ -457,10 +426,11 @@ import creatHtml from "./html"
                     that.phoneStatus('outgoingCall', { panelInput: callType == 2 ? peerID.substring(1) : peerID })
                 }
             }
-
+            var timer = null
             // PHONE-ENTRY-SWITCH 转接
             let switchPage = this._Sel("#PHONE-ENTRY-SWITCH[data-hide]")
             let p = this._Sel("#PHONE-ENTRY-SWITCH[data-hide] [data-type='select_text']")
+            let errorTitle = switchPage.querySelector("span[data-type='error']")
             var page = 1 // 记录当前页数
             var checked = 0 // 仅查可转接坐席是否勾选 0 未勾选 1 已勾选
             var gid
@@ -477,7 +447,8 @@ import creatHtml from "./html"
                     p.innerText = target.innerText
                     that._Sel('#GROUP ul[data-type="group"]').dataset.hide = 0
                     that.log(target.dataset.id)
-                    localStorage.setItem('gid', target.dataset.id ? target.dataset.id : 0)
+                    that.gid = target.dataset.id ? target.dataset.id : -1
+
                     page = 1
                     // 获取某组坐席  getMembers
                     var userData = JSON.parse(localStorage.userData)
@@ -491,28 +462,7 @@ import creatHtml from "./html"
                     if (checked) {
                         webParam.searchServiceControl = checked
                     }
-                    var res2 = await webApiHandler("searchEpMembers", webParam)
-                    that.log({ getMembers: res2 })
-                    if (res2.returnData.recordsTotal > 20) localStorage.setItem('recordsTotal', res2.returnData.recordsTotal)
-                    var members = ''
-                    if (res2.returnData.data.length) {
-                        res2.returnData.data.map((v, i) => {
-                            var status
-                            if (v.service_control == 0 || v.service_control == 2) {
-                                status = 'offLine'
-                            } else if (v.service_control == 1) {
-                                status = ''
-                            } else if (v.service_control > 2) {
-                                status = 'busy'
-                            }
-                            members += "<li title='" + v.displayname + "' data-status_code='" + v.service_control + "' data-status='" + status + "' data-gids='" + localStorage.gid + "' data-number='" + v.number + "'>" + v.displayname + "<span></span></li>"
-                        })
-                    } else {
-                        members += "<li data-type='noOne'>暂无坐席</li>"
-                    }
-
-                    var liDom = that._Sel('#PHONE-ENTRY-SWITCH>#SWITCH_PlATE>ul')
-                    liDom.innerHTML = members
+                    that.getMembers(webParam)
                 }
                 if (target.dataset.type == "checkbox") {
                     page = 1
@@ -522,7 +472,7 @@ import creatHtml from "./html"
                         un: userData.userInfo.number,
                         pwd: userData.pwd,
                         eid: userData.eid,
-                        searchGid: localStorage.gid ? localStorage.gid : userData.loginGid ? userData.loginGid : -1,
+                        searchGid: that.gid,
                         length: 20
                     }
                     if (target.checked) {
@@ -531,37 +481,18 @@ import creatHtml from "./html"
                     } else {
                         checked = 0
                     }
-                    var res2 = await webApiHandler("searchEpMembers", webParam)
-                    that.log({ getMembers: res2 })
-                    var members = ''
-                    if (res2.returnData.data.length) {
-                        res2.returnData.data.map((v, i) => {
-                            var status
-                            if (v.service_control == 0 || v.service_control == 2) {
-                                status = 'offLine'
-                            } else if (v.service_control == 1) {
-                                status = ''
-                            } else if (v.service_control > 2) {
-                                status = 'busy'
-                            }
-                            members += "<li title='" + v.displayname + "' data-status_code='" + v.service_control + "' data-status='" + status + "' data-gids='" + localStorage.gid + "' data-number='" + v.number + "'>" + v.displayname + "<span></span></li>"
-                        })
-                    } else {
-                        members += "<li data-type='noOne'>暂无坐席</li>"
-                    }
-                    var liDom = that._Sel('#PHONE-ENTRY-SWITCH>#SWITCH_PlATE>ul')
-                    liDom.innerHTML = members
+
+                    that.getMembers(webParam)
 
                 }
                 if (target.dataset.type == "close") {
-                    that._Sel("#PHONE-ENTRY-SWITCH[data-hide]").dataset.hide = '0'
-                    p.innerText = '全部技能组'
-                    localStorage.removeItem('gid')
+                    that.setDisplayNone("switchPage")
+                    p.innerText = '未分组'
                     that.setArrowNone()
                 }
                 if (target.parentNode.dataset.type == "kefuList") {
-                    if (target.dataset.status == "offLine" || target.dataset.status == "busy") return alert('不在线或忙碌坐席不能转接')
-                    // if (gid == -1) return alert('未分组坐席不能转接')
+                    if (target.dataset.status == "offLine" || target.dataset.status == "busy") return
+
                     var len = target.parentNode.children.length
                     for (var i = 0; i < len; i++) {
                         target.parentNode.children[i].classList.remove('selected')
@@ -570,28 +501,33 @@ import creatHtml from "./html"
                     gid = target.dataset.gids
                     tranNumber = target.dataset.number
                 }
-                if (target.dataset.type == "transfer") {
-                    that.log(gid, tranNumber)
-                    that.log('正在转接...')
-                    // if (gid == -1) return alert('未分组坐席不能转接')
-                    switchPage.dataset.hide = '0'
+                if (target.dataset.type == "transfer" && target.dataset.disabled != "0" && gid && tranNumber) {
+                    that.log('正在转接...', gid, tranNumber)
+                    target.dataset.disabled = '0'
+                    errorTitle.style.color = '#19C583'
+                    errorTitle.innerText = '正在转接,请稍后...'
+
                     Phone.transferPBXCall(gid, tranNumber, function (res) {
                         if (res.type == "transferCallFaild") {
                             switchPage.dataset.hide = '1'
-                            alert('电话转接失败')
+                            errorTitle.style.color = '#FD3D39'
+                            errorTitle.innerText = '电话转接失败'
+                            if (timer) global.clearTimeout(timer)
+                            timer = global.setTimeout(() => { errorTitle.innerText = '' }, 2000)
+                        } else {
+                            switchPage.dataset.hide = '0'
                         }
+                        target.dataset.disabled = '1'
                     })
 
                 }
             }
             //滚动加载坐席
             let kefuList = this._Sel("#PHONE-ENTRY-SWITCH[data-hide] [data-type='kefuList']")
-            kefuList.onscroll = async function (e) {
-                that.log(page)
+            kefuList.onscroll = function (e) {
                 var target = e.target || e.srcElement
+                var pageTotal = Math.ceil(parseInt(that.recordsTotal) / 20)
 
-                var pageTotal = Math.ceil(parseInt(localStorage.recordsTotal) / 20)
-                that.log(pageTotal)
                 if (target.scrollTop >= target.scrollHeight - target.offsetHeight) {
                     if (page == pageTotal) return
                     var userData = JSON.parse(localStorage.userData)
@@ -599,25 +535,11 @@ import creatHtml from "./html"
                         un: userData.userInfo.number,
                         pwd: userData.pwd,
                         eid: userData.eid,
+                        searchGid: that.gid,
                         start: 20 * page,
                         length: 20
                     }
-                    var res2 = await webApiHandler("searchEpMembers", webParam)
-                    that.log({ getMembers: res2 })
-                    var members = ''
-                    res2.returnData.data.map((v, i) => {
-                        var status
-                        if (v.service_control == 0 || v.service_control == 2) {
-                            status = 'offLine'
-                        } else if (v.service_control == 1) {
-                            status = ''
-                        } else if (v.service_control > 2) {
-                            status = 'busy'
-                        }
-                        members += "<li title='" + v.displayname + "' data-status_code='" + v.service_control + "' data-status='" + status + "' data-number='" + v.number + "'>" + v.displayname + "<span></span></li>"
-                    })
-                    var liDom = that._Sel('#PHONE-ENTRY-SWITCH>#SWITCH_PlATE>ul')
-                    liDom.innerHTML = liDom.innerHTML + members
+                    that.getMembers(webParam, true)
                     page++
                 }
             }
@@ -659,6 +581,57 @@ import creatHtml from "./html"
             return doc.querySelector(id)
         }
 
+        // 获取技能组
+        async getGroup() {
+            var userData = JSON.parse(localStorage.userData)
+            var webParam = {
+                un: userData.userInfo.number,
+                pwd: userData.pwd,
+                eid: userData.eid,
+                // needPbxFields: 1
+            }
+            var res = await webApiHandler("getGroups", webParam)
+            this.log({ getGroups: res })
+            var groups = "<li>未分组</li>"
+            var searchName
+            res.returnData.map((v, i) => {
+                v.id == userData.loginGid && (searchName = v.name)
+                groups += "<li data-eid='" + v.eid + "' data-id='" + v.id + "' data-level='" + v.level + "' data-name='" + v.name + "' data-oid='" + v.oid + "' data-pid='" + v.pid + "'>" + v.name + "</li>"
+            })
+            this._Sel("#PHONE-ENTRY-SWITCH[data-hide] [data-type='select_text']").innerText = searchName ? searchName : '未分组'
+            var selectDom = this._Sel('#PHONE-ENTRY-SWITCH ul[data-type="group"]')
+            selectDom.innerHTML = groups
+        }
+
+        // 请求坐席
+        async getMembers(webParam, isScroll) {
+            var res = await webApiHandler("searchEpMembers", webParam)
+            this.recordsTotal = res.returnData.recordsTotal
+            this.log({ getMembers: res })
+            var members = ''
+            if (res.returnData.data.length) {
+                res.returnData.data.map((v, i) => {
+                    var status
+                    if (v.service_control == 0 || v.service_control == 2) {
+                        status = 'offLine'
+                    } else if (v.service_control == 1) {
+                        status = ''
+                    } else if (v.service_control > 2) {
+                        status = 'busy'
+                    }
+                    members += "<li title='" + v.displayname + "' data-status_code='" + v.service_control + "' data-status='" + status + "' data-gids='" + this.gid + "' data-number='" + v.number + "'>" + v.displayname + "<span></span></li>"
+                })
+            } else {
+                members += "<li data-type='noOne'>暂无坐席</li>"
+            }
+            var liDom = this._Sel('#PHONE-ENTRY-SWITCH>#SWITCH_PlATE>ul')
+            if (isScroll) {
+                liDom.innerHTML = liDom.innerHTML + members
+            } else {
+                liDom.innerHTML = members
+            }
+        }
+
         register(params) {
             var login = this._Sel("#PHONE-ENTRY-LOGIN[data-hide]")
             var selectGroupTarget = this._Sel("#PHONE-ENTRY-SELECTGROUP[data-hide]")
@@ -667,24 +640,27 @@ import creatHtml from "./html"
             var holdBtn = this._Sel("#EphoneBar li[data-phone-type='hold']") //注销
             var unHoldBtn = this._Sel("#EphoneBar li[data-phone-type='unhold']") //注销
             var toggleBtn = this._Sel("li[data-phone-type='register'] span")
+            var title = this._Sel("#PHONE-LEFT-STATUS div[data-type='pattern']>div") //移动模式提示
             if (params)
                 params.remoteAudio = "peeraideo"
             //刷浏览器 params undefined 
             localStorage.setItem('audioId', "peeraideo")
             Phone.register(params, (data) => {
                 if (data.code == 200) { //登陆成功
+                    if (Phone.session) return
+                    var userData = localStorage.userData ? JSON.parse(localStorage.userData) : undefined
                     this.setDisplayNone("all")
                     this.setArrowNone()
                     this.sethighlight('register,open,setting', true)
-                    if (localStorage.userData) {
-                        var userData = JSON.parse(localStorage.userData)
+                    if (userData) {
                         if (userData.seatMode == 1) {
                             this.sethighlight("register,setting", true)
+                            title.dataset.hide = '1'
                         } else {
                             this.sethighlight("register,open,setting", true)
+                            title.dataset.hide = '0'
                         }
                     }
-
                 } else if (data.code == 100) {  //呼入会话 事件监听 
                     this.log("incomingCall__" + data.type, data)
                     switch (data.type) {
@@ -771,6 +747,7 @@ import creatHtml from "./html"
             target.onmousedown = function (ev) {
                 ev.stopPropagation()
                 ev.preventDefault()
+                target.setCapture && target.setCapture()
 
                 this.style.cursor = "move";
                 this.style.overflow = "hidden"
@@ -789,8 +766,8 @@ import creatHtml from "./html"
                     if (l <= 20) {
                         l = 0
                     }
-                    if (l >= clientWidth - that.offsetWidth - 20) {
-                        l = clientWidth - that.offsetWidth
+                    if (l >= clientWidth - parseInt(that.offsetWidth) - 20) {
+                        l = clientWidth - parseInt(that.offsetWidth)
                     }
                     if (t >= clientHeight - parseInt(thisWrapper.options.height) - 20) {
                         t = clientHeight - parseInt(thisWrapper.options.height)
@@ -808,6 +785,7 @@ import creatHtml from "./html"
                     document.onmouseup = null;
                     that.style.cursor = "default";
                     that.style.overflow = "visible"
+                    target.setCapture && target.releaseCapture()
                 };
                 //    };
             }
@@ -817,6 +795,12 @@ import creatHtml from "./html"
                 v.addEventListener("mousedown", function (e) {
                     e.stopPropagation()
                 })
+            })
+        }
+        _hideAllMode() {
+            document.addEventListener("click", (e) => {
+                e.stopPropagation()
+                this.setDisplayNone("all")
             })
         }
         timerWatch(target, falg) {
@@ -871,20 +855,20 @@ import creatHtml from "./html"
                 }
             })
         }
-        setTogglePosition(postion) {
+        setTogglePosition(setting) {
             var modes = document.querySelectorAll("#PHONE-ENTRY-CONTAINER  div[data-toggle]")
             var bar = this._Sel("#EphoneBar")
             var status = this._Sel("#PHONE-LEFT-STATUS")
-            var radio = this._Sel("#PHONE-ENTRY-SETTING[data-hide] input[data-type='postionButton'][value=" + postion + "]")
-            var isLeft = postion == 'left'
+            var radio = this._Sel("#PHONE-ENTRY-SETTING[data-hide] input[data-type='postionButton'][value=" + setting.postion + "]")
+            var isLeft = setting.postion == 'left'
 
-            radio.checked = true
-            bar.style.float = postion
+            bar.style.float = setting.postion
             status.style.float = isLeft ? "right" : "left"
+            radio.checked = true
 
             Array.from(modes).forEach(v => {
                 if (v.dataset.toggle != 'statusPage')
-                    v.style.left = isLeft ? "0px" : "300px"
+                    v.style.left = isLeft ? "0px" : parseInt(this.options.width) - 300 + "px"
             })
         }
         setArrowNone() {
@@ -937,7 +921,7 @@ import creatHtml from "./html"
                     rectS.innerText = "呼叫中"
                     that.sethighlight("all", true)
                     that.setArrowNone()
-                    Phone.changeStaus("2")
+                    // Phone.changeStaus("2")
                     break;
                 //呼出和PBX是否建立链接外线
                 case "calloutResponse":
@@ -961,7 +945,7 @@ import creatHtml from "./html"
                         global.clearTimeout(that.closeTimer)
                         that.closeTimer = global.setTimeout(() => {
                             rectStatus.dataset.hide = "0"
-                            that.sethighlight("register,open,setting", true)
+                            that.sethighlight("register,open", true)
                             that.setDisplayNone("all")
 
                         }, 2000);
@@ -987,32 +971,10 @@ import creatHtml from "./html"
                     rectStatus.style.background = call_bg[1]
                     that.timerWatch(rectT, true)
                     rectS.innerText = "通话中"
-                    that.sethighlight("terminate,hold,unhold,switch,setting", true)
+                    that.sethighlight("terminate,hold,unhold,switch", true)
                     break;
                 //结束
                 case 'incomingEnded': //calloutResponse  callinResponse 如果r不是200没有建立会话
-                    // planePageBtn.dataset.hide = '0'
-                    // that.timerWatch(rectT, false)
-                    // rectStatus.style.background = call_bg[2]
-                    // rectS.innerText = "通话结束"
-                    // that.sethighlight("all", true)
-                    // that.setDisplayNone("all")
-                    // global.clearTimeout(that.closeTimer)
-                    // that.closeTimer = global.setTimeout(() => {
-                    //     rectStatus.dataset.hide = "0"
-                    //     that.sethighlight("logout,open,busy,leisure", true)
-                    //     busyBtn.dataset.hide = "1"
-                    //     leisureBtn.dataset.hide = '0'
-                    //     unHoldBtn.dataset.hide = "0"
-                    //     holdBtn.dataset.hide = "1"
-                    // }, 2000);
-                    rectStatus.dataset.hide = "0"
-                    rectStatus.dataset.hide = "0"
-                    openBtn.dataset.hide = '1'
-                    terminateBtn.dataset.hide = '0'
-                    break;
-                case "endPBXCall": //
-
                     // planePageBtn.dataset.hide = '0'
                     that.setDisplayNone("all")
                     that.timerWatch(rectT, false)
@@ -1033,26 +995,65 @@ import creatHtml from "./html"
 
                     }, 2000);
                     break;
+                case "endPBXCall": //
+
+                    // planePageBtn.dataset.hide = '0'
+                    // that.setDisplayNone("all")
+                    // that.timerWatch(rectT, false)
+                    // rectStatus.dataset.hide = "1"
+                    // rectStatus.style.background = call_bg[2]
+                    // rectS.innerText = "通话结束"
+                    // that.sethighlight("all", true)
+                    // global.clearTimeout(that.closeTimer)
+                    // that.closeTimer = global.setTimeout(() => {
+                    //     rectStatus.dataset.hide = "0"
+                    //     openBtn.dataset.hide = '1'
+                    //     terminateBtn.dataset.hide = '0'
+                    //     // busyBtn.dataset.hide = "1"
+                    //     // leisureBtn.dataset.hide = '0'
+                    //     unHoldBtn.dataset.hide = "0"
+                    //     holdBtn.dataset.hide = "1"
+                    //     that.sethighlight("register,open,setting", true)
+
+                    // }, 2000);
+                    break;
                 //
                 case 'incomingFailed':
-                    rectStatus.dataset.hide = "0"
-                    planePageBtn.dataset.hide = '0'
-                    that.timerWatch(rectT, false)
-                    incomingStatus.dataset.hide = "1"
-                    incomingBg.style.background = call_bg[2]
-                    incomingS.innerText = "来电未接听"
-                    incomingA.dataset.hide = '0'
-                    that.sethighlight("all", true)
+                    // planePageBtn.dataset.hide = '0'
                     that.setDisplayNone("all")
+                    that.timerWatch(rectT, false)
+                    rectStatus.dataset.hide = "1"
+                    rectStatus.style.background = call_bg[2]
+                    rectS.innerText = "通话结束"
+                    that.sethighlight("all", true)
                     global.clearTimeout(that.closeTimer)
                     that.closeTimer = global.setTimeout(() => {
-                        incomingStatus.dataset.hide = "0"
-                        // busyBtn.dataset.hide = "1"
-                        // leisureBtn.dataset.hide = '0'
+                        rectStatus.dataset.hide = "0"
+                        openBtn.dataset.hide = '1'
+                        terminateBtn.dataset.hide = '0'
                         unHoldBtn.dataset.hide = "0"
-                        holdBtn.data.hide = "1"
-                        that.sethighlight("open,register,setting", true)
+                        holdBtn.dataset.hide = "1"
+                        that.sethighlight("register,open,setting", true)
+
                     }, 2000);
+                    // rectStatus.dataset.hide = "0"
+                    // planePageBtn.dataset.hide = '0'
+                    // that.timerWatch(rectT, false)
+                    // incomingStatus.dataset.hide = "1"
+                    // incomingBg.style.background = call_bg[2]
+                    // incomingS.innerText = "来电未接听"
+                    // incomingA.dataset.hide = '0'
+                    // that.sethighlight("all", true)
+                    // that.setDisplayNone("all")
+                    // global.clearTimeout(that.closeTimer)
+                    // that.closeTimer = global.setTimeout(() => {
+                    //     incomingStatus.dataset.hide = "0"
+                    //     // busyBtn.dataset.hide = "1"
+                    //     // leisureBtn.dataset.hide = '0'
+                    //     unHoldBtn.dataset.hide = "0"
+                    //     holdBtn.data.hide = "1"
+                    //     that.sethighlight("open,register,setting", true)
+                    // }, 2000);
 
                     // Phone.changeStaus("1")
                     break;

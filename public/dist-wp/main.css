@@ -3,11 +3,14 @@
 @font-face {
   font-family: 'iconfont';
   /* project id 792726 */
-  src: url('https://at.alicdn.com/t/font_792726_oh6hs07eqwh.eot');
-  src: url('https://at.alicdn.com/t/font_792726_oh6hs07eqwh.eot?#iefix') format('embedded-opentype'), url('https://at.alicdn.com/t/font_792726_oh6hs07eqwh.woff') format('woff'), url('https://at.alicdn.com/t/font_792726_oh6hs07eqwh.ttf') format('truetype'), url('https://at.alicdn.com/t/font_792726_oh6hs07eqwh.svg#iconfont') format('svg');
+  src: url('//at.alicdn.com/t/font_792726_q5iygzbmqf.eot');
+  src: url('//at.alicdn.com/t/font_792726_q5iygzbmqf.eot?#iefix') format('embedded-opentype'), url('//at.alicdn.com/t/font_792726_q5iygzbmqf.woff') format('woff'), url('//at.alicdn.com/t/font_792726_q5iygzbmqf.ttf') format('truetype'), url('//at.alicdn.com/t/font_792726_q5iygzbmqf.svg#iconfont') format('svg');
 }
 
-#PHONE-DROP div, #PHONE-DROP span, #PHONE-DROP ul, #PHONE-DROP li {
+#PHONE-DROP div,
+#PHONE-DROP span,
+#PHONE-DROP ul,
+#PHONE-DROP li {
   padding: 0;
   margin: 0;
   list-style: none;
@@ -16,7 +19,8 @@
 
 /* 滚动条样式 */
 
-#PHONE-DROP ::-webkit-scrollbar, #PHONE-DROP ::-webkit-scrollbar-track {
+#PHONE-DROP ::-webkit-scrollbar,
+#PHONE-DROP ::-webkit-scrollbar-track {
   width: 7px;
   height: 7px;
 }
@@ -54,8 +58,24 @@
   right: 15px;
   top: 6px;
   cursor: pointer;
+  color: #999;
   font-size: 20px;
-  z-index: 1000;
+  z-index: 2009;
+}
+
+#PHONE-DROP span[data-type="error"] {
+  position: absolute;
+  top: 14px;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  color: #FD3D39;
+  z-index: 2009;
+}
+
+#PHONE-DROP *[data-disabled="0"] {
+  cursor: not-allowed!important;
+  background: #666!important;
 }
 
 /* 箭头 */
@@ -83,7 +103,7 @@
   /* margin: 0 auto; */
 }
 
-#PHONE-DROP #PHONE-ENTRY-CONTAINER>div[data-toggle] {
+#PHONE-DROP #PHONE-ENTRY-CONTAINER div[data-toggle] {
   position: absolute;
   top: 51px;
   left: 0px;
@@ -103,12 +123,6 @@
   text-align: center;
   cursor: pointer;
   position: relative;
-}
-
-#EphoneBar>li>div[data-toggle] {
-  position: absolute;
-  top: 51px;
-  left: 0px;
 }
 
 #EphoneBar>li>em {
@@ -140,7 +154,6 @@
 
 #PHONE-LEFT-STATUS {
   float: right;
-  width: 300px;
   height: 50px;
   font-size: 13px;
   color: rgba(255, 255, 255, 0.80);
@@ -153,37 +166,23 @@
   position: relative;
 }
 
-#PHONE-LEFT-STATUS div[data-type='circle']>div {
-  width: 60px;
-  height: inherit;
-  display: table-cell;
-  vertical-align: middle;
+#PHONE-LEFT-STATUS div[data-type='pattern']>div {
+  width:250px;
+  text-align: center;
+  height: 30px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.80);
-}
-
-#PHONE-LEFT-STATUS div[data-type='circle']>div span[data-type='bg'] {
-  display: inline-block;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #a6a6a6;
-  vertical-align: bottom;
-  margin-right: 3px;
-  border: 1px solid #eee;
+  margin: 10px 0px 10px 15px;
+  line-height: 30px;
+  color: #999;
 }
 
 #PHONE-LEFT-STATUS div[data-type='rect']>div {
-  /* letter-spacing: 1px; */
-  position: absolute;
   background: #1E59B9;
   border-radius: 2px;
   color: #fff;
-  left: 10px;
-  top: 50%;
-  margin-top: -15px;
-  width: 250px;
+  width: 230px;
   height: 30px;
+  margin: 10px 0px 10px 15px;
   border: none;
   font-size: 13px;
   opacity: 0.87;
@@ -257,17 +256,6 @@
   color: #333;
 }
 
-#PHONE-ENTRY-LOGIN[data-hide] span[data-type='error'] {
-  position: absolute;
-  left: 34px;
-  top: 14px;
-  width: 100%;
-  text-align: left;
-  font-size: 12px;
-  color: #FD3D39;
-  line-height: 1;
-}
-
 #PHONE-ENTRY-LOGIN[data-hide] li {
   width: 100%;
   height: 40px;
@@ -312,7 +300,7 @@
 }
 
 #PHONE-ENTRY-LOGIN[data-hide] li#model>[data-type="loginStatus"].busy em {
-  background: rgb(254, 211, 0)!important;
+  background: rgb(254, 211, 0) !important;
 }
 
 #PHONE-ENTRY-LOGIN[data-hide] li#login {
@@ -380,9 +368,10 @@
 
 #PHONE-ENTRY-TOGGLE ul>li[data-type="logout"]>em {
   width: 20px;
-  height: 20px;
+  height: 30px;
   margin-right: 5px;
   font-size: 20px;
+  vertical-align: top;
 }
 
 /* 登录后选择技能组 */
@@ -431,7 +420,8 @@
   white-space: nowrap;
 }
 
-#PHONE-ENTRY-SELECTGROUP[data-hide] ul>li:hover, #PHONE-ENTRY-SELECTGROUP[data-hide] ul>li.selected {
+#PHONE-ENTRY-SELECTGROUP[data-hide] ul>li:hover,
+#PHONE-ENTRY-SELECTGROUP[data-hide] ul>li.selected {
   background: #D7EAFF;
   border-radius: 3px;
   color: #3D7FEE;
@@ -528,8 +518,12 @@
   padding: 20px 0px;
 }
 
+#PHONE-ENTRY-SWITCH[data-hide] span[data-type='error'] {
+  left: 15px;
+}
+
 #PHONE-ENTRY-SWITCH[data-hide] #GROUP {
-  margin-bottom: 15px;
+  margin: 12px 0px 15px 0px;
   height: 30px;
   width: 100%;
   font-size: 12px;
@@ -562,7 +556,6 @@
   line-height: 32px;
   background: #F2F2F2;
   color: #666;
-  cursor: pointer;
   text-align: center;
   list-style: none;
   margin: 0px 0 15px 15px;
@@ -599,9 +592,10 @@
   background: rgba(227, 227, 227, 0.7);
 }
 
-#PHONE-ENTRY-SWITCH[data-hide='1']>#SWITCH_PlATE>ul>li:not([data-type="noOne"]):hover {
+#PHONE-ENTRY-SWITCH[data-hide='1']>#SWITCH_PlATE>ul>li[data-status_code="1"]:hover {
   background: rgba(61, 127, 238, 0.12);
   color: #3D7FEE;
+  cursor: pointer;
 }
 
 #PHONE-ENTRY-SWITCH[data-hide='1']>#SWITCH_PlATE>ul>li[data-status="busy"]>span {
@@ -621,7 +615,7 @@
   color: #3D7FEE;
 }
 
-#PHONE-ENTRY-SWITCH[data-hide='1'] [data-type="transfer"] {
+#PHONE-ENTRY-SWITCH[data-hide='1'] div[data-type="transfer"] {
   width: 80px;
   height: 32px;
   line-height: 32px;

@@ -13,7 +13,7 @@ module.exports = class JsSipWrapper extends EventEmitter {
     }
 
     // 登录
-    async login(param) {
+    async login(param, cb) {
 
         var userData = JSON.parse(localStorage.getItem('userData'));
         if (!userData) this.emit('registrationFailed');
@@ -28,7 +28,7 @@ module.exports = class JsSipWrapper extends EventEmitter {
 
         this.registerSip(userData)
 
-        this.registerEvents();
+        this.registerEvents(cb);
 
         this.receiveNewMsg();
         //如何进一步保障这个值一定能取到？
@@ -58,9 +58,10 @@ module.exports = class JsSipWrapper extends EventEmitter {
             session_timers: true
         });
         this._ua.start();
+
     }
 
-    receiveNewMsg() {
+    receiveNewMsg(cb) {
         this._ua.on('newMessage', (data) => {
             var msgXml = data.request.body
             var result = xmlToJs(msgXml)
@@ -114,8 +115,9 @@ module.exports = class JsSipWrapper extends EventEmitter {
                     * 898 账号过期/账号被删/账号修改被踢下线
                     * 899 企业停止后被踢下线
                 */
-                this.emit('kickedOffLine', result.o.a.u[0]);
-
+                //  通话建立，也会发这个消息，，不处理 <o> <m>  <c n="1534396656524476conf_1534396661189" a="i" /> </m></o>
+                if (result.o.a && result.o.a.u)
+                    this.emit('kickedOffLine', result.o.a.u[0]);
             } else if (top == 'mn') {
                 // mn 应该是总机的离线同步消息
             }
@@ -124,40 +126,48 @@ module.exports = class JsSipWrapper extends EventEmitter {
 
     }
 
-    registerEvents() {
+    registerEvents(cb) {
         this._ua.on('connecting', (data) => {
-            this.emit('connecting', data);
+            cb({ code: 'connecting', data: data })
         });
 
         this._ua.on('connected', (data) => {
-            this.emit('connected', data);
+            cb({ code: 'connected', data: data })
         });
 
         this._ua.on('disconnected', (data) => {
-            this.emit('disconnected', data);
+
+            cb({ code: 'disconnected', data: data })
         });
 
         this._ua.on('registered', (data) => {
-            this.emit('registered', data);
+
             let userData = JSON.parse(localStorage.getItem('userData'));
             this.changeStaus(userData.status.toString());
             // 默认设置 坐席模式为固定坐席模式,
             if (userData.seatMode) {
+
                 this.setSeatMode(userData.seatMode == 1 ? 51 : 52, true);
-            }else {
+            } else {
                 this.setSeatMode(52, true);
             }
             this.logonWithGroup(userData.loginGid, userData.eid);
+            cb({ code: 'registered', data: data })
         });
 
         this._ua.on('unregistered', (data) => {
-            this.emit('unregistered', data);
+            cb({ code: 'unregistered', data: data })
+
         });
 
         this._ua.on('registrationFailed', (data) => {
             logger.debug('sip注册失败')
-            this.emit('registrationFailed', data);
+            cb({ code: 'registrationFailed', data: data })
         });
+        this._ua.on('registrationExpiring', (data) => {
+            cb({ code: 'registrationExpiring', data: data })
+        });
+
     }
 
     newSessionEvent(remoteAudio) {
@@ -277,10 +287,19 @@ module.exports = class JsSipWrapper extends EventEmitter {
         }
     }
 
-    stop() {
+    stop(cb) {
         this._ua.stop();
-        // 注销需要清除localstorege
-        localStorage.removeItem('userData');
+        this._ua.once('unregistered', (data) => {
+            var res = data.response
+            if (res.reason_phrase == 'OK' && res.status_code == 200 && res.method == "REGISTER") {
+                // 注销需要清除localstorege
+                localStorage.removeItem('userData');
+                cb({ code: res.status_code, info: res.reason_phrase, })
+            } else {
+                cb({ code: res.status_code, info: res.reason_phrase })
+            }
+        });
+
     }
 
     // 发送xml消息

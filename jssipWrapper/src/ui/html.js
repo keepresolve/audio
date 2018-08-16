@@ -18,7 +18,7 @@ export default function creatHTML(options) {
                                 <span>坐席模式</span>
                                 <span>
                                     <input type="radio" name="pattern" checked value="51" data-type="move">&nbsp;移动&nbsp;
-                                    <input type="radio" name="pattern" checked value="52" checked data-type="fix" >&nbsp;固定
+                                    <input type="radio" name="pattern"  value="52" checked data-type="fix" >&nbsp;固定
                                 </span>
                             </li>
                             <li>
@@ -64,8 +64,8 @@ export default function creatHTML(options) {
                                 <input type="text" data-type="password" onkeyup="this.value=this.value.replace(/\\D/g,'')" onpaste="this.value=this.value.replace(/\\D/g,'')">
                             </li> -->
                             <li id="model" style="border:none">
-                                <span><input type="radio" name="pattern" checked>&nbsp;VOIP</span> 
-                                <span><input type="radio" name="pattern">&nbsp;SIP话机模式</span> 
+                                <span><input type="radio" name="callType" value='2' checked>&nbsp;VOIP</span> 
+                                <span><input type="radio" name="callType" value='4'>&nbsp;SIP话机模式</span> 
                                 <span data-type="loginStatus"><em></em>&nbsp;<span>示闲</span></span> 
                             </li>
                             <li id="login">
@@ -78,7 +78,7 @@ export default function creatHTML(options) {
                         <ul>
                             <li data-type="leisure"><em></em><span>空闲</span></li>
                             <li data-type="busy"><em></em><span>忙碌</span></li>
-                            <li data-type="logout"><span>退出</span></li>
+                            <li data-type="logout"><em>&#xe81c;</em><span>退出</span></li>
                         </ul>
                     </div>`
     //登陆选择所在组
@@ -109,13 +109,12 @@ export default function creatHTML(options) {
 
     //状态
     //呼叫状态显示状态 
-    var callStatusPage = ` <div id='PHONE-LEFT-STATUS' >
-                      <div data-type='circle'>
+    var callStatusPage = ` <div id='PHONE-LEFT-STATUS'  style='width:${parseInt(options.width)/2}px'>
+                      <div data-type='pattern'>
                          <div  data-hide='0'>
-                              <span data-type='bg'></span>
-                              <span data-type='status'>空闲</span>
+                             当前处于移动模式
                           </div>
-                      </div>                
+                      </div>            
                       <div data-type='rect' >
                           <div data-hide='0'>
                               <span data-type='number'>18330986136</span>
@@ -173,6 +172,7 @@ export default function creatHTML(options) {
 
     //转接
     var switchPage = `  <div id="PHONE-ENTRY-SWITCH" data-hide='0' data-toggle='switchPage'>
+                            <span data-type="error"></span>
                             <div id="SWITCH_PlATE">
                                 <span data-type="close">&times;</span>
                                 <div id="GROUP">
@@ -210,7 +210,7 @@ export default function creatHTML(options) {
                                         <span></span>
                                     </li> -->
                                 </ul>
-                                <div data-type="transfer">确认转接</div>
+                                <div data-type="transfer" data-disabled='1'>确认转接</div>
                             </div>
                         </div>`
     //三方通话
@@ -260,7 +260,7 @@ export default function creatHTML(options) {
                 </li>
 
                 <li class="gray guanduan" id="guanduan"  data-phone-key="1" data-phone-type='terminate' data-hide='0'>
-                    <em title="挂断" style='color:red'>&#xe600;</em>
+                    <em title="挂断" style='color:red'>&#xe637;</em>
                 </li> 
                 <li class="gray zhuanjie" id="zhuanjie" data-phone-key="2" data-phone-type="switch">
                     <em title="转接">&#xe603;</em>
@@ -281,7 +281,7 @@ export default function creatHTML(options) {
                 </li> 
 
                 <li class="jietong gray" id="jietong"  data-phone-key="4"  data-phone-type='setting' data-hide='1'>
-                    <em title="设置">&#xe60f;</em>
+                    <em title="设置">&#xe610;</em>
                     <div  data-arrow='setting' class="arrow arrow-up"  data-hide='0'></div>
                 </li>
           </ul>`
