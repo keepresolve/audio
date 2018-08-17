@@ -63,12 +63,12 @@ class Phone {
             case 'registrationFailed':
                 cb({ code: 301, info: "登录失败", data: result.data })
                 break;
-            case 'registrationExpiring':
-                if (this._ua.isConnected())
-                    this.socketStatus = true
-                else
-                    this.socketStatus = false
-                break;
+            // case 'registrationExpiring':
+            //     if (this._ua.isConnected())
+            //         this.socketStatus = true
+            //     else
+            //         this.socketStatus = false
+            //     break;
 
         }
     }
@@ -143,7 +143,7 @@ class Phone {
             //本地接听会话
             data.session.on("accepted", (data) => {
 
-                cb({ code: 100, type: "accepted", res })
+                cb({ code: 100, type: "accepted", data })
             })
 
             data.session.on("failed", (data) => { //未接听
@@ -369,6 +369,7 @@ class Phone {
     set sipStatus(value) {
         // var callStatus = document.getElementById("callStatus")
         // callStatus.innerText = value ? "已连接" : '未连接'
+        this.log("setSipStatus", value)
         this._sipStatus = value
     }
     get session() {

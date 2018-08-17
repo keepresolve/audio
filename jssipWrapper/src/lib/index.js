@@ -1,6 +1,8 @@
 import JsSIP from 'jssip';
 import Logger from './Logger';
 import { xmlToJs, jsToXml } from './xmljs'
+import webApi from './getLoginInfo'
+
 
 const EventEmitter = require('events').EventEmitter;
 const logger = new Logger('index');
@@ -67,7 +69,8 @@ module.exports = class JsSipWrapper extends EventEmitter {
             var result = xmlToJs(msgXml)
             logger.debug(`receive message:${JSON.stringify(result)}`);
             let top = Object.keys(result)[0];
-            if (top == 'cc') {
+            var userData = JSON.parse(localStorage.getItem('userData'));
+            if (top == 'cc' && !(Number(userData.callintype) == 4)) {//移动模式时不发消息
                 let eventType = result.cc.a;
                 switch (eventType) {
                     case '1':
@@ -84,7 +87,7 @@ module.exports = class JsSipWrapper extends EventEmitter {
                         this.emit('transferCallFaild', result.cc);
                         break
                     case '201':
-                        // 座席外呼响应
+                        // 座席外呼响应gulp
                         this.emit('calloutResponse', result.cc);
                         break
                     case '301':
@@ -145,12 +148,7 @@ module.exports = class JsSipWrapper extends EventEmitter {
             let userData = JSON.parse(localStorage.getItem('userData'));
             this.changeStaus(userData.status.toString());
             // 默认设置 坐席模式为固定坐席模式,
-            if (userData.seatMode) {
-
-                this.setSeatMode(userData.seatMode == 1 ? 51 : 52, true);
-            } else {
-                this.setSeatMode(52, true);
-            }
+            if (!userData.seatMode) this.setSeatMode(52, true);
             this.logonWithGroup(userData.loginGid, userData.eid);
             cb({ code: 'registered', data: data })
         });
@@ -164,9 +162,9 @@ module.exports = class JsSipWrapper extends EventEmitter {
             logger.debug('sip注册失败')
             cb({ code: 'registrationFailed', data: data })
         });
-        this._ua.on('registrationExpiring', (data) => {
-            cb({ code: 'registrationExpiring', data: data })
-        });
+        // this._ua.on('registrationExpiring', (data) => {
+        //     cb({ code: 'registrationExpiring', data: data })
+        // });
 
     }
 
@@ -308,6 +306,7 @@ module.exports = class JsSipWrapper extends EventEmitter {
         let options = {
             'eventHandlers': eventHandlers,
             'contentType': 'application/pidf+xml'
+
         };
         return this._ua.sendMessage(target, text, options);
     }
@@ -349,12 +348,22 @@ module.exports = class JsSipWrapper extends EventEmitter {
      * 对应 localStorage 值存储为  1 移动模式 2 固定模式
      */
     // 设置座席模式  
-    setSeatMode(seatMode, isLogin) {
+    async  setSeatMode(seatMode, isLogin) {
         //<?xml version="1.0" encoding="utf-8"?><cc a="52" />
         if (!isLogin && seatMode == 52) this.changeStaus('1');//登录后设置成固定模式时，必须置闲
-
-        var mode = (seatMode == 52) ? 2 : 1  // 1 移动模式 2 固定模式
         var userData = JSON.parse(localStorage.getItem('userData'));
+        var mode = (seatMode == 52) ? 2 : 1  // 1 移动模式 2 固定模式
+        var callintype = (seatMode == 51) ? 4 : 2;
+        //移动模式时必须是电路模式  固定模式时必须配置回拨话机号，，暂不处理，切回 voip模式
+        var webParam = {
+            un: userData.userInfo.number,
+            pwd: userData.clearPwd.slice(8, userData.clearPwd.length - 6),
+            eid: userData.eid,
+            jsonStr: JSON.stringify({ "data": { "callintype": callintype } })
+        }
+        
+        await webApi.webApiHandler('updateInfo', webParam)
+        userData.callintype = callintype;
         userData.seatMode = mode;
         localStorage.setItem("userData", JSON.stringify(userData));
 

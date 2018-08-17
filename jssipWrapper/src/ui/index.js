@@ -11,7 +11,7 @@ import creatHtml from "./html"
             this.options = {
                 width: "500px",
                 height: "50px",
-                background: "#c3c3c3",
+                background: "",
                 callBackground: ["#1E59B9", '#19C583', '#FF6754'],
                 drop: true
             }
@@ -19,28 +19,36 @@ import creatHtml from "./html"
             this.watchTimer = null
             this.gid = null // 转接坐席的组id
             this.recordsTotal = null // 某组坐席总数 滚动加载时使用
+            this.isOutCall = false
             this.log = log('script')
         }
         init(targetID, options) {
             var toolbar = document.createElement("div")
-            var target = doc.querySelector(targetID) || doc.querySelector("body")
+            var target
+            try {
+                target = doc.querySelector(targetID) || doc.querySelector("body")
+            } catch (e) {
+                if (e) target = doc.querySelector("body")
+            }
             var head = document.getElementsByTagName('head')[0]
             var link = document.createElement('link')
             var setting = localStorage.getItem("setting") ? JSON.parse(localStorage.getItem("setting")) : false
             //初始化配置
             if (typeof options == 'object' && options) {
                 this.options.width = options.width ? options.width : this.options.width
-                this.options.height = options.width ? options.width : this.options.height
+                this.options.height = options.height ? options.height : this.options.height
                 this.options.background = options.background ? options.background : this.options.background
                 this.options.drop = options.drop != undefined ? options.drop : this.options.drop
                 this.options.callBackground = (options.callBackground && Array.isArray(options.callBackground)) ? options.callBackground : this.options.callBackground
 
             }
             if (this.options.drop) {
-                toolbar.style.position = "fixed"
-                this._addDrop(toolbar)
+                this._addDrop(toolbar, target)
             }
+
             // css
+            // link.href = 'https://bot.emicmh.com/phone/main.css';
+            // link.href = 'https://bot.emicmh.com/phone/main.css';
             link.href = './dist-wp/main.css';
             link.setAttribute('rel', 'stylesheet');
             link.setAttribute('media', 'all');
@@ -52,6 +60,7 @@ import creatHtml from "./html"
             toolbar.style.width = this.options.width
             toolbar.style.boxShadow = '0px 1px 15px ' + '#c3c3c3'
             toolbar.style.zIndex = 999
+            toolbar.style.background = this.options.background
             toolbar.id = "PHONE-DROP"
             toolbar.innerHTML = creatHtml(this.options)
             target.appendChild(toolbar)
@@ -66,6 +75,7 @@ import creatHtml from "./html"
             if (setting) {
                 this.setTogglePosition(setting)
             }
+
         }
         eventListener() {
             var stopProList = []
@@ -82,8 +92,17 @@ import creatHtml from "./html"
                     if (this.classList.contains("gray")) return
                     switch (key) {
                         case "0"://注册 
-                            if (type == 'register')
-                                !Phone.sipStatus ? that.setDisplayNone("loginPage") : that.setDisplayNone("statusPage")
+                            if (type == 'register') {
+                                if (Phone.sipStatus) {
+                                    var userData = JSON.parse(localStorage.userData)
+                                    var leisure = that._Sel("#PHONE-ENTRY-TOGGLE li[data-type='leisure']")
+                                    var busy = that._Sel("#PHONE-ENTRY-TOGGLE li[data-type='busy']")
+                                    leisure.dataset.hide = busy.dataset.hide = userData.seatMode == 1 ? "0" : "1"
+                                    that.setDisplayNone("statusPage")
+                                } else {
+                                    that.setDisplayNone("loginPage")
+                                }
+                            }
                             break;
                         case "1": // 快速呼叫
                             if (type == 'open') {
@@ -284,12 +303,14 @@ import creatHtml from "./html"
                 }
 
                 if (target.dataset.type == "logout" || target.parentNode.dataset.type == "logout") { // 退出
+                    var title = that._Sel("#PHONE-LEFT-STATUS div[data-type='pattern']>div")
                     Phone.stop(function (res) {
                         if (res.code == 200) {
                             Phone._kefuStatus = "1"
                             that._Sel("#EphoneBar>li span[data-type='toggle']").dataset.hide = '0'
                             that.setDisplayNone("all")
                             that.sethighlight('register', true)
+                            title.dataset.hide = '0'
                         } else {
                             alert(res.info)
                         }
@@ -370,6 +391,12 @@ import creatHtml from "./html"
                 e.stopPropagation()
                 var target = e.target || e.srcElement
                 that.log(target)
+                if (target.dataset.type == "close") {
+                    selectGroupTarget.dataset.hide = '0'
+                    loginTarget.dataset.hide = '1'
+                    if (localStorage.getItem("userData")) localStorage.removeItem("userData")
+
+                }
                 if (target.parentNode.dataset.type == "groupList") {
                     var len = target.parentNode.children.length
                     for (var i = 0; i < len; i++) {
@@ -410,6 +437,7 @@ import creatHtml from "./html"
 
                 if (target.dataset.type == 'call') { //拨号
                     var peerID = panelInput.value
+                    panelInput.value = ''
                     if (peerID.length == 0) return
                     var userData = JSON.parse(localStorage.userData)
                     var extension_start = parseInt(userData.extension_start)
@@ -423,7 +451,7 @@ import creatHtml from "./html"
                     }
                     Phone.call({ peerID, callType })
                     panel.dataset.hide = 0
-                    that.phoneStatus('outgoingCall', { panelInput: callType == 2 ? peerID.substring(1) : peerID })
+                    that.phoneStatus('outgoingCall', { panelInput: callType == 2 ? peerID.substring(1) : peerID, callType })
                 }
             }
             var timer = null
@@ -677,7 +705,7 @@ import creatHtml from "./html"
                             this.phoneStatus("incomingAccepted")
                             break;
                         case 'answeredPBXCall'://回拨外线 内线 callType=2,3
-                            this.phoneStatus("answeredPBXCall")
+                            this.phoneStatus("answeredPBXCall", data.data)
                             break;
                         case 'failed':
                             this.phoneStatus("incomingFailed")
@@ -742,27 +770,32 @@ import creatHtml from "./html"
             })
         }
 
-        _addDrop(target) {
+        _addDrop(toolbar, target) {
+
             var thisWrapper = this
-            target.onmousedown = function (ev) {
+            toolbar.onmousedown = function (ev) {
                 ev.stopPropagation()
                 ev.preventDefault()
                 target.setCapture && target.setCapture()
 
-                this.style.cursor = "move";
-                this.style.overflow = "hidden"
                 var oEvent = ev || event;
                 var that = this
-
                 var disX = oEvent.clientX - this.offsetLeft;
                 var disY = oEvent.clientY - this.offsetTop;
+                var style = window.getComputedStyle(toolbar)
+
+                this.style.left = parseInt(style.left) + parseInt(style.marginLeft) + "px"
+                this.style.top = parseInt(style.top) + parseInt(style.marginTop) + "px"
+                this.style.position = "fixed"
+                this.style.cursor = "move";
+
                 document.onmousemove = function (ev) {
                     var oEvent = ev || event;
                     var l = oEvent.clientX - disX;
                     var t = oEvent.clientY - disY;
                     var clientHeight = document.body.clientHeight || document.documentElement.offsetHeight || document.body.scrollHeight || window.screen.height - 133
                     var clientWidth = document.body.clientWidth || document.documentElement.clientWidth || document.body.clientWidth
-                    thisWrapper.log(clientHeight, thisWrapper.options.height)
+
                     if (l <= 20) {
                         l = 0
                     }
@@ -784,8 +817,7 @@ import creatHtml from "./html"
                     document.onmousemove = null;//如果不取消，鼠标弹起div依旧会随着鼠标移动
                     document.onmouseup = null;
                     that.style.cursor = "default";
-                    that.style.overflow = "visible"
-                    target.setCapture && target.releaseCapture()
+                    toolbar.setCapture && target.releaseCapture()
                 };
                 //    };
             }
@@ -796,6 +828,9 @@ import creatHtml from "./html"
                     e.stopPropagation()
                 })
             })
+        }
+        _targetIsMove() {
+            alert(1)
         }
         _hideAllMode() {
             document.addEventListener("click", (e) => {
@@ -907,20 +942,32 @@ import creatHtml from "./html"
             //工具条按钮
             var openBtn = this._Sel("li[data-phone-type='open']")
             var terminateBtn = this._Sel("li[data-phone-type='terminate']")
-            // var busyBtn = this._Sel("#EphoneBar li[data-phone-type='busy']")
-            // var leisureBtn = this._Sel("#EphoneBar li[data-phone-type='leisure']")
             var holdBtn = this._Sel("#EphoneBar li[data-phone-type='hold']")
             var unHoldBtn = this._Sel("#EphoneBar li[data-phone-type='unhold']")
+
             switch (status) {
                 //点击拨号
                 case "outgoingCall":
-
                     rectStatus.dataset.hide = 1
                     rectStatus.style.background = call_bg[0]
                     rectN.innerText = data.panelInput.length > 12 ? data.panelInput.substring(1, 12) + '...' : data.panelInput
                     rectS.innerText = "呼叫中"
                     that.sethighlight("all", true)
+                    that.setDisplayNone("all")
                     that.setArrowNone()
+                    setTimeout(() => {
+                        if (!this.isOutCall) {
+                            Phone.terminate()
+                            rectStatus.style.background = call_bg[2]
+                            rectS.innerText = "呼叫超时"
+                            global.clearTimeout(that.closeTimer)
+                            that.closeTimer = global.setTimeout(() => {
+                                rectStatus.dataset.hide = "0"
+                                that.sethighlight("register,open,setting", true)
+                                that.setDisplayNone("all")
+                            }, 2000);
+                        }
+                    }, 5000)
                     // Phone.changeStaus("2")
                     break;
                 //呼出和PBX是否建立链接外线
@@ -955,23 +1002,29 @@ import creatHtml from "./html"
                 case 'incomingProgress':
                     // 
                     // Phone.incomingCall(true)
+                    this.isOutCall = true
                     openBtn.dataset.hide = '0'
                     terminateBtn.dataset.hide = '1'
                     that.sethighlight("terminate", true)
-
-
+                    that.setDisplayNone("all")
+                    that.setArrowNone()
                     break;
                 //本地接听
                 case 'incomingAccepted':
                     break;
                 //通话已经建立接通
                 case 'answeredPBXCall':
+                    this.log({ data })
                     rectStatus.dataset.hide = '1'
-                    // planePageBtn.dataset.hide = '1'
                     rectStatus.style.background = call_bg[1]
                     that.timerWatch(rectT, true)
                     rectS.innerText = "通话中"
-                    that.sethighlight("terminate,hold,unhold,switch", true)
+                    if (!data.n) {
+                        that.sethighlight("terminate,hold,unhold", true)
+                    } else {
+                        that.sethighlight("terminate,hold,unhold,switch", true)
+                    }
+
                     break;
                 //结束
                 case 'incomingEnded': //calloutResponse  callinResponse 如果r不是200没有建立会话
@@ -987,35 +1040,13 @@ import creatHtml from "./html"
                         rectStatus.dataset.hide = "0"
                         openBtn.dataset.hide = '1'
                         terminateBtn.dataset.hide = '0'
-                        // busyBtn.dataset.hide = "1"
-                        // leisureBtn.dataset.hide = '0'
                         unHoldBtn.dataset.hide = "0"
                         holdBtn.dataset.hide = "1"
                         that.sethighlight("register,open,setting", true)
-
+                        this.isOutCall = false
                     }, 2000);
                     break;
-                case "endPBXCall": //
-
-                    // planePageBtn.dataset.hide = '0'
-                    // that.setDisplayNone("all")
-                    // that.timerWatch(rectT, false)
-                    // rectStatus.dataset.hide = "1"
-                    // rectStatus.style.background = call_bg[2]
-                    // rectS.innerText = "通话结束"
-                    // that.sethighlight("all", true)
-                    // global.clearTimeout(that.closeTimer)
-                    // that.closeTimer = global.setTimeout(() => {
-                    //     rectStatus.dataset.hide = "0"
-                    //     openBtn.dataset.hide = '1'
-                    //     terminateBtn.dataset.hide = '0'
-                    //     // busyBtn.dataset.hide = "1"
-                    //     // leisureBtn.dataset.hide = '0'
-                    //     unHoldBtn.dataset.hide = "0"
-                    //     holdBtn.dataset.hide = "1"
-                    //     that.sethighlight("register,open,setting", true)
-
-                    // }, 2000);
+                case "endPBXCall":
                     break;
                 //
                 case 'incomingFailed':
@@ -1034,28 +1065,8 @@ import creatHtml from "./html"
                         unHoldBtn.dataset.hide = "0"
                         holdBtn.dataset.hide = "1"
                         that.sethighlight("register,open,setting", true)
-
+                        this.isOutCall = false
                     }, 2000);
-                    // rectStatus.dataset.hide = "0"
-                    // planePageBtn.dataset.hide = '0'
-                    // that.timerWatch(rectT, false)
-                    // incomingStatus.dataset.hide = "1"
-                    // incomingBg.style.background = call_bg[2]
-                    // incomingS.innerText = "来电未接听"
-                    // incomingA.dataset.hide = '0'
-                    // that.sethighlight("all", true)
-                    // that.setDisplayNone("all")
-                    // global.clearTimeout(that.closeTimer)
-                    // that.closeTimer = global.setTimeout(() => {
-                    //     incomingStatus.dataset.hide = "0"
-                    //     // busyBtn.dataset.hide = "1"
-                    //     // leisureBtn.dataset.hide = '0'
-                    //     unHoldBtn.dataset.hide = "0"
-                    //     holdBtn.data.hide = "1"
-                    //     that.sethighlight("open,register,setting", true)
-                    // }, 2000);
-
-                    // Phone.changeStaus("1")
                     break;
                 default:
                     break;

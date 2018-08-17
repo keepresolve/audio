@@ -12,15 +12,15 @@ const logger = new Logger('getLoginInfo');
 module.exports = {
     getLoginData,
     webApiHandler,
-    "_loadServerFromJson":loadServerFromJson,
-    "_getInfo":getInfo
+    "_loadServerFromJson": loadServerFromJson,
+    "_getInfo": getInfo
 };
 /**
  * 1 通过json文件获取运维地址
  * 2 getInfo 获取运维信息
  * 3 getEpProfile 获取企业信息
  * 4 getMemberInfo 获取登录所选组
- * 5 updateInfo 更新模式
+ * 5 updateInfo 更新模式  callintype  -- 2 voip  4 电路  5 sip话机
  */
 async function getLoginData(un, pwd, switchNumber, callintype) {
     try {
@@ -36,7 +36,8 @@ async function getLoginData(un, pwd, switchNumber, callintype) {
         var obj = {
             pwd: PWD,
             clearPwd: randkey1 + pwd + randkey2,
-            switchNumber: switchNumber
+            switchNumber: switchNumber,
+            callintype: callintype
         }
         localStorage.setItem('userData', JSON.stringify(obj));
         var infoData = await getInfo(un, pwd, switchNumber, server);

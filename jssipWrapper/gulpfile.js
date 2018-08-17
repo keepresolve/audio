@@ -34,14 +34,14 @@ gulp.task('build', function () {
   });
 })
 
-gulp.task('images', function(){
-  return gulp.src('resources/images/**/*.+(png|jpg|jpeg|gif|svg)')
-  // Caching images that ran through imagemin
-  .pipe(cache(imagemin({
-      interlaced: true
-    })))
-  .pipe(gulp.dest('dist/images'))
-});
+// gulp.task('images', function(){
+//   return gulp.src('resources/images/**/*.+(png|jpg|jpeg|gif|svg)')
+//   // Caching images that ran through imagemin
+//   .pipe(cache(imagemin({
+//       interlaced: true
+//     })))
+//   .pipe(gulp.dest('dist/images'))
+// });
 
 gulp.task('css', function () {
   gulp.src('resources/css/*.css')
@@ -50,17 +50,20 @@ gulp.task('css', function () {
     .pipe(gulp.dest('dist'))
     .pipe(browserSync.reload({ stream: true }))
 })
-gulp.task('watch', ['css', 'images','build'], function () {
+gulp.task('watch', ['css','build'], function () {
   browserSync.init({
     server: {
-      baseDir: "dist/"
+      baseDir: "dist/",
     },
-    https: true,
+    https: {
+      key: './emicmh.com.key',
+      cert: './emicmh.com.cer',
+    },
     debug: false,
     port:3002
   })
   gulp.watch('./src/**/*.js', ['build']);
   gulp.watch("./resources/css/*.css", ['css', 'build'])
-  gulp.watch("./resources/images/*.+(png|jpg|jpeg|gif|svg)", ['images'])
+  // gulp.watch("./resources/images/*.+(png|jpg|jpeg|gif|svg)", ['images'])
 });
 gulp.task('default', ['watch']);

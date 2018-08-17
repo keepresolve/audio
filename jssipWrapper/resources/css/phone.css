@@ -3,8 +3,8 @@
 @font-face {
   font-family: 'iconfont';
   /* project id 792726 */
-  src: url('//at.alicdn.com/t/font_792726_q5iygzbmqf.eot');
-  src: url('//at.alicdn.com/t/font_792726_q5iygzbmqf.eot?#iefix') format('embedded-opentype'), url('//at.alicdn.com/t/font_792726_q5iygzbmqf.woff') format('woff'), url('//at.alicdn.com/t/font_792726_q5iygzbmqf.ttf') format('truetype'), url('//at.alicdn.com/t/font_792726_q5iygzbmqf.svg#iconfont') format('svg');
+  src: url('https://at.alicdn.com/t/font_792726_wd5lzuxvvh.eot');
+  src: url('https://at.alicdn.com/t/font_792726_wd5lzuxvvh.eot?#iefix') format('embedded-opentype'), url('https://at.alicdn.com/t/font_792726_wd5lzuxvvh.woff') format('woff'), url('https://at.alicdn.com/t/font_792726_wd5lzuxvvh.ttf') format('truetype'), url('https://at.alicdn.com/t/font_792726_wd5lzuxvvh.svg#iconfont') format('svg');
 }
 
 #PHONE-DROP div,
@@ -74,8 +74,8 @@
 }
 
 #PHONE-DROP *[data-disabled="0"] {
-  cursor: not-allowed!important;
-  background: #666!important;
+  cursor: not-allowed !important;
+  background: #666 !important;
 }
 
 /* 箭头 */
@@ -97,10 +97,9 @@
 }
 
 #PHONE-DROP {
-  /* border: 1px solid #29719A; */
   border-radius: 3px;
   position: relative;
-  /* margin: 0 auto; */
+  margin: 0 auto;
 }
 
 #PHONE-DROP #PHONE-ENTRY-CONTAINER div[data-toggle] {
@@ -125,6 +124,10 @@
   position: relative;
 }
 
+#PHONE-DROP #EphoneBar>li.gray {
+  cursor: default;
+}
+
 #EphoneBar>li>em {
   line-height: 50px;
   font-size: 24px;
@@ -138,11 +141,11 @@
 
 #EphoneBar>li[data-phone-type="register"]>span {
   position: absolute;
-  bottom: 16px;
+  bottom: 10px;
   right: 6px;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 6px;
   background: rgb(87, 223, 0);
 }
 
@@ -167,7 +170,7 @@
 }
 
 #PHONE-LEFT-STATUS div[data-type='pattern']>div {
-  width:250px;
+  width: 250px;
   text-align: center;
   height: 30px;
   font-size: 13px;
@@ -285,7 +288,7 @@
   padding-left: 12px;
 }
 
-#PHONE-ENTRY-LOGIN[data-hide] li#model>span:nth-of-type(3) {
+#PHONE-ENTRY-LOGIN[data-hide] li#model>span {
   float: right;
   margin-right: 15px;
   cursor: pointer;
@@ -320,16 +323,13 @@
 
 #PHONE-ENTRY-TOGGLE {
   width: 100px;
-  height: 90px;
+  /* height: 90px; */
   position: absolute;
   left: -25px;
   top: 50px;
   background: #fff;
+  box-shadow: rgb(195, 195, 195) 0px 1px 15px;
   border-radius: 3px;
-}
-
-#PHONE-ENTRY-TOGGLE ul {
-  height: 100%;
 }
 
 #PHONE-ENTRY-TOGGLE ul>li {
@@ -369,8 +369,8 @@
 #PHONE-ENTRY-TOGGLE ul>li[data-type="logout"]>em {
   width: 20px;
   height: 30px;
-  margin-right: 5px;
-  font-size: 20px;
+  margin-right: 3px;
+  font-size: 14px;
   vertical-align: top;
 }
 
@@ -723,7 +723,7 @@
   width: 100%;
   height: 32px;
   font-size: 12px;
-  color: #9B9B9B;
+  color: #323;
   letter-spacing: 0;
 }
 
@@ -824,8 +824,8 @@
   width: 113px;
   height: 30px;
   margin: 0 16px;
-  background: rgba(61, 127, 238, 0.12);
-  color: #3D7FEE;
+  background: #f4f4f4;
+  color: #838990;
   border: none;
   border-radius: 3px;
   z-index: 2001;
@@ -853,7 +853,7 @@
 }
 
 #PHONE-DROP div[data-type="select"]>div[data-type="select_icon"]>.arrow-down {
-  border-top: 4px solid #3D7FEE;
+  border-top: 4px solid #838990;
   border-left: 4px solid transparent;
   border-right: 4px solid transparent;
   top: 13px;
@@ -875,6 +875,11 @@
   list-style: none;
   line-height: 30px;
   text-align: center;
-  background: #E7EFFD;
-  color: #3D7FEE;
+  background: #fff;
+  color: #838990;
+  cursor: pointer;
+}
+
+#PHONE-DROP ul[data-type="group"] li:hover {
+  background: #f4f4f4;
 }

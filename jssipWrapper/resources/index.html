@@ -7,9 +7,16 @@
   <title>Document</title>
 </head>
 <style>
-  html,body{
-    height: 100%;
-    width: 100%;
+  body,html{
+    height:100%;
+  
+  }
+  #test{
+    width:600px;
+    margin: 0 auto;
+    left:40px;
+    border:1px dotted darkblue;
+    height: 50px;
   }
 </style>
 
@@ -18,9 +25,9 @@
 <div id="test"></div>
 <script>
   var options = {
-      background: "#fff", //工具条颜色
+      // background: "#fff", //工具条颜色
       drop: true, //是否开始拖拽
-      callBackground: ["#E86A32", '#E86A32', '#E86A32'] //通话状态显示颜色
+      // callBackground: ["#E86A32", '#E86A32', '#E86A32'] //通话状态显示颜色
     }
     $E.init("#test", options)
 </script>
