@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <title>简易播放器制作中</title>
+  <title>audio电话mp3播放器</title>
 </head>
 <link rel="stylesheet" href="./css/index.css">
 <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
@@ -136,8 +136,8 @@
 
       var options = {
         background: "black", //工具条颜色
-        drop: true, //是否开始拖拽
-        // callBackground: ["red", 'blue', 'yellow'] //通话状态显示颜色
+        drop: false, //是否开始拖拽
+        callBackground: ["red", 'blue', 'yellow'] //通话状态显示颜色
       }
       $E.init("#phoneBar", options)
     }
