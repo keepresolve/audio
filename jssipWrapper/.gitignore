@@ -1,10 +1,8 @@
 node_modules/
-lib-es5/
-lib-es6/
-lib-cjs/
 gen_wptest/*
 !gen_wptest/index.html
 npm-debug.log
-dist/*
-!dist/index.html
+dist/
 dist-wp/
+dist-gulp/
+src/tmp

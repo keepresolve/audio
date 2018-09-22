@@ -8,7 +8,7 @@ router.get('/', function (req, res, next) {
 });
 router.get('/login', function (req, res, next) {
   if (req.query.password == "caoshiyuan") {
-    res.send({ code: 200, info: "密码正确", src: "./dist-wp/bundle.js" })
+    res.send({ code: 200, info: "密码正确", src: ["./dist/bundle.js",'"./dist/main.css']})
   } else {
     res.send({ code: 301, info: "密码不对" })
   }

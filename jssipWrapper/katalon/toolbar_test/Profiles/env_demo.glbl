@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalVariableEntities>
+   <description></description>
+   <name>env_demo</name>
+   <tag></tag>
+   <defaultProfile>false</defaultProfile>
+   <GlobalVariableEntity>
+      <description>webpack起的服务器在8888</description>
+      <initValue>'http://localhost:8888'</initValue>
+      <name>env</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>这些账号分属两个组</description>
+      <initValue>['1006', '1023', '1024', '1032', '1039', '1050', '1055']</initValue>
+      <name>account</name>
+   </GlobalVariableEntity>
+   <GlobalVariableEntity>
+      <description>这些账号只在在线客服组</description>
+      <initValue>['1026', '1042', '1043', '1047', '1048', '1049', '1057']</initValue>
+      <name>account2</name>
+   </GlobalVariableEntity>
+</GlobalVariableEntities>

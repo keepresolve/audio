@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebElementEntity>
+   <description></description>
+   <name>loginStatus_btn</name>
+   <tag></tag>
+   <elementGuidId>7369beec-3e3b-439f-9bdc-ea0ddc523e84</elementGuidId>
+   <selectorCollection>
+      <entry>
+         <key>BASIC</key>
+         <value>id(&quot;PHONE-ENTRY-LOGIN&quot;)/ul[1]/li[5]/span[1][count(. | //span[@data-type = 'loginStatus' and (text() = ' 示闲' or . = ' 示闲')]) = count(//span[@data-type = 'loginStatus' and (text() = ' 示闲' or . = ' 示闲')])]</value>
+      </entry>
+   </selectorCollection>
+   <selectorMethod>BASIC</selectorMethod>
+   <useRalativeImagePath>false</useRalativeImagePath>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>tag</name>
+      <type>Main</type>
+      <value>span</value>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>data-type</name>
+      <type>Main</type>
+      <value>loginStatus</value>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>text</name>
+      <type>Main</type>
+      <value> 示闲</value>
+   </webElementProperties>
+   <webElementProperties>
+      <isSelected>true</isSelected>
+      <matchCondition>equals</matchCondition>
+      <name>xpath</name>
+      <type>Main</type>
+      <value>id(&quot;PHONE-ENTRY-LOGIN&quot;)/ul[1]/li[5]/span[1]</value>
+   </webElementProperties>
+</WebElementEntity>

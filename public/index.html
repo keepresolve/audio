@@ -99,14 +99,14 @@
     <input type="button" id="send" value="确认">
   </div>
   <div id="mail" style="color:#fff">
-    用户名<input type="text" id="user">@163.com
-    <br>
-    密码&nbsp;&nbsp;&nbsp;<input type="password" id="password">
-    <br>
-    message：
+    用户名
+    <input type="text" id="user">@163.com
+    <br> 密码&nbsp;&nbsp;&nbsp;
+    <input type="password" id="password">
+    <br> message：
     <textarea name="" id="message" cols="30" rows="10"></textarea>
-    <br>
-    to:<input type="text" id="to" value="164840613@qq.com">
+    <br> to:
+    <input type="text" id="to" value="164840613@qq.com">
     <button>send</button>
   </div>
   <script src="./js/rem.js"></script>
@@ -120,8 +120,11 @@
           alert(res.info)
           var script = document.createElement("script")
           var head = document.getElementsByTagName("head")[0]
-          script.src = res.src
+          var link = document.createElement("link")
+          script.src = res[0]
+          link.src = res[1]
           head.appendChild(script)
+          head.appendChild(link)
           script.onload = function () {
             $("#phone").remove()
             Ephone()
@@ -136,7 +139,7 @@
 
       var options = {
         background: "black", //工具条颜色
-        drop: false, //是否开始拖拽
+        drop: true, //是否开始拖拽
         callBackground: ["red", 'blue', 'yellow'] //通话状态显示颜色
       }
       $E.init("#phoneBar", options)

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestCaseEntity>
+   <description>Test log in related action</description>
+   <name>login</name>
+   <tag></tag>
+   <comment></comment>
+   <testCaseGuid>f23ea1e7-cdf2-42cb-a35b-592b4d2c5b6a</testCaseGuid>
+</TestCaseEntity>
