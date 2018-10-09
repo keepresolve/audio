@@ -9,7 +9,7 @@ router.get('/', function (req, res, next) {
 router.get('/login', function (req, res, next) {
   if (req.query.password == "caoshiyuan") {
    console.log(req.header,)
-    res.send({ code: 200, info: "密码正确", src: ["./dist/index.js", '"./dist/index.css'] })
+    res.send({ code: 200, info: "密码正确", src: ["./dist/index.js", '"./dist/mian.css'] })
   } else {
     res.send({ code: 301, info: "密码不对" })
   }
