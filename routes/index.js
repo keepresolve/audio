@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var nodemail=require("./email")
+var nodemail = require("./email")
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -8,7 +8,8 @@ router.get('/', function (req, res, next) {
 });
 router.get('/login', function (req, res, next) {
   if (req.query.password == "caoshiyuan") {
-    res.send({ code: 200, info: "密码正确", src: ["./dist/bundle.js",'"./dist/main.css']})
+   console.log(req.header,)
+    res.send({ code: 200, info: "密码正确", src: ["./dist/index.js", '"./dist/index.css'] })
   } else {
     res.send({ code: 301, info: "密码不对" })
   }

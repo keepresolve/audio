@@ -167,3 +167,6 @@ body,html{
 	width: 300px;
 	text-align: center;
 }
+#phoneBar li:hover{
+	background:'';
+}
