@@ -1,8 +1,0 @@
-node_modules/
-gen_wptest/*
-!gen_wptest/index.html
-npm-debug.log
-dist/
-dist-wp/
-dist-gulp/
-src/tmp
