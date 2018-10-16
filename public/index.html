@@ -94,7 +94,7 @@
   </pre>
   </div>
   <div id="phone" style="color: #ffffff">
-    docloud自由主机部署 输入正确的名字可拨打电话可拨打电话:
+    docloud自由主机部署
     <input type="password">
     <input type="button" id="send" value="确认">
   </div>
@@ -113,37 +113,37 @@
   <script src='./js/email.js'></script>
   <script>
     var timer = null
-    $("#phone #send").click(function () {
-      $("#phone").hide()
-      $.get("/login", { password: $("#phone input").val() }, function (res) {
-        if (res.code == 200) {
-          alert(res.info)
-          var script = document.createElement("script")
-          var head = document.getElementsByTagName("head")[0]
-          var link = document.createElement("link")
-          script.src = res[0]
-          link.src = res[1]
-          head.appendChild(script)
-          head.appendChild(link)
-          script.onload = function () {
-            $("#phone").remove()
-            Ephone()
-          }
-        } else {
-          $("#phone").show()
-          alert(res.info)
-        }
-      })
-    })
-    function Ephone() {
+    // $("#phone #send").click(function () {
+    //   $("#phone").hide()
+    //   $.get("/login", { password: $("#phone input").val() }, function (res) {
+    //     if (res.code == 200) {
+    //       alert(res.info)
+    //       var script = document.createElement("script")
+    //       var head = document.getElementsByTagName("head")[0]
+    //       var link = document.createElement("link")
+    //       script.src = res[0]
+    //       link.src = res[1]
+    //       head.appendChild(script)
+    //       head.appendChild(link)
+    //       script.onload = function () {
+    //         $("#phone").remove()
+    //         Ephone()
+    //       }
+    //     } else {
+    //       $("#phone").show()
+    //       alert(res.info)
+    //     }
+    //   })
+    // })
+    // function Ephone() {
 
-      var options = {
-        background: "black", //工具条颜色
-        drop: true, //是否开始拖拽
-        callBackground: ["red", 'blue', 'yellow'] //通话状态显示颜色
-      }
-      $E.init("#phoneBar", options)
-    }
+    //   var options = {
+    //     background: "black", //工具条颜色
+    //     drop: true, //是否开始拖拽
+    //     callBackground: ["red", 'blue', 'yellow'] //通话状态显示颜色
+    //   }
+    //   $E.init("#phoneBar", options)
+    // }
   </script>
 </body>
 
