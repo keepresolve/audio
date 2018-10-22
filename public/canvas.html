@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<style>
+    #can {
+        width: 600px;
+        height: 600px;
+        border: 3px dotted;
+    }
+</style>
+
+<body>
+    <div id="can">
+        <canvas height="600" width="600"></canvas>
+    </div>
+    <div class="btn">
+        <button id='saveDate'>重置时间</button><span id='date'></span>
+        <button id='save'>播放动画</button>
+        <button id='clear'>保存并清空</button>
+        <span>粗细<input id="degree" type="range" min='1' step="1" value='1'> <span>1</span></span>
+    </div>
+    <div id="record">
+        开始记录时间<span></span>
+        结束时间<span></span>
+    </div>
+</body>
+
+</html>
+<script>
+    //   class animationCanvas{
+    //       constructor(el="body"){
+    //           this.path=[]
+    //           this.el=document.querySelector(el)
+    //           this.el.innerHTML=`
+    //             <canvas></canvas>
+
+    //           `
+    //       }
+    //   }
+    var path = []
+    // Canvas
+    var warpper = document.querySelector("#can")
+    var c = warpper.querySelector("canvas");
+    var clear = document.querySelector("#clear")
+    var saveDate = document.querySelector("#saveDate")
+    var date = document.querySelector("#date")
+    var ctx = c.getContext("2d");
+    var degree = document.querySelector("#degree")
+    var record = document.querySelector("#record")
+    var n = Date.now()
+    date.innerHTML = n
+    begin(true)
+    c.onmousedown = function (ev) {
+        // console.log(x+"/"+y)
+        // ctx.beginPath()
+        var color = '#' + ('00000' + Math.random() * 0x1000000 << 0).toString(16).slice(-6);
+        ctx.strokeStyle = color
+        var x = ev.offsetX
+        var Y = ev.offsetY
+        var d = Date.now() - n
+        path.push({ x, Y, d, ismove: true, color })
+        ctx.moveTo(x, Y)
+        c.onmousemove = function (e) {
+            var x = e.offsetX
+            var Y = e.offsetY
+            ctx.lineTo(x, Y)
+            ctx.stroke()
+            d = Date.now() - n
+            path.push({ x, Y, d, color, degree: degree.value })
+        }
+        c.onmouseup = function (event) {
+            var x = ev.offsetX
+            var Y = ev.offsetY
+            // ctx.lineTo(x, Y)
+            d = Date.now() - n
+            // path.push({ x, Y, d ,color})
+            // ctx.stroke()
+            c.onmousemove = null
+        }
+
+    }
+    save.onclick = function () {
+        begin()
+    }
+    saveDate.onclick = function () {
+        n = Date.now()
+        date.innerHTML = n
+    }
+    clear.onclick = function () {
+        localStorage.path = JSON.stringify(path)
+        c.height = c.height
+        record.children[0].innerText = path[0].d
+        record.children[1].innerText = path[path.length - 1].d
+    }
+    degree.onchange = function (val) {
+        degree.nextElementSibling.innerHTML = degree.value
+        ctx.lineWidth = degree.value
+    }
+    function begin(isold) {
+        var savePath = isold ? JSON.parse(localStorage.path) : path
+        savePath.map(v => {
+            if (v.ismove) {
+                setTimeout(() => {
+                    ctx.beginPath()
+                    warpper.style.borderColor = v.color
+                    ctx.strokeStyle = v.color
+                    ctx.lineWidth = v.degree
+                    ctx.moveTo(v.x, v.Y)
+                    ctx.stroke()
+                }, v.d + 50)
+            } else {
+                setTimeout(() => {
+                    warpper.style.borderColor = v.color
+                    ctx.lineWidth = v.degree
+                    ctx.lineTo(v.x, v.Y)
+                    ctx.stroke()
+                }, v.d + 50);
+            }
+        })
+
+    }
+</script>
