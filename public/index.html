@@ -121,8 +121,8 @@
           var script = document.createElement("script")
           var head = document.getElementsByTagName("head")[0]
           var link = document.createElement("link")
-          script.src = res[0]
-          link.src = res[1]
+          script.src = res.src[0]
+          link.src = res.src[1]
           head.appendChild(script)
           head.appendChild(link)
           script.onload = function () {
