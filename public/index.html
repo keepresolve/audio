@@ -8,6 +8,7 @@
 </head>
 <link rel="stylesheet" href="./css/index.css">
 <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script src="./js/Observer.js"></script>
 <script src="./js/index.js"></script>
 
 <body>
@@ -20,13 +21,13 @@
   <div id="phoneBar"></div>
   <div class="big">
     <h3>点击歌曲播放</h3>
-    <ul class="showList">
+    <div class="warpper">
       <!-- <li>千千阙歌<div><img src="play.gif" alt=""></div></li>
 	<li>夜的钢琴曲<div><img src="play.gif" alt=""></div></li>
 	<li>小苹果<div><img src="play.gif" alt=""></div></li>
 	<li>时间都去哪儿了<div><img src="play.gif" alt=""></div></li>
 	<li>雨的印记<div><img src="play.gif" alt=""></div></li> -->
-    </ul>
+      </div>
     <div class="pro">
       <div class="progress"></div>
     </div>
@@ -122,7 +123,9 @@
           var head = document.getElementsByTagName("head")[0]
           var link = document.createElement("link")
           script.src = res.src[0]
-          link.src = res.src[1]
+          console.log(res)
+          link.rel="stylesheet"
+          link.href = "dist/main.css"
           head.appendChild(script)
           head.appendChild(link)
           script.onload = function () {
@@ -144,6 +147,9 @@
       }
       $E.init("#phoneBar", options)
     }
+
+
+
   </script>
 </body>
 

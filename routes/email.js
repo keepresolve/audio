@@ -36,7 +36,7 @@ exports.sendmail = function (req, res, next) {
 
     transporter.sendMail(mailOptions, function (error, info) {
         if (!error) {
-            return res.send({ message: "邮件发送成功，请注意查收！" });
+            return res.send({ message: "邮件发送成功，请注意查收！" ,info});
         } else {
             console.log(error);
             return res.send({ message: "邮件发送失败，请稍后重试！" });
