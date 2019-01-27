@@ -1,47 +1,60 @@
 $(function() {
   let state = {
     list: [],
-    currentIndex: 0
+    currentIndex: 0,
+    palyType: "once"
   };
-  let watch = new Observer(state);
+  let watch = new Observer(state, {
+    watch: {
+      palyType: function(n, o) {},
+      currentIndex: function(n, o) {
+        $(".showList li div").css("display", "none");
+        $(".showList li").eq(n).find("div").css("display", "inline-block");
+        $("audio").attr( "src", $(".showList li") .eq(n).attr("src"));
+        $("audio").attr("index",
+          $(".showList li")
+            .eq(n)
+            .attr("index")
+        );
+      }
+    }
+  });
 
   // 减少上一曲下一曲的bug
   // var ado = document.getElementsByTagName('audio')[0]
-  function currentPlay(index, arg) {
-    if (index == state.list.length && arg != 0) index = 0;
+  function currentPlay(index) {
+    if (index == state.list.length) index = 0;
     if (index == -1) index = state.list.length - 1;
-    $(".showList li div").css("display", "none");
-    $(".showList li").eq(index).find("div").css("display", "inline-block");
-    $("audio").attr("src", $(".showList li") .eq(index).attr("src"));
-    $("audio").attr("index", $(".showList li").eq(index).attr("index"));
     state.currentIndex = index;
-    $("audio").get(0).play();
-    
+    $("audio")
+      .get(0)
+      .play();
   }
   $(".warpper").on("click", "li", function() {
-    // 动态小图
-    $(".warpper li div").css("display", "none");
-    $(this) .find("div").css("display", "block");
-    // 点击歌曲换歌
-    $("audio").attr("src", $(this).attr("src"));
-    $("audio").attr("index", $(this).attr("index"));
-    state.currentIndex=$(this).attr("index")
-    $("audio").get(0).play();
+    state.palyType = "once";
+    state.currentIndex = $(this).attr("index");
+    $("audio")
+      .get(0)
+      .play();
   });
   $(".warpper").on("click", "input", function(e) {
     e.stopPropagation();
-  })
+  });
   // 双击播放
-  $("h3").dblclick(function () {
-    $("audio").get(0).load()
-    $("audio").get(0).play()
-  })
+  $("h3").dblclick(function() {
+    $("audio")
+      .get(0)
+      .load();
+    $("audio")
+      .get(0)
+      .play();
+  });
   // 播放
   $(".big button")
     .eq(0)
     .click(function() {
       $("audio")
-        .get(state.currentIndex)
+        .get(0)
         .play();
     });
   // 暂停
@@ -143,21 +156,21 @@ $(function() {
     .eq(11)
     .mousedown(function() {
       $("audio").removeAttr("loop");
+      state.palyType = "normal";
       $("audio").get(0).onended = function() {
-        var currentIndex = $("audio").attr("index") - 0 + 1;
-        currentPlay(currentIndex, 0);
+        if (state.palyType == "normal") {
+          var currentIndex = state.currentIndex+1
+          if(currentIndex==state.list.length) return
+          currentPlay(currentIndex, 0);
+        }
       };
     });
   // 随机
   $("button")
     .eq(12)
     .mousedown(function() {
-      $("audio").get(0).onended = function() {
-        var currentIndex = Math.ceil(
-          Math.random() * $(".showList li").length - 1
-        );
-        currentPlay(currentIndex);
-      };
+      state.palyType = "math";
+       $("audio").get(0).onended = ()=>{if (state.palyType == "math") currentPlay(Math.ceil(Math.random() * state.list.length - 1));}
     });
   // 循环
   $("button")
@@ -165,8 +178,7 @@ $(function() {
     .mousedown(function() {
       $("audio").removeAttr("loop");
       $("audio").get(0).onended = function() {
-        var currentIndex = $("audio").attr("index") - 0 + 1;
-        currentPlay(currentIndex);
+        currentPlay(state.currentIndex+1);
       };
     });
   //滚动条
@@ -253,15 +265,11 @@ $(function() {
   init();
   function getInitSrc(type) {
     $.get("/file/getfileSrc", function(res) {
-      // var html = ''
-      // for (var i = 0; i <res.length; i++) {
-      //   html += '<li id="'+res[i].id+'"  index="' + i + '" isplay="false" data-src="' + res[i].path + '" src="' + res[i].remotePath + '">' + res[i].fileName + '<div><img src="play.gif" alt=""></div><input type="checkbox"></li>'
-      // };
-      // $(".showList").html(html)
       state.list = res;
       if (type == "init") {
         $("audio").attr("src", res[state.currentIndex].remotePath);
       } else {
+        // state.currentIndex = state.currentIndex
       }
     });
   }

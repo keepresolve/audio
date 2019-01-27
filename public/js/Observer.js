@@ -1,6 +1,8 @@
-function Observer(data) {
+function Observer(data,option) {
+  option=option || {}
+  option.watch=  option.watch ||{}
   this.data = data;
-  this.walk(data);
+  this.walk(data,option);
 }
 
 var p = Observer.prototype;
@@ -24,8 +26,9 @@ var arrayMethods = Object.create(arrayProto);
   }
 );
 
-p.walk = function(obj) {
+p.walk = function(obj,option) {
   let value;
+  let watchKeys = Object.keys(option.watch)
   for (let key in obj) {
     // 使用 hasOwnProperty 判断对象本身是否有该属性 继承的不要
     if (obj.hasOwnProperty(key)) {
@@ -44,20 +47,23 @@ p.walk = function(obj) {
      */
         new Observer(value);
       }
-      this.convert(key, value);
+      let cb= option.watch[watchKeys.find(v=>v==key)]
+      this.convert(key, value,cb);
     }
   }
 };
 
-p.convert = function(key, value) {
+p.convert = function(key, value, cb) {
   Object.defineProperty(this.data, key, {
     enumerable: true,
     configurable: true,
     get: function() {
+  
       console.log(key + "被访问到了");
       return value;
     },
     set: function(newVal) {
+      cb&&cb(newVal,value)
       console.log(key + "被重新设置值了" + "=" + newVal);
       // 如果新值和旧值相同的话，直接返回
       if (newVal === value) return;
