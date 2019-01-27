@@ -53,6 +53,7 @@ $(function() {
   $(".big button")
     .eq(0)
     .click(function() {
+      state.currentIndex= state.currentIndex
       $("audio")
         .get(0)
         .play();
