@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello Qunee for HTML5</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.bootcss.com/pouchdb/7.0.0/pouchdb.min.js"></script>
+    <script src="http://demo.qunee.com/lib/qunee-min.js"></script>
+</head>
+<body>
+        <!-- http://doc.qunee.com/pages/viewpage.action?pageId=1146954 -->
+<div style="height: 500px;" id="canvas">
+
+<script>
+     let db = new PouchDB("node");
+     db.get("nodes").then(json=>{
+        db.put({_id:"nodes",_rev:json._rev,"nodes":[{"name": "A",  "id": 1}, {"name": "B", "id": 2}], "edges": [{"name": "Edge", "from":1, "to":2}]})
+     })
+     var graph = new Q.Graph('canvas');
+     let map={}
+    //  db.get("nodes").then(json=>{
+    //     translateToQuneeElements(json,graph)  
+    //  })
+     //点击设置name
+    graph.ondblclick = function(evt){
+        var node = graph.getElementByMouseEvent(evt);
+        if(node){
+            var newName = prompt("New Name:");
+            if(newName){
+                node.name = newName;
+            }
+        }
+    }
+    //设置节点图标
+     var nodeWithGIF = graph.createNode("Node with GIF\nnot support IE", 120, 110);
+     nodeWithGIF.image = "./play.gif";
+
+
+
+
+
+
+     function translateToQuneeElements(json, graph){
+           
+            var map = {};
+            if(json.nodes){
+                Q.forEach(json.nodes, function(data){
+                    var node = graph.createNode(data.name, data.x || 0, data.y || 0);
+                    node.set("data", data);
+                    node.addChild(graph.createNode("event1", data.x || 0, data.y || 0))
+                    map[data.id] = node;
+                });
+            }
+            if(json.edges){
+                Q.forEach(json.edges, function(data){
+                    var from = map[data.from];
+                    var to = map[data.to];
+                    if(!from || !to){
+                        return;
+                    }
+                    var edge = graph.createEdge(data.name, from, to);
+                    
+                //   edge.setStyle(Q.Styles.LABEL_POSITION, Q.Position.CENTER_TOP);
+
+                    edge.set("data", data);
+                }, graph);
+            }
+        }
+        let   Colors ={
+            yellow:"yellow"
+        }
+      
+        var nodeWithLabels = graph.createNode("Node with Labels", 0, -110);
+        var label2 = new Q.LabelUI();
+        label2.position = Q.Position.CENTER_TOP;
+        label2.anchorPosition = Q.Position.CENTER_BOTTOM;
+        label2.border = 1;
+        label2.padding = new Q.Insets(2, 5);
+        label2.showPointer = true;
+        label2.offsetY = -10;
+        label2.backgroundColor = Colors.yellow;
+        label2.fontSize = 16;
+        label2.fontStyle = "italic 100";
+        nodeWithLabels.addUI(label2, [{
+            property : "label2",
+            propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
+            bindingProperty : "data"
+            }, {
+            property : "label2.color",
+            propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
+            bindingProperty : "color"
+            }]);
+        nodeWithLabels.set("label2", "another label");
+        nodeWithLabels.set("label2.color", Colors.blue);
+</script>
+</body>
+</html>
