@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title></title>
+  <style media="screen">
+    *{
+      margin:0px;
+      padding: 0px;
+    }
+    div{
+        width: 10px;
+        height: 30px;
+        border: 1px solid red;
+      }
+      ul{
+        width: 299px;
+        height: 300px;
+        border:3px solid red;
+      }
+      .kec>span>a:nth-child(1){
+        text-decoration: none;
+        color: red;
+      }
+      /* keyframes动画 */
+      .div{
+       background:-webkit-linear-gradient(left,red,blue, yellow);
+       display: flex;
+       width: 100%;
+       height:300px;
+       flex-wrap:wrap;
+       justify-content:center;
+       align-items: center;
+       align-content:stretch;
+       transform:rotate(0deg);
+       animation:animationName 5s infinite;
+      }
+      @keyframes animationName {
+        from{
+          transform:rotate(0deg)
+        }
+        to{
+          transform:rotate(360deg)
+        }
+      }
+      .div>.one{
+        width:20%;
+        border:1px solid red;
+      }
+      .ul{
+        transition:all 3s;
+        background:lavenderblush;
+      }
+      .ul:hover{
+        width:100px;
+        height: 300px;
+        border:10px solid lavender;
+        transform:skew(360deg)
+      }
+
+  /* 方块旋转 */
+  .container3d{
+    margin-top:300px;
+    margin-left:600px;
+    text-align: center;
+   text-shadow:cornflowerblue;
+   line-height:300px;
+   text-shadow:2px 3px 4px aqua;
+   font-size:3rem;
+   perspective:500;
+   width:600px;
+   height:600px;
+  
+  }
+  .wrapper3d,li{
+    width:300px;
+    height:300px;
+    border:1px solid greenyellow;
+    list-style: none;
+    position: relative; 
+  
+  }
+  .wrapper3d{
+    transform-style: preserve-3d;
+    /* transition:all 10s ease-in-out ; */
+    animation: infinition 20s infinite;
+  }
+  .wrapper3d>li{
+    position: absolute;
+  }
+  .wrapper3d>li:nth-of-type(1){
+     left:-300px;
+     transform-origin:right;
+     transform:rotateY(90deg)
+  }
+  .wrapper3d>li:nth-of-type(2){
+     left:0px;
+     transform-origin:right;
+     transform:rotateY(90deg)
+  }
+  .wrapper3d>li:nth-of-type(3){
+     top:0px;
+     transform-origin:top;
+     transform:rotateX(90deg)
+  } 
+   .wrapper3d>li:nth-of-type(4){
+     bottom:0px;
+     transform-origin:bottom;
+     transform:rotateX(-90deg)
+  } 
+   .wrapper3d>li:nth-of-type(5){
+     /* border:10px solid red; */
+     transform-origin:center;
+     transform:translateZ(300px);
+  }
+  /* .wrapper3d:hover{
+    transform: rotateY(1060deg) rotateX(1060deg);
+  } */
+  @keyframes infinition {
+    from {
+      transform: rotateY(0deg) rotateX(0deg);
+    }
+    to {
+      transform: rotateY(1060deg) rotateX(1060deg);
+    }
+  }
+  #can{
+    width: 300px;
+    height: 300px;
+    border:1px dotted red;
+    position: fixed;
+    top:0px;
+    right:0px;
+  }
+  #can canvas{
+    width: 100%;
+    height: 100%;
+  }
+    </style>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+</head>
+
+<body>
+  <ul data-aaa="123">
+
+  </ul>
+  <div class="div">
+    <div class="one">asd</div>
+    <div class="one">asd</div>
+    <div class="one">asd</div>
+    <div class="one">asd</div>
+    <div class="one">asd</div>
+    <div class="one">asd</div>
+    <div class="one">asd</div>
+    <div class="one">asd</div>
+  </div>
+
+  <div class="kec">
+    <span>
+      <a href="">asss</a>
+      <a href="">ssdsd</a>
+      <a href="">ssdsd</a>
+      <a href="">ssdsd</a>
+    </span>
+  </div>
+  <ul class="ul">
+
+  </ul>
+
+
+  <input type="text">
+  <div class="container3d">
+    <ul class="wrapper3d">
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+      <li>5</li>
+      <li>6</li>
+    </ul>
+  </div>
+  <div onclick="open()">asdsa</div>
+  <div id="can">
+    <canvas height="300" width="300"></canvas>
+    <button id='saveDate'>记录时间</button><span id='date'></span>
+    <button id='save'>播放动画</button>
+    <button id='clear'>清空</button>
+  </div>
+
+
+</body>
+<script type="text/javascript">
+  var path = []
+  // Canvas
+  var c = document.querySelector("#can canvas");
+  var clear = document.querySelector("#clear")
+  var saveDate = document.querySelector("#saveDate")
+  var date = document.querySelector("#date")
+  var ctx = c.getContext("2d");
+  var n = Date.now()
+  date.innerHTML = n
+  c.onmousedown = function (ev) {
+    // console.log(x+"/"+y)
+    // ctx.beginPath()
+    var color = '#' + ('00000' + Math.random() * 0x1000000 << 0).toString(16).slice(-6);
+    ctx.strokeStyle = color
+    var x = ev.offsetX
+    var Y = ev.offsetY
+    var d = Date.now() - n
+    path.push({ x, Y, d, ismove: true, color })
+    ctx.moveTo(x, Y)
+    c.onmousemove = function (e) {
+      var x = e.offsetX
+      var Y = e.offsetY
+      ctx.lineTo(x, Y)
+      ctx.stroke()
+      d = Date.now() - n
+      path.push({ x, Y, d, color })
+    }
+    c.onmouseup = function (event) {
+      var x = ev.offsetX
+      var Y = ev.offsetY
+      // ctx.lineTo(x, Y)
+      d = Date.now() - n
+      // path.push({ x, Y, d ,color})
+      // ctx.stroke()
+      c.onmousemove = null
+    }
+
+  }
+  save.onclick = function () {
+    ctx.moveTo(path[0].x, path[0].Y)
+    path.map(v => {
+      if (v.ismove) {
+        setTimeout(() => {
+          ctx.beginPath()
+          ctx.strokeStyle = v.color
+          ctx.moveTo(v.x, v.Y)
+          ctx.stroke()
+        }, v.d + 50)
+
+      } else {
+        setTimeout(() => {
+          ctx.lineTo(v.x, v.Y)
+          ctx.stroke()
+        }, v.d + 50);
+      }
+
+
+    })
+
+  }
+  saveDate.onclick = function () {
+    n = Date.now()
+    date.innerHTML = n
+  }
+  clear.onclick = function () {
+    console.log(path)
+    c.height = c.height
+  }
+
+
+
+
+
+
+
+
+
+
+
+  // 检测属性存在否
+  // for (var variable in navigator) {
+  //   if (navigator.hasOwnProperty(variable)) {
+  //          console.log(variable)
+  //   }else {
+  //     console.log(variable)
+  //   }
+  // }
+  // console.log(navigator.userAgent)
+  //  document.onclick=function(ev) {
+  //     var Oev=window.event||ev
+  //    var object = Oev.target;
+  //    console.log(Oev.target.dataset.aaa)
+  //    for (var variable in object) {
+  //      if (object.hasOwnProperty(variable)) {
+  //            console.log(variable+"/")
+  //      }else {
+  //        console.log(variable);
+  //      }
+  //    }
+
+
+  //    for (var i = 0; i < 3; i++) {
+  //      var div=document.createElement("div")
+  //       Oev.target.appendChild(div)
+  //    }
+  //  }
+
+  // for(var i =0 ; i < 10 ; i ++ ){
+  //      (function(){
+  //             console.log((function(){
+  //               return i
+  //             })())
+  //      })()
+  // }
+
+  // calss类
+  // class aaa{
+  //   constructor(){
+  //     alert(1)
+  //   }
+  //   prototype(){
+  //     alert(2)
+  //   }
+  //   toString(){
+
+  //   }
+  // }
+  // console.log(new aaa())
+  // new aaa().prototype()
+  // function open(){
+  //   window.open ("http://www.baidu.com")
+
+  // }
+  // function open() {
+  //   myWindow = window.open('', '', 'width=200,height=100');
+  //   myWindow.document.write("<p>这是'我的窗口'</p>");
+  //   myWindow.focus();
+  // }
+  // open()
+
+  // $("input").keyup(function (e) {
+  //   if (e.keyCode == 13) {
+  //     alert(111)
+  //   }
+  // })
+
+</script>
+
+</html>

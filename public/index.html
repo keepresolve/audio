@@ -7,8 +7,10 @@
   <title>audio电话mp3播放器</title>
 </head>
 <link rel="stylesheet" href="./css/index.css">
-<script src="./js/jquery.js"></script>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script src="./js/Observer.js"></script>
 <script src="./js/index.js"></script>
+<script src="https://cdn.bootcss.com/vConsole/3.2.2/vconsole.min.js"></script>
 
 <body>
   <div class="github">
@@ -20,13 +22,13 @@
   <div id="phoneBar"></div>
   <div class="big">
     <h3>点击歌曲播放</h3>
-    <ul class="showList">
+    <div class="warpper">
       <!-- <li>千千阙歌<div><img src="play.gif" alt=""></div></li>
 	<li>夜的钢琴曲<div><img src="play.gif" alt=""></div></li>
 	<li>小苹果<div><img src="play.gif" alt=""></div></li>
 	<li>时间都去哪儿了<div><img src="play.gif" alt=""></div></li>
 	<li>雨的印记<div><img src="play.gif" alt=""></div></li> -->
-    </ul>
+      </div>
     <div class="pro">
       <div class="progress"></div>
     </div>
@@ -60,18 +62,7 @@
 
   <div class="font">
     <div>
-      <!-- <p>落花不是维萨多啊实打实的阿萨德的所</p>
-   <p>阿萨德撒的撒大所大所多阿萨德撒的撒多</p>
-   <p>阿萨德撒套票多</p>
-   <p>阿萨德撒的撒大所橱柜多</p>
-   <p>阿萨德wsz撒的撒asd大所橱柜多</p>
-   <p>阿萨德撒的we撒大所橱柜多</p>
-   <p>阿萨德撒的撒asd大所橱柜多</p>
-   <p>阿萨德撒的das撒大所橱柜多</p>
-   <p>阿萨德撒的das撒大所橱柜多</p>
-   <p>阿萨德撒的das撒大所橱柜多</p>
-   <p>阿萨德撒的das撒大所橱柜多</p>
-   <p>阿萨德撒的das撒大所橱柜多</p> -->
+
     </div>
   </div>
   <div class="upfileProgress">
@@ -112,7 +103,9 @@
   <script src="./js/rem.js"></script>
   <script src='./js/email.js'></script>
   <script>
+    var vConsole = new VConsole();
     var timer = null
+<<<<<<< HEAD
     // $("#phone #send").click(function () {
     //   $("#phone").hide()
     //   $.get("/login", { password: $("#phone input").val() }, function (res) {
@@ -144,6 +137,44 @@
     //   }
     //   $E.init("#phoneBar", options)
     // }
+=======
+    $("#phone #send").click(function () {
+      $("#phone").hide()
+      $.get("/login", { password: $("#phone input").val() }, function (res) {
+        if (res.code == 200) {
+          alert(res.info)
+          var script = document.createElement("script")
+          var head = document.getElementsByTagName("head")[0]
+          var link = document.createElement("link")
+          script.src = res.src[0]
+          console.log(res)
+          link.rel="stylesheet"
+          link.href = "dist/main.css"
+          head.appendChild(script)
+          head.appendChild(link)
+          script.onload = function () {
+            $("#phone").remove()
+            Ephone()
+          }
+        } else {
+          $("#phone").show()
+          alert(res.info)
+        }
+      })
+    })
+    function Ephone() {
+
+      var options = {
+        background: "black", //工具条颜色
+        drop: true, //是否开始拖拽
+        callBackground: ["red", 'blue', 'yellow'] //通话状态显示颜色
+      }
+      $E.init("#phoneBar", options)
+    }
+
+
+
+>>>>>>> e3466fe7d88ee692299981853e1a4e765127cf35
   </script>
 </body>
 
