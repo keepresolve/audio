@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello Qunee for HTML5</title>
+    <meta charset="utf-8">
+    <script src="./lib/qunee-min.js"></script>
+    <style>
+     #tab{
+         display: flex;
+         width:600px;
+     }
+     #tab li{
+         flex:1;
+         border:1px solid;
+         
+     }
+     #canvas{
+         border:1px dotted;
+     }
+    </style>
+</head>
+<body>
+        <!-- http://doc.qunee.com/pages/viewpage.action?pageId=1146954 -->
+        <!-- <img style="cursor: pointer;" title="创建连线" onclick="onCreateEdgeButtonClick" alt="" src="./play.gif" />  -->
+        <ul id='tab'>
+            <li title="拖拽创建节点" draggable="true"  image="node_icon.png" type="Node" label="1" >1</li> 
+            <li draggable="true">2</li>
+            <li draggable="true">3</li>
+            <li draggable="true">4</li>
+            <li draggable="true">5</li>
+        </ul>
+        
+<div style="height: 500px;" id="canvas" draggable="true">
+
+<script>
+     let ul=document.querySelector("#tab")
+     let canvas =document.querySelector('#canvas')
+     let lis =document.querySelectorAll("li")
+     var graph = new Q.Graph('canvas'); 
+     let map={}
+
+
+     
+ 
+ 
+    
+     
+       
+    //点击设置name
+    graph.ondblclick = function(evt){
+        var node = graph.getElementByMouseEvent(evt);
+        if(node){
+            console.log(node)
+            node.setStyle(Q.Styles.LABEL_POSITION, Q.Position.CENTER_TOP);
+            node.set("userId", "100");
+            var child1 = graph.createNode("child1",node.x+50,node.y-50);
+            var child2 = graph.createNode("child2",node.x+100,node.y-50);
+            var child3 = graph.createNode("child3",node.x+150,node.y-50);
+            var child4 = graph.createNode("child4",node.x+200,node.y-50);
+            child1.parent = node;
+            child2.parent = node;
+            child3.parent = node;
+            child4.parent = node;
+            graph.createEdge(child1, node);
+            graph.createEdge(child2, node)
+            graph.createEdge(child3, node)
+            graph.createEdge(child4, node)
+            console.log(node)
+            // var newName = prompt("New Name:");
+            // if(newName){
+            //     node.name = newName;
+            // }
+        }
+    }
+   
+
+    //  拖拽
+     lis.forEach(el=>{
+         el.addEventListener("dragstart",function(ev){
+            ev.dataTransfer.setData("image", ev.target.getAttribute("image"));  
+            ev.dataTransfer.setData("type", ev.target.getAttribute("type"));  
+            ev.dataTransfer.setData("label", ev.target.getAttribute("label")); 
+         })
+     })
+     canvas.addEventListener("dragover",function(ev){
+         ev.stopPropagation()
+     })
+     canvas.addEventListener("drop",function(ev){
+        console.log(ev)
+        ev.preventDefault();  
+        var image = ev.dataTransfer.getData("image");  
+        var type = ev.dataTransfer.getData("type");  
+        var label = ev.dataTransfer.getData("label");  
+    
+        var xy = graph.globalToLocal(ev);  
+            xy = graph.toLogical(xy.x, xy.y);  
+        
+            if(type == "Node"){  
+                var node = graph.createNode(label, xy.x, xy.y);  
+                if(image){  
+                    if(image.indexOf(".") < 0){  
+                        image = Q.Graphs[image];  
+                    }  
+                    node.image = image;  
+                }  
+            }  
+     })
+
+
+
+     
+ //设置节点图标
+ var nodeWithGIF = graph.createNode("Node with GIF\nnot support IE", 120, 110);
+     nodeWithGIF.image = "node_icon.png";
+
+
+    // translateToQuneeElements({"nodes":[{"name": "A",  "id": 1}, {"name": "B", "id": 2}], "edges": [{"name": "Edge", "from":1, "to":2}]},graph)  
+  
+ var CREATE_EDGE_MODE = "create.edge.mode";  
+function CreateEdgeInteraction(graph){  
+    this.graph = graph;  
+    this.topCavans = graph.topCanvas;  
+   
+}  
+function onCreateEdgeButtonClick(evt){  
+    var target = evt.target;  
+    if(target.selected){  
+        target.selected = false;  
+        target.className = "";  
+    }else{  
+        target.selected = true;  
+        target.className = "selected";  
+    }  
+    graph.interactionMode = target.selected ? CREATE_EDGE_MODE : Q.Consts.INTERACTION_MODE_DEFAULT;  
+}  
+CreateEdgeInteraction.prototype = {  
+    destroy: function(graph){  
+        this.start = null;  
+        graph.cursor = null;  
+        if(this.drawLineId){  
+            this.topCavans.removeDrawable(this.drawLineId);  
+            delete this.drawLineId;  
+            this.topCavans.invalidate();  
+        }  
+    },  
+    drawLine: function(g, scale){  
+        var x = this.start.x;  
+        var y = this.start.y;  
+        g.moveTo(x, y);  
+        if(this.edgeClass == FlexEdgeUI){  
+            var cx = (this.start.x + this.end.x) / 2;  
+            var cy = (this.start.y + this.end.y) / 2;  
+            g.bezierCurveTo(this.start.x, this.start.y, cx, this.end.y, this.end.x, this.end.y);  
+        }else{  
+            g.lineTo(this.end.x, this.end.y);  
+        }  
+        g.lineWidth = 3;  
+        g.strokeStyle = "#88F";  
+        g.stroke();  
+    },  
+    invalidate: function(){  
+        this.topCavans.invalidate();  
+    },  
+    startdrag: function(evt, graph){  
+        var start = evt.getData();  
+        if(!(start instanceof Q.Node)){  
+            return;  
+        }  
+        evt.responded = true;  
+        this.start = start;  
+        graph.cursor = "crosshair";  
+        this.drawLineId = this.topCavans.addDrawable(this.drawLine, this).id;  
+    },  
+    ondrag: function(evt, graph){  
+        if(!this.start){  
+            return;  
+        }  
+        Q.stopEvent(evt);  
+        this.end = graph.getLogicalPointByMouseEvent(evt);  
+        this.invalidate();  
+    },  
+//    edgeClass: FlexEdgeUI,  
+    enddrag: function(evt, graph){  
+        if(!this.start){  
+            return;  
+        }  
+        graph.cursor = "";  
+        this.invalidate();  
+        var end = graph.getElementByMouseEvent(evt);  
+        if(end){  
+            var edge = graph.createEdge(this.start, end);  
+            if(this.edgeClass){  
+                edge.uiClass = this.edgeClass;  
+            }  
+        }  
+        this.destroy(graph);  
+    }  
+}  
+Q.Defaults.registerInteractions(CREATE_EDGE_MODE, [CreateEdgeInteraction, Q.PanInteraction]);  
+
+function translateToQuneeElements(json, graph){
+             
+            var map = {};
+            if(json.nodes){
+                Q.forEach(json.nodes, function(data){
+                    var node = graph.createNode(data.name, data.x || 0, data.y || 0);
+                    node.set("data", data);
+                    node.addChild(graph.createNode("event1", data.x || 0, data.y || 0))
+                    map[data.id] = node;
+                });
+            }
+            if(json.edges){
+                Q.forEach(json.edges, function(data){
+                    var from = map[data.from];
+                    var to = map[data.to];
+                    if(!from || !to){
+                        return;
+                    }
+                    var edge = graph.createEdge(data.name, from, to);
+                    
+                //   edge.setStyle(Q.Styles.LABEL_POSITION, Q.Position.CENTER_TOP);
+
+                    edge.set("data", data);
+                }, graph);
+            }
+        }
+        let   Colors ={
+            yellow:"yellow"
+        }
+      
+        var nodeWithLabels = graph.createNode("Node with Labels", 0, -110);
+        var label2 = new Q.LabelUI();
+        label2.position = Q.Position.CENTER_TOP;
+        label2.anchorPosition = Q.Position.CENTER_BOTTOM;
+        label2.border = 1;
+        label2.padding = new Q.Insets(2, 5);
+        label2.showPointer = true;
+        label2.offsetY = -10;
+        label2.backgroundColor = Colors.yellow;
+        label2.fontSize = 16;
+        label2.fontStyle = "italic 100";
+        nodeWithLabels.addUI(label2, [{
+            property : "label2",
+            propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
+            bindingProperty : "data"
+            }, {
+            property : "label2.color",
+            propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
+            bindingProperty : "color"
+            }]);
+        nodeWithLabels.set("label2", "another label");
+        nodeWithLabels.set("label2.color", Colors.blue);
+</script>
+</body>
+</html>
