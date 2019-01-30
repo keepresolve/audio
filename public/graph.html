@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello Qunee for HTML5</title>
+    <meta charset="utf-8">
+    <script src="https://cdn.bootcss.com/pouchdb/7.0.0/pouchdb.min.js"></script>
+    <script src="/js/qunee-min.js"></script>
+</head>
+<style>
+ul,li{
+  list-style: none;
+  padding:0px;
+  margin:0px;
+}
+ul{
+    display: flex;
+    width: 500px;
+}
+li{
+    flex: 1;
+    height:30px;
+    border: 1px solid;
+}
+</style>
+<body>
+        <!-- http://doc.qunee.com/pages/viewpage.action?pageId=1146954 -->
+        <ul>
+            <li draggable="true" image='/"' type="Node" label='1' >1</li>
+            <li draggable="true" image='/"' type="Node" label='1' ></li>>2</li>
+            <li draggable="true">3</li>
+            <li draggable="true">4</li>
+            <li draggable="true">5</li>
+        </ul>
+<div style="height: 500px;border:1px dotted" id="canvas" >
+
+<script>
+     
+     let db = new PouchDB("node");
+  
+     var graph = new Q.Graph('canvas');
+     
+     let map={}
+
+     let canvas=document.querySelector("#canvas")
+     
+     let lis =document.querySelectorAll("li")
+     lis.forEach(v=>{
+         v.addEventListener("dragstart",function(ev){
+            let image = ev.target.getAttribute("image")
+            
+            ev.dataTransfer.setData("image",image);  
+            ev.dataTransfer.setData("type", ev.target.getAttribute("type"));  
+            ev.dataTransfer.setData("label", ev.target.getAttribute("label"));
+         })
+     })
+     //拖拽
+     canvas.addEventListener("dragover",function(ev){
+        ev.preventDefault(); 
+     })
+     let that=this
+     canvas.addEventListener("drop",function(ev){
+         alert(1)
+        ev.preventDefault();  
+
+        // var type = ev.dataTransfer.getData("type");  
+        // var label = ev.dataTransfer.getData("label");  
+        // // var image = ev.dataTransfer.getData("image");   
+        // var xy = graph.globalToLocal(ev);  
+        // xy = graph.toLogical(xy.x, xy.y);  
+    
+        // if(type == "Node"){  
+        //     var node = graph.createNode(label, xy.x, xy.y);  
+        //     // if(image){  
+        //     //     if(image.indexOf(".") < 0){  
+        //     //         image = Q.Graphs[image];  
+        //     //     }  
+           
+        //     nodeWithGIF.image = "./play.gif";
+        //     // }  
+        // }   
+        
+     })
+     db.get("nodes").then(json=>{
+        db.put({_id:"nodes",_rev:json._rev,"nodes":[{"name": "A",  "id": 1}, {"name": "B", "id": 2}], "edges": [{"name": "Edge", "from":1, "to":2}]})
+     })
+     db.get("nodes").then(json=>{
+        translateToQuneeElements(json,graph)  
+     })
+     //点击设置name
+    graph.ondblclick = function(evt){
+        var node = graph.getElementByMouseEvent(evt);
+        if(node){
+            var newName = prompt("New Name:");
+            if(newName){
+                node.name = newName;
+            }
+        }
+    }
+    //设置节点图标
+     var nodeWithGIF = graph.createNode("Node with GIF\nnot support IE", 120, 110);
+     nodeWithGIF.image = "./play.gif";
+
+    //自定义系欸但ui
+    let   Colors ={
+            yellow:"yellow",
+            bulue:"bule"
+        }
+     var nodeWithLabels = graph.createNode("Node with Labels", 0, -110);
+        var label2 = new Q.LabelUI();
+        label2.position = Q.Position.CENTER_TOP;
+        label2.anchorPosition = Q.Position.CENTER_BOTTOM;
+        label2.border = 1;
+        label2.padding = new Q.Insets(2, 5);
+        label2.showPointer = true;
+        label2.offsetY = -10;
+        label2.backgroundColor = Colors.yellow;
+        label2.fontSize = 16;
+        label2.fontStyle = "italic 100";
+        nodeWithLabels.addUI(label2, [{
+            property : "label2",
+            propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
+            bindingProperty : "data"
+            }, {
+            property : "label2.color",
+            propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
+            bindingProperty : "color"
+            }]);
+        nodeWithLabels.set("label2", "another label");
+        nodeWithLabels.set("label2.color", Colors.blue);
+
+
+
+     function translateToQuneeElements(json, graph){
+           
+            var map = {};
+            if(json.nodes){
+                Q.forEach(json.nodes, function(data){
+                    var node = graph.createNode(data.name, data.x || 0, data.y || 0);
+                    node.set("data", data);
+                    node.addChild(graph.createNode("event1",100,100))
+                    map[data.id] = node;
+                });
+            }
+            if(json.edges){
+                Q.forEach(json.edges, function(data){
+                    var from = map[data.from];
+                    var to = map[data.to];
+                    if(!from || !to){
+                        return;
+                    }
+                    var edge = graph.createEdge(data.name, from, to);
+                    
+                //   edge.setStyle(Q.Styles.LABEL_POSITION, Q.Position.CENTER_TOP);
+
+                    edge.set("data", data);
+                }, graph);
+            }
+        }
+    
+      
+       
+</script>
+</body>
+</html>
