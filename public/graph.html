@@ -21,16 +21,35 @@ li{
     height:30px;
     border: 1px solid;
 }
+#btns{
+    position:absolute;
+    right:300px;
+    left:300px;
+    display:none;
+    box-shadow: 1px 2px 3px 4px #777777;
+    z-index:100;
+  
+}
 </style>
 <body>
         <!-- http://doc.qunee.com/pages/viewpage.action?pageId=1146954 -->
         <ul>
-            <li draggable="true" image='/"' type="Node" label='1' >1</li>
+            <li draggable="true" image='/"' type="Node" label='播放语音文件' >1</li>
             <li draggable="true" image='/"' type="Node" label='1' ></li>>2</li>
             <li draggable="true">3</li>
             <li draggable="true">4</li>
             <li draggable="true">5</li>
         </ul>
+        <div id="btns">
+            name <input type="text">
+           播放完毕 <input type="text">
+           播放失败 <input type="text">
+            <!-- <input type="text">
+            <input type="text">
+            <input type="text"> -->
+            <button id="save">确定</button>
+            <button id="close">关闭</button>
+        </div>
 <div style="height: 500px;border:1px dotted" id="canvas" >
 
 <script>
@@ -40,26 +59,23 @@ li{
      var graph = new Q.Graph('canvas');
      
      let map={}
-
+ 
      let canvas=document.querySelector("#canvas")
      
      let lis =document.querySelectorAll("li")
-     lis.forEach(v=>{
-         v.addEventListener("dragstart",function(ev){
-            let image = ev.target.getAttribute("image")
-            
-            ev.dataTransfer.setData("image",image);  
-            ev.dataTransfer.setData("type", ev.target.getAttribute("type"));  
-            ev.dataTransfer.setData("label", ev.target.getAttribute("label"));
-         })
-     })
+     let btn=document.querySelector("#btns")
+     let btns=document.querySelectorAll("#btns input")
+     let save=document.querySelector("#save")
+     let close=document.querySelector("#close")
+
+     let node=null
+    
      //拖拽
      canvas.addEventListener("dragover",function(ev){
         ev.preventDefault(); 
      })
      let that=this
      canvas.addEventListener("drop",function(ev){
-         alert(1)
         ev.preventDefault();  
 
         // var type = ev.dataTransfer.getData("type");  
@@ -86,16 +102,64 @@ li{
      db.get("nodes").then(json=>{
         translateToQuneeElements(json,graph)  
      })
+    
      //点击设置name
     graph.ondblclick = function(evt){
-        var node = graph.getElementByMouseEvent(evt);
-        if(node){
-            var newName = prompt("New Name:");
-            if(newName){
-                node.name = newName;
-            }
+        node = graph.getElementByMouseEvent(evt);
+        btn.style.display="block"
+        
+        // if(node){
+        //     var newName = prompt("New Name:");
+        //     if(newName){
+        //         node.name = newName;
+        //     }
         }
+    save.onclick=function(){
+        btn.style.display="none"
+        node.name=btns[0].value
+         var node1 = graph.createNode(btns[1].value, Math.abs(node.x)-20, Math.abs(node.y)+20);
+         node1.image = "./play.gif";
+         var node2 = graph.createNode(btns[2].value, Math.abs(node.x)-40, Math.abs(node.y)+30);
+         node2.image = "./play.gif";
+         var edge = graph.createEdge("播放完毕", node, node1);
+         var edge = graph.createEdge("播放失败", node, node2);
     }
+    close.onclick=function(){
+        btn.style.display="none"
+    }
+    lis.forEach(v=>{
+         v.addEventListener("dragstart",function(ev){
+            let image = ev.target.getAttribute("image")
+            
+            ev.dataTransfer.setData("image",image);  
+            ev.dataTransfer.setData("type", ev.target.getAttribute("type"));  
+            ev.dataTransfer.setData("label", ev.target.getAttribute("label"));
+         })
+     })
+    graph.addCustomInteraction({
+        onevent: function (type, evt, graph) {
+            Q.log(type)
+        }
+    })
+    graph.enddrag =function(evt){
+       console.log("stop drag",evt)
+    }
+    graph.ondrag =function(evt){
+       console.log("stop ondrag",evt)
+    }
+    graph.onrelease=function(evt){
+        console.log("stop onrelease",evt)
+    }
+
+
+
+
+
+
+
+
+
+
     //设置节点图标
      var nodeWithGIF = graph.createNode("Node with GIF\nnot support IE", 120, 110);
      nodeWithGIF.image = "./play.gif";
