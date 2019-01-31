@@ -59,7 +59,11 @@ li{
      var graph = new Q.Graph('canvas');
      
      let map={}
- 
+     //自定义系欸但ui
+     let   Colors ={
+            yellow:"yellow",
+            bulue:"bule"
+        }
      let canvas=document.querySelector("#canvas")
      
      let lis =document.querySelectorAll("li")
@@ -102,7 +106,19 @@ li{
      db.get("nodes").then(json=>{
         translateToQuneeElements(json,graph)  
      })
-    
+     //设置喇叭了
+     var label = new Q.LabelUI();
+        label.position = Q.Position.CENTER_TOP;
+        label.anchorPosition = Q.Position.CENTER_BOTTOM;
+        label.border = 1;
+        label.padding = new Q.Insets(2, 5);
+        label.showPointer = true;
+        label.offsetY = -10;
+        label.backgroundColor = Colors.yellow;
+        label.fontSize = 16;
+        label.fontStyle = "italic 100";
+
+
      //点击设置name
     graph.ondblclick = function(evt){
         node = graph.getElementByMouseEvent(evt);
@@ -117,12 +133,56 @@ li{
     save.onclick=function(){
         btn.style.display="none"
         node.name=btns[0].value
+        // 创建节点并置顶图片
          var node1 = graph.createNode(btns[1].value, Math.abs(node.x)-20, Math.abs(node.y)+20);
          node1.image = "./play.gif";
          var node2 = graph.createNode(btns[2].value, Math.abs(node.x)-40, Math.abs(node.y)+30);
          node2.image = "./play.gif";
-         var edge = graph.createEdge("播放完毕", node, node1);
-         var edge = graph.createEdge("播放失败", node, node2);
+
+         //设置样式
+         node.setStyle(Q.Styles.BORDER, 1);
+         node.setStyle(Q.Styles.BORDER_COLOR, '#AABBEE');
+         node.setStyle(Q.Styles.PADDING, 5);
+         //连线
+        
+         var edge1 = graph.createEdge("播放完毕", node, node1);
+         var edge2 = graph.createEdge("播放失败", node, node2);
+         edge1.setStyle(Q.Styles.EDGE_COLOR, '#88AAEE');
+         edge1.setStyle(Q.Styles.EDGE_WIDTH, 2);
+         edge1.edgeType = Q.Consts.EDGE_TYPE_VERTICAL_HORIZONTAL;
+         //节点跟随
+        node1.host=  node2.host=node
+         //添加黄色的标签
+         node.addUI(label, [{
+            property : "label",
+            propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
+            bindingProperty : "data"
+            }, {
+            property : "label.color",
+            propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
+            bindingProperty : "color"
+            }]);
+            node.set("label", "播放语音label");
+        //  node2.set("label", "another label");
+        //  node1.set("label.color", Colors.blue);
+        //  node2.set("label.color", Colors.blue);
+
+
+
+        //与该节点相连的连线数量
+        console.log("与该节点相连的连线数量",node.edgeCount)
+        //- 遍历所有与该节点相连的连线
+        node.forEachEdge(v=>{
+            console.log("- 遍历所有与该节点相连的连线",v)
+        })
+        node.forEachInEdge(v=>{
+            console.log("- 遍历所有连入该节点的连线",v)
+        })
+        node.forEachOutEdge(v=>{
+            console.log("- 遍历所有从该节点连出的连线",v)
+        })
+        // 获取指定节点与该节点之间的连线集合
+        // node.getEdgeBundle(node)
     }
     close.onclick=function(){
         btn.style.display="none"
@@ -138,17 +198,17 @@ li{
      })
     graph.addCustomInteraction({
         onevent: function (type, evt, graph) {
-            Q.log(type)
+            // Q.log(type)
         }
     })
     graph.enddrag =function(evt){
-       console.log("stop drag",evt)
+    //    console.log("stop drag",evt)
     }
     graph.ondrag =function(evt){
-       console.log("stop ondrag",evt)
+    //    console.log("stop ondrag",evt)
     }
     graph.onrelease=function(evt){
-        console.log("stop onrelease",evt)
+        // console.log("stop onrelease",evt)
     }
 
 
@@ -164,33 +224,20 @@ li{
      var nodeWithGIF = graph.createNode("Node with GIF\nnot support IE", 120, 110);
      nodeWithGIF.image = "./play.gif";
 
-    //自定义系欸但ui
-    let   Colors ={
-            yellow:"yellow",
-            bulue:"bule"
-        }
+
      var nodeWithLabels = graph.createNode("Node with Labels", 0, -110);
-        var label2 = new Q.LabelUI();
-        label2.position = Q.Position.CENTER_TOP;
-        label2.anchorPosition = Q.Position.CENTER_BOTTOM;
-        label2.border = 1;
-        label2.padding = new Q.Insets(2, 5);
-        label2.showPointer = true;
-        label2.offsetY = -10;
-        label2.backgroundColor = Colors.yellow;
-        label2.fontSize = 16;
-        label2.fontStyle = "italic 100";
-        nodeWithLabels.addUI(label2, [{
-            property : "label2",
+      
+        nodeWithLabels.addUI(label, [{
+            property : "label",
             propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
             bindingProperty : "data"
             }, {
-            property : "label2.color",
+            property : "label.color",
             propertyType : Q.Consts.PROPERTY_TYPE_CLIENT,
             bindingProperty : "color"
             }]);
-        nodeWithLabels.set("label2", "another label");
-        nodeWithLabels.set("label2.color", Colors.blue);
+        nodeWithLabels.set("label", "another label");
+        nodeWithLabels.set("label.color", Colors.blue);
 
 
 
