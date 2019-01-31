@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello Qunee for HTML5</title>
+    <meta charset="utf-8">
+    <script src="../lib/qunee-min.js"></script>
+    <script src='../js/Observer.js'></script>
+    <style>
+        html,body{
+            height:100%;
+            width:100%;
+        }
+     #tab{
+         display: flex;
+         width:600px;
+     }
+     #tab li{
+         flex:1;
+         border:1px solid;
+         
+     }
+     #canvas{
+         border:1px dotted;
+     }
+    </style>
+</head>
+<body>
+        <!-- http://doc.qunee.com/pages/viewpage.action?pageId=1146954 -->
+        
+<div style="width:100%;height:100%;" id="canvas" draggable="true">
+
+<script>
+     let ul=document.querySelector("#tab")
+     let canvas =document.querySelector('#canvas')
+     let lis =document.querySelectorAll("li")
+     var graph = new Q.Graph('canvas'); 
+     let map={}
+    //  document.querySelector(".Q-Canvas").style.display='none'
+    //  http://doc.qunee.com/pages/viewpage.action?pageId=1146985
+    // 安图便利
+     
+ 
+ 
+    
+     
+       
+    //点击设置name
+    // graph.ondblclick = function(evt){
+    //     var node = graph.getElementByMouseEvent(evt);
+    //     if(node){
+    //         console.log(node)
+    //         node.setStyle(Q.Styles.LABEL_POSITION, Q.Position.CENTER_TOP);
+    //         node.set("userId", "100");
+    //         var child1 = graph.createNode("child1",node.x+50,node.y-50);
+    //         var child2 = graph.createNode("child2",node.x+100,node.y-50);
+    //         var child3 = graph.createNode("child3",node.x+150,node.y-50);
+    //         var child4 = graph.createNode("child4",node.x+200,node.y-50);
+    //         child1.parent = node;
+    //         child2.parent = node;
+    //         child3.parent = node;
+    //         child4.parent = node;
+    //         graph.createEdge(child1, node);
+    //         graph.createEdge(child2, node)
+    //         graph.createEdge(child3, node)
+    //         graph.createEdge(child4, node)
+    //         console.log(node)
+    //         // var newName = prompt("New Name:");
+    //         // if(newName){
+    //         //     node.name = newName;
+    //         // }
+    //     }
+    // }
+   
+
+    //  拖拽
+     lis.forEach(el=>{
+         el.addEventListener("dragstart",function(ev){
+            ev.dataTransfer.setData("image", ev.target.getAttribute("image"));  
+            ev.dataTransfer.setData("type", ev.target.getAttribute("type"));  
+            ev.dataTransfer.setData("label", ev.target.getAttribute("label")); 
+         })
+     })
+     canvas.addEventListener("dragover",function(ev){
+         ev.stopPropagation()
+     })
+
+
+   
+     window.addEventListener("load",function(){
+        let nodes=[]
+        let model=graph.graphModel
+        // var model = new Q.GraphModel();
+       function toTree(data) {
+        // 将数据存储为 以 id 为 KEY 的 map 索引数据列
+        var map = {};
+        data.forEach(function(item) {
+          map[item.id] = item;
+        });
+        //        console.log(map);
+        var val = [];
+        data.forEach(function(item) {
+          // 以当前遍历项，的pid,去map对象中找到索引的id
+          var parent = map[item.pid];
+          // 好绕啊，如果找到索引，那么说明此项不在顶级当中,那么需要把此项添加到，他对应的父级中
+          if (parent) {
+            (parent.children || (parent.children = [])).push(item);
+          } else {
+            //如果没有在map中找到对应的索引ID,那么直接把 当前的item添加到 val结果集中，作为顶级
+            val.push(item);
+          }
+        });
+        return val;
+      }
+      function draw(parent,data){
+        data.forEach((v,index)=>{
+            let x= parent?parent.x+50*index:300
+            let y= parent?parent.y+50*index:300
+            let node=graph.createNode(v.name);
+            // parent.parentChildrenDirection = Q.Consts.DIRECTION_BOTTOM;
+            if(parent){
+                let edge=graph.createEdge(node, parent)
+                edge.setStyle(Q.Styles.EDGE_COLOR, '#88AAEE');
+                edge.setStyle(Q.Styles.EDGE_WIDTH, 2);
+                edge.edgeType = Q.Consts.EDGE_TYPE_VERTICAL_HORIZONTAL;
+            }
+            nodes.push(node)
+            model.add(node)
+            if(v.children){
+                draw(node,v.children)
+            }
+        })
+        
+     
+      }
+      let tree= toTree(this.state.data)
+        draw(null,tree)
+        // 弹性布局
+      
+    //    nodes.forEach(v=>{
+    //        model.add(v)
+    //    })
+        
+        var layouter = new Q.TreeLayouter(graph);
+        layouter.parentChildrenDirection = Q.Consts.DIRECTION_CENTER
+        layouter.layoutType =Q.Consts.LAYOUT_TYPE_TWO_SIDE
+        layouter.doLayout({callback: function(){
+            graph.zoomToOverview();
+        }});
+       graph.moveToCenter()
+      
+//             layouter.repulsion = 50;
+//             layouter.attractive = 0.5;
+//             layouter.elastic = 5;
+//             layouter.start();
+        let watch = new Observer(this.state, {
+               watch:{
+                   data(n,o){
+                    model.clear()
+                    console.log(n,o)
+                   let tree= toTree(n)
+                   draw(null,tree)
+                   var layouter = new Q.TreeLayouter(graph);
+                    layouter.parentChildrenDirection = Q.Consts.DIRECTION_CENTER
+                    layouter.layoutType =Q.Consts.LAYOUT_TYPE_TWO_SIDE
+                    layouter.doLayout({callback: function(){
+                        graph.zoomToOverview();
+                    }});
+                    graph.moveToCenter()
+                   }
+               }
+            });
+     })
+     window.onstorage = function(ev) {
+        
+            // opener.document.querySelector("#app").innerHTML='打开了流程图'
+            var json = JSON.parse(localStorage[ev.key]);
+            console.log({opener,json})
+           
+    };
+    
+
+</script>
+</body>
+</html>

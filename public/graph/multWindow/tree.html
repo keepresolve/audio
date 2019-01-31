@@ -1,0 +1,181 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      var data = [
+        {
+          id: 1,
+          name: "办公管理",
+          pid: 0,
+          children: [
+            {
+              id: 2,
+              name: "请假申请",
+              pid: 1,
+              children: [{ id: 4, name: "请假记录", pid: 2 }]
+            },
+            { id: 3, name: "出差申请", pid: 1 }
+          ]
+        },
+        {
+          id: 5,
+          name: "系统设置",
+          pid: 0,
+          children: [
+            {
+              id: 6,
+              name: "权限管理",
+              pid: 5,
+              children: [
+                { id: 7, name: "用户角色", pid: 6 },
+                { id: 8, name: "菜单设置", pid: 6 }
+              ]
+            }
+          ]
+        }
+      ];
+
+      function toTree(data) {
+        // 删除 所有 children,以防止多次调用
+        data.forEach(function(item) {
+          delete item.children;
+        });
+
+        // 将数据存储为 以 id 为 KEY 的 map 索引数据列
+        var map = {};
+        data.forEach(function(item) {
+          map[item.id] = item;
+        });
+        //        console.log(map);
+        var val = [];
+        data.forEach(function(item) {
+          // 以当前遍历项，的pid,去map对象中找到索引的id
+          var parent = map[item.pid];
+          // 好绕啊，如果找到索引，那么说明此项不在顶级当中,那么需要把此项添加到，他对应的父级中
+          if (parent) {
+            (parent.children || (parent.children = [])).push(item);
+          } else {
+            //如果没有在map中找到对应的索引ID,那么直接把 当前的item添加到 val结果集中，作为顶级
+            val.push(item);
+          }
+        });
+        return val;
+      }
+      console.log(toTree(data));
+    </script>
+  </body>
+</html> -->
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script src="../js/Observer.js"></script>
+  </head>
+  <style></style>
+  <body>
+    <div id="app">
+      <button id="open">打开流程图</button>
+    </div>
+    <script type="text/javascript">
+      $(function() {
+        let state = {
+          data: [
+            { id: 1, name: "办公管理", pid: 0 },
+            { id: 2, name: "请假申请", pid: 1 },
+            { id: 3, name: "出差申请", pid: 1 },
+            { id: 4, name: "请假记录", pid: 2 },
+            { id: 5, name: "系统设置", pid: 0 },
+            { id: 6, name: "权限管理", pid: 5 },
+            { id: 7, name: "用户角色", pid: 2 },
+            { id: 8, name: "菜单设置", pid: 7 },
+            { id: 9, name: "用户角色", pid: 6 },
+            { id: 10, name: "菜单设置", pid: 6 },
+            { id: 11, name: "用户角色", pid: 6 },
+            { id: 12, name: "菜单设置", pid: 6 }
+          ],
+          dataCopy: []
+        };
+        function remove() {
+          console.log(this);
+        }
+        //菜单列表html
+        var menus = "";
+        GetData(0, state.data);
+        $("#app").append(menus);
+        $(".delete").click(function() {
+          delete state.data.find(
+            v =>
+              (v.id = $(this)
+                .parent()
+                .attr("id"))
+          );
+        });
+        $(".close").click(function() {
+          $(this)
+            .siblings("ul")
+            .slideToggle();
+          $(this).text($(this).text() != "+" ? "+" : "-");
+        });
+
+        //根据菜单主键id生成菜单列表html
+        //id：菜单主键id
+        //arry：菜单数组信息
+        function GetData(id, arry) {
+          var childArry = GetParentArry(id, arry);
+          if (childArry.length > 0) {
+            menus += "<ul>";
+            for (var i in childArry) {
+              menus +=
+                "<li id=" +
+                childArry[i].id +
+                "><span class='close' style='max-width:100px;overflow:hidden'>+</span>" +
+                childArry[i].name;
+              GetData(childArry[i].id, arry);
+              menus += "<i class='delete'>删除</i></li>";
+            }
+            menus += "</ul>";
+          }
+        }
+        //根据菜单主键id获取下级菜单
+        //id：菜单主键id
+        //arry：菜单数组信息
+        function GetParentArry(id, arry) {
+          var newArry = new Array();
+          for (var i in arry) {
+            if (arry[i].pid == id) newArry.push(arry[i]);
+          }
+          return newArry;
+        }
+
+        $("#open").click(function() {
+          let child = window.open(
+            "graph.html",
+            "_blank",
+            "width=600,height=600,menubar=no,toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes"
+          );
+
+          child.state = state;
+          child.addEventListener("load", function() {
+            localStorage.state = JSON.stringify(state);
+          });
+        });
+
+        setTimeout(function() {
+          state.data = [
+            { id: 1, name: "菜单设置1", pid: 0 },
+            { id: 11, name: "用户角色", pid: 12 },
+            { id: 12, name: "菜单设置", pid: 1 }
+          ];
+        }, 5000);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,64 @@
+<!-- 解了使用HTML5的postMessage API在窗口间进行通信，也知道可以借助其实现跨域通信；现代浏览器基本都支持postMessage，而对于一些老式浏览器如IE7-等，可以使用一定的替代方案，进行数据通信，如window.name、url查询字符和hash片段等。   -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Html5 postMessage</title>
+    <style>
+      #otherWin {
+            width: 600px;
+            height: 400px;
+            background-color: #cccccc;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="btn">open</button>
+    <button id="send">send</button>
+    <!-- 通过 iframe 嵌入子页面(接收消息目标窗口) -->
+    <iframe
+      src="https://localhost:3000/windowmessage/postmessage2.html"
+      id="otherWin"
+    ></iframe>
+    <br /><br />
+    <input type="text" id="message" /><input
+      type="button"
+      value="Send to child.com"
+      id="sendMessage"
+    />
+    <script>
+      window.onload = function() {
+        var btn = document.getElementById("btn");
+        var btn_send = document.getElementById("send");
+        var sendBtn = document.getElementById("sendMessage");
+        var win;
+        btn.onclick = function() {
+          //通过window.open打开接收消息目标窗口
+          win = window.open(
+            "https://localhost:3000/windowmessage/postmessage2.html",
+            "popUp"
+          );
+        };
+        btn_send.onclick = function() {
+          // 通过 postMessage 向子窗口发送数据
+          win.postMessage(
+            "Hello",
+            "https://localhost:3000/windowmessage/postmessage2.html"
+          );
+        };
+        function sendIt(e) {
+          // 通过 postMessage 向子窗口发送数据
+          document
+            .getElementById("otherWin")
+            .contentWindow.postMessage(
+              document.getElementById("message").value,
+              "https://localhost:3000/windowmessage/postmessage2.html"
+            );
+        }
+        sendBtn.onclick = function(e) {
+          sendIt(e);
+        };
+      };
+    </script>
+  </body>
+</html>
