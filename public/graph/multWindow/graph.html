@@ -156,7 +156,7 @@
                watch:{
                    data(n,o){
                     model.clear()
-                    console.log(n,o)
+                    console.log("watch",n,o)
                    let tree= toTree(n)
                    draw(null,tree)
                    var layouter = new Q.TreeLayouter(graph);
@@ -168,8 +168,13 @@
                     graph.moveToCenter()
                    }
                }
+            },function(data){
+                console.log({data})
             });
      })
+     window.callBack=function(){
+         console.log({arguments})
+     }
      window.onstorage = function(ev) {
         
             // opener.document.querySelector("#app").innerHTML='打开了流程图'

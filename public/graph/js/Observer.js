@@ -1,8 +1,10 @@
-function Observer(data, option) {
+function Observer(data, option, callBack) {
   option = option || {};
+  debugger;
   option.watch = option.watch || {};
   this.data = data;
-  this.walk(data, option);
+  this.walk(data, option, callBack);
+  this.callBack = callBack;
 }
 
 var p = Observer.prototype;
@@ -26,7 +28,7 @@ var arrayMethods = Object.create(arrayProto);
   }
 );
 
-p.walk = function(obj, option) {
+p.walk = function(obj, option, callBack) {
   let value;
   let watchKeys = Object.keys(option.watch);
   for (let key in obj) {
@@ -39,21 +41,21 @@ p.walk = function(obj, option) {
         if (Array.isArray(value)) {
           const augment = value.__proto__ ? protoAugment : copyAugment;
           augment(value, arrayMethods, key);
-          observeArray(value);
+          observeArray(value, callBack);
         }
         /* 
      如果是对象的话，递归调用该对象，递归完成后，会有属性名和值，然后对
      该属性名和值使用 Object.defindProperty 进行监听即可
      */
-        new Observer(value);
+        new Observer(value, callBack);
       }
       let cb = option.watch[watchKeys.find(v => v == key)];
-      this.convert(key, value, cb);
+      this.convert(key, value, cb, callBack);
     }
   }
 };
 
-p.convert = function(key, value, cb) {
+p.convert = function(key, value, cb, callBack) {
   Object.defineProperty(this.data, key, {
     enumerable: true,
     configurable: true,
@@ -64,6 +66,7 @@ p.convert = function(key, value, cb) {
     set: function(newVal) {
       cb && cb(newVal, value);
       console.log(key + "被重新设置值了" + "=" + newVal);
+      callBack && callBack(this);
       // 如果新值和旧值相同的话，直接返回
       if (newVal === value) return;
       // if (key == "list") {
@@ -76,13 +79,13 @@ p.convert = function(key, value, cb) {
 
 function observeArray(items) {
   for (let i = 0, l = items.length; i < l; i++) {
-    observer(items[i]);
+    observer(items[i], callBack);
   }
 }
 
-function observer(value) {
+function observer(value, callBack) {
   if (typeof value !== "object") return;
-  let ob = new Observer(value);
+  let ob = new Observer(value, callBack);
   return ob;
 }
 

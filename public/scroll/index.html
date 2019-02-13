@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      * {
+        padding: 0px;
+        margin: 0px;
+        list-style: none;
+      }
+      .container {
+        width: 300px;
+        height: 300px;
+        margin: 0 auto;
+        overflow: hidden;
+        /* border: 1px solid slateblue; */
+        position: relative;
+      }
+      .container .warpper {
+        /* overflow: hidden; */
+        /* width: 606px; */
+        position: absolute;
+        left: 0px;
+        transition: left 0.5s;
+        /* border: 1px solid red; */
+      }
+      .container .slide {
+        width: 300px;
+        text-align: center;
+        float: left;
+        background: blue;
+        /* border: 1px solid blue; */
+      }
+      .slide img {
+        width: 100%;
+      }
+      #pre,
+      #next {
+        z-index: 99;
+        position: absolute;
+        top: 48%;
+      }
+      #pre {
+        left: 0px;
+      }
+      #next {
+        right: 0px;
+      }
+      .pagation {
+        position: absolute;
+        bottom: 10px;
+        width: 100%;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" id="container">
+      <ul class="warpper">
+        <li class="slide">
+          <img src="dragging_1.jpg" alt="" />
+          <span>1</span>
+        </li>
+        <li class="slide">
+          <img src="dragging_2.jpg" alt="" />
+          <span>2</span>
+        </li>
+        <li class="slide">
+          <img src="dragging_3.jpg" alt="" />
+          <span>3</span>
+        </li>
+      </ul>
+      <div class="pagation"></div>
+      <button id="pre">上一个</button>
+      <button id="next">下一个</button>
+    </div>
+
+    <script>
+      let container = document.querySelector("#container");
+      let warpper = container.querySelector(".warpper");
+      // let timer = null;
+      // let index = 0;
+      // init(warpper, Option);
+      // function init(warpper) {
+      //   warpper.appendChild(warpper.querySelector(".slide").cloneNode(true));
+      //   let lis = warpper.querySelectorAll(".slide");
+      //   warpper.style.width = 200 * lis.length + "px";
+      //   warpper.addEventListener("mouseover", ev => {
+      //     ev.stopPropagation();
+      //     ev.preventDefault();
+      //     clearInterval(timer);
+      //   });
+      //   warpper.addEventListener("mouseleave", ev => {
+      //     ev.stopPropagation();
+      //     ev.preventDefault();
+      //     start(warpper);
+      //   });
+      //   start(warpper);
+      // }
+
+      // function start(warpper) {
+      //   let lis = warpper.querySelectorAll(".slide");
+      //   timer = setInterval(() => {
+      //     index++;
+      //     if (index == lis.length) {
+      //       setStyle(warpper, {
+      //         transition: "none",
+      //         left: "0px"
+      //       });
+      //       index = 1;
+      //     }
+      //     setTimeout(() => {
+      //       setStyle(warpper, {
+      //         transition: "left 1s",
+      //         left: index * -200 + "px"
+      //       });
+      //     }, 40);
+      //   }, 1000);
+      // }
+
+      // function setStyle(target, cssStyle) {
+      //   Object.assign(target.style, cssStyle);
+      // }
+
+      class swiper {
+        constructor(target, Option) {
+          this.swiper = target;
+          //当前移动元素
+          this.target = target.querySelector(".warpper");
+          //复制第一张
+          this.clone = this.target.querySelector(".slide")
+            ? this.target.querySelector(".slide").cloneNode(true)
+            : null;
+          this.target.appendChild(this.clone);
+          //所有轮播子元素
+          this.slides = Array.from(this.target.querySelectorAll(".slide"));
+          console.log(this.slides);
+          //设置移动元素宽
+          let width =
+            this.slides.reduce((a, b, index) => {
+              let total =
+                parseInt(index == 1 ? this.getCss(a).width : a) +
+                parseInt(this.getCss(b).width);
+              return total;
+            }) + "px";
+          this.setCss(this.target, { width });
+
+          Option =
+            Object.prototype.toString.call(Option) == "[object object]"
+              ? Option
+              : {};
+          //设置项
+          this.Option = {
+            currentIndex: 0,
+            delay: 1000,
+            duration: 1,
+            pre: this.swiper.querySelector("#pre"),
+            next: this.swiper.querySelector("#next"),
+            pagation: this.swiper.querySelector(".pagation"),
+            timer: null,
+            width: this.getCss(this.target).width
+          };
+          Object.assign(this.Option, Option);
+          this.init();
+        }
+        init() {
+          this.addEvent(this.target);
+          this.Option.timer = setInterval(() => {
+            this.start(true);
+          }, this.Option.delay);
+          for (let i = 1; i < this.slides.length; i++) {
+            let span = document.createElement("span");
+            let text = document.createTextNode(i);
+            span.appendChild(text);
+            this.setCss(span, {
+              zIndex: "9999",
+              height: "30px",
+              width: "30px",
+              textAlign: "center",
+              lineHeight: "30px",
+              background: "#888",
+              borderRadius: "50%",
+              cursor: "pointer",
+              display: "inline-block",
+              margin: "5%"
+            });
+            // span.style.width = span.style.height = "10px";
+            this.Option.pagation.appendChild(span);
+            span.addEventListener("click", () => {
+              this.go(i - 1);
+            });
+          }
+        }
+        addEvent(target) {
+          this.swiper.addEventListener("mouseover", ev => {
+            // ev.stopPropagation();
+            ev.preventDefault();
+            clearInterval(this.Option.timer);
+          });
+          this.swiper.addEventListener("mouseleave", ev => {
+            // ev.stopPropagation();
+            ev.preventDefault();
+            this.Option.timer = setInterval(() => {
+              this.start(true);
+            }, this.Option.delay);
+          });
+          this.Option.pre.addEventListener("click", () => {
+            this.go("pre");
+          });
+          this.Option.next.addEventListener("click", () => {
+            this.go("next");
+          });
+        }
+        go(type) {
+          if (type == "pre") {
+            this.Option.currentIndex--;
+          } else if (type == "next") {
+            this.Option.currentIndex++;
+          } else {
+            this.Option.currentIndex = type;
+          }
+          this.start();
+        }
+        start(isAuto) {
+          if (isAuto) this.Option.currentIndex++;
+          if (this.Option.currentIndex <= -1) {
+            this.Option.currentIndex = this.slides.length - 1;
+            let silde = this.slides[this.Option.currentIndex];
+            this.setCss(this.target, {
+              transition: "none",
+              left:
+                this.Option.currentIndex * -parseInt(this.getCss(silde).width) +
+                "px"
+            });
+            this.Option.currentIndex = this.slides.length - 2;
+          }
+          if (this.Option.currentIndex >= this.slides.length) {
+            this.setCss(this.target, { transition: "none", left: "0px" });
+            this.Option.currentIndex = 1;
+          }
+
+          setTimeout(() => {
+            let silde = this.slides[this.Option.currentIndex];
+            this.setCss(this.target, {
+              transition: "left " + this.Option.duration + "s",
+              left:
+                this.Option.currentIndex * -parseInt(this.getCss(silde).width) +
+                "px"
+            });
+          }, 40);
+        }
+
+        setCss(target, cssStyle) {
+          Object.assign(target.style, cssStyle);
+        }
+        getCss(target) {
+          return target.currentStyle
+            ? target.currentStyle
+            : document.defaultView.getComputedStyle(target, null);
+        }
+      }
+      new swiper(container);
+    </script>
+  </body>
+</html>

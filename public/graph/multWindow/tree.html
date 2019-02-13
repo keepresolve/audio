@@ -79,7 +79,14 @@
     <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
     <script src="../js/Observer.js"></script>
   </head>
-  <style></style>
+  <style>
+    .close {
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      cursor: pointer;
+    }
+  </style>
   <body>
     <div id="app">
       <button id="open">打开流程图</button>
@@ -103,31 +110,44 @@
           ],
           dataCopy: []
         };
-        function remove() {
-          console.log(this);
-        }
         //菜单列表html
         var menus = "";
         GetData(0, state.data);
         $("#app").append(menus);
+        // 删除
         $(".delete").click(function() {
-          delete state.data.find(
+          // delete state.data.find(
+          //   v =>
+          //     v.id ==
+          //     $(this)
+          //       .parent()
+          //       .attr("id")
+          // );
+          let index = state.data.findIndex(
             v =>
-              (v.id = $(this)
+              v.id ==
+              $(this)
                 .parent()
-                .attr("id"))
+                .attr("id")
           );
+          state.data.splice(index, 1);
+          $(this)
+            .parent()
+            .remove();
         });
+        // 关闭
         $(".close").click(function() {
           $(this)
             .siblings("ul")
+            .stop()
             .slideToggle();
+
           $(this).text($(this).text() != "+" ? "+" : "-");
         });
 
         //根据菜单主键id生成菜单列表html
         //id：菜单主键id
-        //arry：菜单数组信息
+        //arry：菜单数组信息s
         function GetData(id, arry) {
           var childArry = GetParentArry(id, arry);
           if (childArry.length > 0) {
@@ -136,10 +156,11 @@
               menus +=
                 "<li id=" +
                 childArry[i].id +
-                "><span class='close' style='max-width:100px;overflow:hidden'>+</span>" +
-                childArry[i].name;
+                "><span class='close' style='max-width:100px;overflow:hidden;font-size:25px;'>+</span>" +
+                childArry[i].name +
+                '&nbsp;&nbsp;<a href="#" class="delete">删除</a>';
               GetData(childArry[i].id, arry);
-              menus += "<i class='delete'>删除</i></li>";
+              menus += "</li>";
             }
             menus += "</ul>";
           }
@@ -161,20 +182,21 @@
             "_blank",
             "width=600,height=600,menubar=no,toolbar=no,location=no,directories=no,status=no,scrollbars=yes,resizable=yes"
           );
-
+          console.log(window);
           child.state = state;
+
           child.addEventListener("load", function() {
             localStorage.state = JSON.stringify(state);
+            setTimeout(function() {
+              // state.data = [
+              //   { id: 1, name: "菜单设置1", pid: 0 },
+              //   { id: 11, name: "用户角色", pid: 12 },
+              //   { id: 12, name: "菜单设置", pid: 1 }
+              // ];
+              child.callBack(state.data);
+            }, 5000);
           });
         });
-
-        setTimeout(function() {
-          state.data = [
-            { id: 1, name: "菜单设置1", pid: 0 },
-            { id: 11, name: "用户角色", pid: 12 },
-            { id: 12, name: "菜单设置", pid: 1 }
-          ];
-        }, 5000);
       });
     </script>
   </body>
