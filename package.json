@@ -28,12 +28,13 @@
     "open-browser-webpack-plugin": "0.0.5",
     "opn": "^5.3.0",
     "sequelize": "^4.42.0",
-    "serve-favicon": "~2.4.5"
+    "serve-favicon": "~2.4.5",
+    "weibo-video": "^1.2.2"
   },
   "description": "个人demo练习",
   "main": "app.js",
   "devDependencies": {},
   "author": "曹士远",
   "license": "ISC",
-  "//":"sadsadasdasdsad"
+  "//": "sadsadasdasdsad"
 }
