@@ -5,9 +5,11 @@ var fs = require("fs");
 let path = require("path");
 var join = require("path").join;
 var image = require("imageinfo");
+var video = require("weibo-video");
+var request = require("request");
 var router = express.Router();
 let { mp3 } = sequelize.models;
-let isFirst=true
+let isFirst = true;
 /* GET users listing. */
 router.post("/upload", async function(req, res, next) {
   // User.create({ username: 'fnord', job: 'omnomnom' })
@@ -36,10 +38,10 @@ router.post("/upload", async function(req, res, next) {
           remotePath: `https://localhost:3000/mp3/${fileName}`
         });
       } catch (error) {
-        return   res.send({
-			code: 501,
-			info: error.message
-		  });
+        return res.send({
+          code: 501,
+          info: error.message
+        });
       }
 
       // fs.appendFileSync('public/mp3/mp3.json','public/mp3/'+ files["file/upload"]["name"])
@@ -60,44 +62,68 @@ router.get("/getfileSrc", function(req, res, next) {
   let fileNames = findSync("./public/mp3");
   console.log({ query: req.query });
   mp3.findAll().then(result => {
-	// if(isFirst){
-  //   result.map( async item=>{
-  //     if(!fileNames.find(v=>path.extname(v)==path.extname(path.extname(item.path)))){
-  //       await mp3.destroy({
-  //         where:{
-  //          id:item.id
-  //        }
-  //      })
-  //      v=undefined
-  //     }
-  //   })
-  //   for(let i =0 ; i++ ; i<result.length){
-  //      if(result[i]){
-  //         delete result[i] 
-  //      }
-  //   }
-    
-	// 	isFirst=false
-	// 	res.send(result);
-	// }else{
-	// 	res.send(result);
-	// }
-  res.send(result);
-  })
+    // if(isFirst){
+    //   result.map( async item=>{
+    //     if(!fileNames.find(v=>path.extname(v)==path.extname(path.extname(item.path)))){
+    //       await mp3.destroy({
+    //         where:{
+    //          id:item.id
+    //        }
+    //      })
+    //      v=undefined
+    //     }
+    //   })
+    //   for(let i =0 ; i++ ; i<result.length){
+    //      if(result[i]){
+    //         delete result[i]
+    //      }
+    //   }
+
+    // 	isFirst=false
+    // 	res.send(result);
+    // }else{
+    // 	res.send(result);
+    // }
+    res.send(result);
+  });
 });
-router.get("/removefile",async function(req, res, next) {
+router.get("/download", function(req, res) {
+  // video(
+  //   "http://video.weibo.com/show?fid=1034:56cf9418a34dfb34292c0ede3a4ea9a5"
+  // ).pipe(fs.createWriteStream("ouput.mp4"));
+
+  /*
+   * url 网络文件地址
+   * filename 文件名
+   * callback 回调函数
+   */
+
+  var fileUrl =
+    "blob:http://www.iqiyi.com/bd53b69e-b63a-4028-a0e4-53ef5adf796e";
+  var filename = path.resolve(
+    __dirname,
+    "../public/download/" + path.basename(fileUrl)
+  );
+  console.log(filename);
+
+  downloadFile(fileUrl, filename, function() {
+    res.send({ data: "next" });
+    console.log(filename + "下载完毕");
+  });
+});
+router.get("/removefile", async function(req, res, next) {
   // console.log({query:req.query.removeList})
   try {
-	for(let item of req.query.removeList){
-		await mp3.destroy({
-			  where:{
-				 id:item.id
-			 }
-		 })
-	 }
-	 res.send({code:200,info:"删除成功"})
+    for (let item of req.query.removeList) {
+      await mp3.destroy({
+        where: {
+          id: item.id
+        }
+      });
+    }
+    res.send({ code: 200, info: "删除成功" });
   } catch (error) {
-	  res.send({code:500,info:error.message})
+    res.send({ code: 500, info: error.message });
   }
 
   deleteFolder(req.query.removeList, req, res);
@@ -131,7 +157,7 @@ function deleteFolder(pathList, req, res) {
         len++;
         console.log(v + "文件删除成功");
         if (len == pathList.length) {
-        //   res.send({ code: 200, info: info });
+          //   res.send({ code: 200, info: info });
         }
       });
     } else {
@@ -142,6 +168,12 @@ function deleteFolder(pathList, req, res) {
       }
     }
   });
+}
+function downloadFile(uri, filename, callback) {
+  var stream = fs.createWriteStream(filename);
+  request(uri)
+    .pipe(stream)
+    .on("close", callback);
 }
 
 module.exports = router;

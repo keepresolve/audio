@@ -1,4 +1,11 @@
 $(function() {
+  $("#download").click(() => {
+    alert(1);
+    $.get("/file/download", res => {
+      alert(res);
+    });
+  });
+
   let state = {
     list: [],
     currentIndex: 0,
@@ -9,9 +16,18 @@ $(function() {
       palyType: function(n, o) {},
       currentIndex: function(n, o) {
         $(".showList li div").css("display", "none");
-        $(".showList li").eq(n).find("div").css("display", "inline-block");
-        $("audio").attr( "src", $(".showList li") .eq(n).attr("src"));
-        $("audio").attr("index",
+        $(".showList li")
+          .eq(n)
+          .find("div")
+          .css("display", "inline-block");
+        $("audio").attr(
+          "src",
+          $(".showList li")
+            .eq(n)
+            .attr("src")
+        );
+        $("audio").attr(
+          "index",
           $(".showList li")
             .eq(n)
             .attr("index")
@@ -53,7 +69,7 @@ $(function() {
   $(".big button")
     .eq(0)
     .click(function() {
-      state.currentIndex= state.currentIndex
+      state.currentIndex = state.currentIndex;
       $("audio")
         .get(0)
         .play();
@@ -160,8 +176,8 @@ $(function() {
       state.palyType = "normal";
       $("audio").get(0).onended = function() {
         if (state.palyType == "normal") {
-          var currentIndex = state.currentIndex+1
-          if(currentIndex==state.list.length) return
+          var currentIndex = state.currentIndex + 1;
+          if (currentIndex == state.list.length) return;
           currentPlay(currentIndex, 0);
         }
       };
@@ -171,7 +187,10 @@ $(function() {
     .eq(12)
     .mousedown(function() {
       state.palyType = "math";
-       $("audio").get(0).onended = ()=>{if (state.palyType == "math") currentPlay(Math.ceil(Math.random() * state.list.length - 1));}
+      $("audio").get(0).onended = () => {
+        if (state.palyType == "math")
+          currentPlay(Math.ceil(Math.random() * state.list.length - 1));
+      };
     });
   // 循环
   $("button")
@@ -179,7 +198,7 @@ $(function() {
     .mousedown(function() {
       $("audio").removeAttr("loop");
       $("audio").get(0).onended = function() {
-        currentPlay(state.currentIndex+1);
+        currentPlay(state.currentIndex + 1);
       };
     });
   //滚动条
