@@ -1,0 +1,67 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Nodemon 调试",
+            "processId": "${command:PickProcess}",
+            "restart": true,
+            "protocol": "inspector"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "npm 调试",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run-script", "debug"],
+            "port": 9229,
+            "outputCapture": "std"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "npm 生产环境配置",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run-script", "prod"],
+            "port": 9228,
+            "outputCapture": "std"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "node 启动",
+            "program": "${workspaceFolder}/src/app.js",
+            "outputCapture": "std",
+            "env": {
+                "port": "3001"
+            }
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "debug tokenizer",
+            "env": {
+                "DEBUG": "scan"
+            },
+            "program": "${workspaceFolder}/learning/import_exercise/ambiguousSentence/tokenizer.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "代码试验",
+            "program": "${workspaceFolder}/test/err.js"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "下载测试",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": ["run-script", "sftp"],
+            "port": 9229
+        }
+    ]
+}
