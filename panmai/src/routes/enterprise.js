@@ -1,6 +1,6 @@
 const router = require('koa-router')()
 var enterprise = require('../controller/enterprise')
-router.prefix(process.env.baseUri) //第一版
+// router.prefix(process.env.baseUri) //第一版
 //注册企业
 router.all('/registerEp', async ctx => {
     var result = await enterprise.registerEp(ctx)

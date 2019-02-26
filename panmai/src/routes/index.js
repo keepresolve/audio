@@ -47,8 +47,8 @@ const tokenVerify = async (ctx, next) => {
     }
 }
 // middleware
-router.use(errHandler) //错误处理
-router.use(tokenVerify) //验证token 企业
+// router.use(errHandler) //错误处理
+// router.use(tokenVerify) //验证token 企业
 router.use(enterprise.routes()) //企业接口
 
 module.exports = router

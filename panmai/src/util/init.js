@@ -1,5 +1,6 @@
 var path = require('path')
 // let Promise = require('bluebird')
+const router = require('../routes')
 require('dotenv-flow').config({
     default_node_env: 'development',
     cwd: path.resolve(__dirname, '../node_env')
@@ -22,9 +23,10 @@ function init() {
     require('./logger')
     // 挂载全局的db/redis
     app.db = createModel
+    app.use(require('koa-static')(app.root))
     app.use(koaBody({ multipart: true }))
-    const router = require('../routes')
-    app.use(router.routes()).use(router.allowedMethods())
+
+    // app.use(router.routes()).use(router.allowedMethods())
     // error-handling
     app.on('error', (err, ctx) => {
         logger.error(`${err.message ? err.message : err.info} : ${err.stack}`)
