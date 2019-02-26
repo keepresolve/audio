@@ -1,0 +1,99 @@
+{
+    "name": "paimai",
+    "version": "0.2.1",
+    "description": "asr + Chinese tokenizer",
+    "main": "src/app.js",
+    "files": [
+        "src",
+        "bin",
+        "test"
+    ],
+    "scripts": {
+        "preparse": "learning/parse/install.sh",
+        "parse": "node learning/parse/parse_xml.js",
+        "prexml": "learning/import_exercise/init-db.sh",
+        "xml": "node learning/import_exercise/test/xml_test.js",
+        "prescan": "cd learning/import_exercise/ambiguousSentence && sh tokenizer.sh",
+        "scan": "DEBUG=scan node learning/import_exercise/ambiguousSentence/tokenizer.js",
+        "hanlp": "node learning/parse/hanlp_test.js",
+        "presftp": "bin/redisck.sh",
+        "sftp": "DEBUG=queue:* node --inspect-brk test/dbeeq.js",
+        "sftp2": "DEBUG=queue:* node test/dbeeq.js",
+        "db-test": "node learning/database/createDbTest.js",
+        "dbmodel": "sequelize-auto -h localhost -e sqlite -d 'learning/database/models/emicnet.db'  -o models2",
+        "debug": "node --inspect-brk src/app.js",
+        "start": "node --inspect src/app.js",
+        "predev": "node src/database/initDb.js && bin/mountck.sh && bin/redisck.sh",
+        "dev": "nodemon -V --inspect src/app.js",
+        "preprod": "node src/database/initDb.js",
+        "prod": "NODE_ENV=production pm2 start src/app.js -f -i 1",
+        "preupgrade": "sudo pm2 delete app",
+        "upgrade": "NODE_ENV=production pm2 start src/app.js -f -i 1"
+    },
+    "nodemonConfig": {
+        "watch": [
+            "src/"
+        ],
+        "delay": "2500"
+    },
+    "keywords": [],
+    "author": "emicnet onlinecs team <cs@emicnet.com>",
+    "contributors": [],
+    "license": "ISC",
+    "dependencies": {
+        "bluebird": "^3.5.2",
+        "bull": "^3.4.8",
+        "chokidar": "^2.0.4",
+        "debug": "^4.0.1",
+        "dotenv": "^6.0.0",
+        "dotenv-flow": "^0.1.0",
+        "fast-xml-parser": "^3.12.5",
+        "fs-extra": "^7.0.0",
+        "koa": "^2.2.0",
+        "koa-body": "^4.0.4",
+        "koa-router": "^7.4.0",
+        "ks3": "^0.5.0",
+        "logform": "^2.1.2",
+        "sequelize": "^4.41.0",
+        "superagent": "^4.0.0",
+        "winston": "^3.2.1"
+    },
+    "devDependencies": {
+        "bee-queue": "^1.2.2",
+        "cli-progress": "^2.1.0",
+        "hanlp": "^2.0.0",
+        "koa-better-body": "^3.0.4",
+        "koa-logger": "^3.2.0",
+        "nodemon": "^1.18.5",
+        "redis": "^2.8.0",
+        "ssh2": "^0.6.1",
+        "supports-color": "^5.5.0",
+        "xml2js": "^0.4.19"
+    },
+    "prettier": {
+        "tabWidth": 4,
+        "semi": false,
+        "singleQuote": true
+    },
+    "//": [
+        "关于 dependencies 几个说明:",
+        "1. async之前项目用过，我觉得它不好，没有特殊原因不会再用",
+        "2. hanlp我个人感觉比jieba好用，但是它的node包是志愿者开发的非官方，不知道是否可靠",
+        "3. 解析xml，经过比较试验我选了 fast-xml-parser 不选 xml2js",
+        "4. sqlite包，经过比较我选了better-sqlite3，而不是sqlite3，但sequelize用sqlite3",
+        "5. sequelize和sql一起用，sequelize-auto 可以读出sql创建的model",
+        "6. npmjs查sqlite3包在github叫node-sqlite3,大家说的sqlite3的包就是这个node-sqlite3,但偏偏还有一个就叫node-sqlite3的包，如果yarn add node-sqlite3是安装这个包，而且会失败",
+        "7. npmjs查redis包在github叫node_redis, redis还推荐另一个包ioredis https://redislabs.com/lp/node-js-redis/, bull用的是它",
+        "8. chokidar 监控目录内容变化，部署时候通过nfs mount asr服务器的目录",
+        "9. 使用 bull 处理queue",
+        "10. dotenv-flow 管理.env文件 根据它的规则对.env文件入库",
+        "11. 金山ks3包含一些过时的包，安装会有警告,比如 crypto & socks@1.x",
+        "关于 scripts 几个说明:",
+        "1. --inspect-brk必须是在vscode启动，--inspect可以在shell",
+        "2. 为了保证扩平台，初始化脚本不一定shell script也可以是nodejs代码，但mount检查只能shell脚本"
+    ],
+    "engines": {
+        "node": "10.x"
+    },
+    "private": true
+}

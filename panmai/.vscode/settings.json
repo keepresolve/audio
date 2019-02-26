@@ -1,0 +1,6 @@
+{
+    "editor.formatOnSave": true,
+    "diffEditor.ignoreTrimWhitespace": false,
+    "editor.tabSize": 4,
+    "editor.tabCompletion": "on"
+}

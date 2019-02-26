@@ -1,0 +1,43 @@
+{
+    // Place your global snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and
+    // description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope
+    // is left empty or omitted, the snippet gets applied to all languages. The prefix is what is
+    // used to trigger the snippet and the body will be expanded and inserted. Possible variables are:
+    // $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders.
+    // Placeholders with the same ids are connected.
+    ".env & debug": {
+        "prefix": "edc",
+        "body": [
+            "let path = require('path')",
+            "let fs = require('fs')",
+            "let env_path = path.join(__dirname, '.env')",
+            "require('dotenv').config({ path: env_path })",
+            "let debug = require('debug')('$1:debug')"
+        ],
+        "description": "设置当前目录的.env, 设置debug包"
+    },
+    "default .env & debug": {
+        "prefix": "edw",
+        "body": [
+            "require('dotenv').config()",
+            "let path = require('path')",
+            "let fs = require('fs')",
+            "let debug = require('debug')('$1:debug')"
+        ],
+        "description": "根目录的.env, 设置debug包"
+    },
+    "all package": {
+        "prefix": "eda",
+        "body": [
+            "require('dotenv').config()",
+            "let path = require('path')",
+            "let fs = require('fs')",
+            "let xmlParser = require('fast-xml-parser')",
+            "const sqlite = require('better-sqlite3')",
+            "let sshClient = require('ssh2').Client",
+            "let Promise = require('bluebird')",
+            "let debug = require('debug')('$1:debug')"
+        ],
+        "description": "本项目通常会用到的包"
+    }
+}
