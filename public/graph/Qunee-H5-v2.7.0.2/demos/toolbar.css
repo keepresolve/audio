@@ -1,0 +1,42 @@
+#toolbar {
+    position: relative;
+}
+#toolbar .btn, #toolbar .btn-group {
+    margin-right: 5px;
+}
+
+#toolbar .btn-group .btn {
+    margin: 0px -1px;
+}
+/*icons*/
+.q-icon {
+    background-image: url(images/icons-32.png);
+    background-size: 479px 16px;
+}
+.toolbar-add{ background-position: 0px 0px; width: 16px; height: 16px; }
+.toolbar-default{ background-position: -18px 0px; width: 16px; height: 16px; }
+.toolbar-download{ background-position: -37px 0px; width: 16px; height: 16px; }
+.toolbar-edge_VH{ background-position: -55px 0px; width: 16px; height: 16px; }
+.toolbar-edge{ background-position: -74px 0px; width: 16px; height: 16px; }
+.toolbar-expand{ background-position: -92px 0px; width: 16px; height: 16px; }
+.toolbar-json{ background-position: -111px 0px; width: 16px; height: 16px; }
+.toolbar-line{ background-position: -129px 0px; width: 16px; height: 16px; }
+.toolbar-magnifying_glass{ background-position: -148px 0px; width: 16px; height: 16px; }
+.toolbar-max{ background-position: -166px 0px; width: 16px; height: 16px; }
+.toolbar-new_window{ background-position: -185px 0px; width: 16px; height: 16px; }
+.toolbar-new{ background-position: -203px 0px; width: 16px; height: 16px; }
+.toolbar-overview{ background-position: -222px 0px; width: 16px; height: 16px; }
+.toolbar-pan{ background-position: -240px 0px; width: 16px; height: 16px; }
+.toolbar-polygon{ background-position: -259px 0px; width: 16px; height: 16px; }
+.toolbar-print{ background-position: -277px 0px; width: 16px; height: 16px; }
+.toolbar-rectangle_selection{ background-position: -296px 0px; width: 16px; height: 16px; }
+.toolbar-remove{ background-position: -314px 0px; width: 16px; height: 16px; }
+.toolbar-save{ background-position: -333px 0px; width: 16px; height: 16px; }
+.toolbar-search{ background-position: -351px 0px; width: 16px; height: 16px; }
+.toolbar-update{ background-position: -370px 0px; width: 16px; height: 16px; }
+.toolbar-upload{ background-position: -388px 0px; width: 16px; height: 16px; }
+.toolbar-zoom_overview{ background-position: -407px 0px; width: 16px; height: 16px; }
+.toolbar-zoomin{ background-position: -425px 0px; width: 16px; height: 16px; }
+.toolbar-zoomout{ background-position: -444px 0px; width: 16px; height: 16px; }
+.toolbar-zoomreset{ background-position: -462px 0px; width: 16px; height: 16px; }
+

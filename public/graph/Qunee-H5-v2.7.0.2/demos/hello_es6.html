@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hello Qunee for HTML5</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+</head>
+<body style="margin: 0px">
+<div style="position: absolute; width: 100%; top: 0px; bottom: 0px;" id="canvas"></div>
+<script type="module">
+    import Q from "./lib/qunee-es.js";
+    var graph = new Q.Graph('canvas');
+    var hello = graph.createNode("Hello", -100, -50);
+    hello.image = Q.Graphs.server;
+    // hello.image = './images/html5.png';
+    var qunee = graph.createNode("Qunee", 100, 50);
+    var edge = graph.createEdge("Hello\nQunee", hello, qunee);
+    edge.edgeType = Q.Consts.EDGE_TYPE_ZIGZAG;
+
+</script>
+</body>
+</html>
