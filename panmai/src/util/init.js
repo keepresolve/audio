@@ -17,16 +17,16 @@ var debug = require('debug')('koa:init')
 
 init()
 
-function init() {
+async function init() {
     debug('set up logger')
     //logger要放在启动我们自己包的最前面，因为我们自己包都会记录logger
     require('./logger')
     // 挂载全局的db/redis
-    app.db = createModel
+    app.db = await createModel()
     app.use(require('koa-static')(app.root))
     app.use(koaBody({ multipart: true }))
-
-    // app.use(router.routes()).use(router.allowedMethods())
+    require('../controller/socket')
+    app.use(router.routes()).use(router.allowedMethods())
     // error-handling
     app.on('error', (err, ctx) => {
         logger.error(`${err.message ? err.message : err.info} : ${err.stack}`)

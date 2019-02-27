@@ -1,6 +1,6 @@
 let debug = require('debug')('koa:router')
 const router = require('koa-router')()
-let enterprise = require('./enterprise')
+let api = require('./api')
 // let inspection = require('./inspection')
 let token = require('../util/token')
 let errorInfo = require('../config/errorcode')
@@ -49,6 +49,6 @@ const tokenVerify = async (ctx, next) => {
 // middleware
 // router.use(errHandler) //错误处理
 // router.use(tokenVerify) //验证token 企业
-router.use(enterprise.routes()) //企业接口
+router.use(api.routes()) //企业接口
 
 module.exports = router

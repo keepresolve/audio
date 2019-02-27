@@ -31,7 +31,7 @@ async function createModel() {
      * */
 
     const tb_allEnterprise = sequelize.define(
-        'tb_allEnterprise',
+        'user',
         {
             id: {
                 type: Sequelize.INTEGER,
@@ -39,17 +39,7 @@ async function createModel() {
                 primaryKey: true,
                 autoIncrement: true
             }, //自增id
-            ep_id: { type: Sequelize.INTEGER, allowNull: false }, //质检平台的企业id
-            ep_name: { type: Sequelize.TEXT, allowNull: false }, //企业名称
-            es_domain: {
-                type: Sequelize.TEXT,
-                allowNull: false
-            }, //企业域名
-            db_name: { type: Sequelize.TEXT, allowNull: false }, //企业对应数据库名
-            maintenance: {
-                type: Sequelize.TEXT,
-                allowNull: false
-            }, //运维服务器地址
+            user_name: { type: Sequelize.TEXT, allowNull: false }, //企业名称
             createTime: {
                 type: Sequelize.INTEGER,
                 allowNull: true
@@ -58,24 +48,11 @@ async function createModel() {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 defaultValue: 1
-            }, //企业状态 1 启用 2 停用
-            db_ver: {
-                type: Sequelize.INTEGER,
-                allowNull: true,
-                defaultValue: '1'
-            } //企业版本号
-            // m_id: {
-            //     type: Sequelize.INTEGER,
-            //     allowNull: true,
-            //     references: {
-            //         model: 'tb_maintenance',
-            //         key: 'id'
-            //     }
-            // } //外键关联
+            } //企业状态 1 启用 2 停用
         },
         {
             //使用自定义表名
-            freezeTableName: 'tb_allEnterprise',
+            freezeTableName: 'user',
             //去掉默认的添加时间和更新时间
             timestamps: false
         }
