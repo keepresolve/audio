@@ -28,9 +28,7 @@ io.on('connection', socket => {
         }, 1000)
     })
 })
-io.on('disconnect', function(data) {
-    logger.info(` iodisconnect:${data}`)
-})
+
 // setInterval(() => {
 //     io.emit('broadcast', '广播')
 //     logger.info('broadcast')
