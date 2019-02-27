@@ -2,13 +2,7 @@ const Koa = require('koa')
 const app = new Koa()
 const server = require('http').Server(app.callback())
 const io = require('socket.io')(server)
-io.on('connection', socket => {
-    console.log(socket)
-    socket.on('login', function(data) {
-        console.log(data)
-    })
-    socket.emit('message', 'asdasd')
-})
+global.io = io
 global.app = app
 
 require('./util/init')

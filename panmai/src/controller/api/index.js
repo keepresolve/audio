@@ -53,19 +53,11 @@ class enterprise {
     async registerEp(ctx) {
         let reqData = ctx.request.input_data
         // 企业参数
-        let data = {
-            ep_id: reqData.ep_id,
-            ep_name: reqData.ep_name,
-            maintenance: reqData.mt_domain, //运维域名
-            createTime: reqData.create_time || Date.now(),
-            es_domain: reqData.es_domain, //企业域名
-            callback_url: reqData.callback_url, //回调地址
-            recordType: reqData.record_auth.type, //1金山云 2 阿里云 3 FTP
-            status: 1 // 企业状态 0 停用 1 启用  注册默认启用
-        }
+        console.log(reqData)
+        let data = {}
         debug(`开始创建企业 ${data.es_domain}`)
 
-        return { status: 0, info: 'success', data: token }
+        return { status: 0, info: 'success' }
     }
 
     // 修改企业
@@ -82,7 +74,7 @@ class enterprise {
      * @param {企业域名} es_domain
      */
     async getToken(ctx) {
-        return { status: 0, info: 'success', data: token }
+        return { status: 0, info: 'success' }
     }
     /**
      *  req参数
