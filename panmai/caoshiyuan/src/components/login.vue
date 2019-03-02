@@ -171,7 +171,13 @@ export default {
                                 type: 'success',
                                 message: result.data.info
                             })
-                            if (type == 0) this.$router.push('/index')
+
+                            if (type == 1) {
+                                sessionStorage.token = result.data.data.token
+                                sessionStorage.userName =
+                                    result.data.data.userName
+                                this.$router.push('/index')
+                            }
                         } else {
                             this.$message({
                                 type: 'error',

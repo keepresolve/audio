@@ -7,7 +7,7 @@ module.exports = {
         //运维域名生成
         //token通过ep_name + ep_id + maintenance + es_domain + 过期时间
         // var clientIp = getClientIp(req)
-        var original = ip + user_name + password
+        var original = ip + user_name + password + Date.now()
         var md5 = crypto
             .createHash('md5')
             .update(original)

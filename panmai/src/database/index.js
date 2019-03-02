@@ -75,85 +75,85 @@ async function createModel() {
         }
     )
 
-    const numberRecord = sequelize.define(
-        'numberRecord',
-        {
-            //自增id
-            id: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-                primaryKey: true,
-                autoIncrement: true
-            },
-            // 手机号
-            number: {
-                type: Sequelize.INTEGER,
-                allowNull: false
-            },
-            //是否已经售出 0 未售出 1正在拍卖 2 已售出
-            bought: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-                defaultValue: 0
-            },
-            // 起拍价
-            startPrice: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-                defaultValue: 0
-            },
-            // 拍卖人
-            Auctioneer: { type: Sequelize.TEXT, allowNull: true },
-            //最大拍卖价格
-            maxPrice: {
-                type: Sequelize.INTEGER,
-                allowNull: true
-            },
-            createTime: {
-                type: Sequelize.INTEGER,
-                allowNull: true
-            } //企业创建时间
-        },
-        {
-            //使用自定义表名
-            freezeTableName: 'numberRecord',
-            //去掉默认的添加时间和更新时间
-            timestamps: false
-        }
-    )
-    const auctionRecord = sequelize.define(
-        'auctionRecord',
-        {
-            //自增id
-            id: {
-                type: Sequelize.INTEGER,
-                allowNull: false,
-                primaryKey: true,
-                autoIncrement: true
-            },
-            // 手机号
-            user: {
-                type: Sequelize.text,
-                allowNull: false
-            },
-            //操作
-            operation: {
-                type: Sequelize.text,
-                allowNull: false,
-                defaultValue: 0
-            },
-            createTime: {
-                type: Sequelize.INTEGER,
-                allowNull: true
-            } //企业创建时间
-        },
-        {
-            //使用自定义表名
-            freezeTableName: 'auctionRecord',
-            //去掉默认的添加时间和更新时间
-            timestamps: true
-        }
-    )
+    // const numberRecord = sequelize.define(
+    //     'numberRecord',
+    //     {
+    //         //自增id
+    //         id: {
+    //             type: Sequelize.INTEGER,
+    //             allowNull: false,
+    //             primaryKey: true,
+    //             autoIncrement: true
+    //         },
+    //         // 手机号
+    //         number: {
+    //             type: Sequelize.INTEGER,
+    //             allowNull: false
+    //         },
+    //         //是否已经售出 0 未售出 1正在拍卖 2 已售出
+    //         bought: {
+    //             type: Sequelize.INTEGER,
+    //             allowNull: false,
+    //             defaultValue: 0
+    //         },
+    //         // 起拍价
+    //         startPrice: {
+    //             type: Sequelize.INTEGER,
+    //             allowNull: false,
+    //             defaultValue: 0
+    //         },
+    //         // 拍卖人
+    //         Auctioneer: { type: Sequelize.TEXT, allowNull: true },
+    //         //最大拍卖价格
+    //         maxPrice: {
+    //             type: Sequelize.INTEGER,
+    //             allowNull: true
+    //         },
+    //         createTime: {
+    //             type: Sequelize.INTEGER,
+    //             allowNull: true
+    //         } //企业创建时间
+    //     },
+    //     {
+    //         //使用自定义表名
+    //         freezeTableName: 'numberRecord',
+    //         //去掉默认的添加时间和更新时间
+    //         timestamps: false
+    //     }
+    // )
+    // const auctionRecord = sequelize.define(
+    //     'auctionRecord',
+    //     {
+    //         //自增id
+    //         id: {
+    //             type: Sequelize.INTEGER,
+    //             allowNull: false,
+    //             primaryKey: true,
+    //             autoIncrement: true
+    //         },
+    //         // 手机号
+    //         user: {
+    //             type: Sequelize.text,
+    //             allowNull: false
+    //         },
+    //         //操作
+    //         operation: {
+    //             type: Sequelize.text,
+    //             allowNull: false,
+    //             defaultValue: 0
+    //         },
+    //         createTime: {
+    //             type: Sequelize.INTEGER,
+    //             allowNull: true
+    //         } //企业创建时间
+    //     },
+    //     {
+    //         //使用自定义表名
+    //         freezeTableName: 'auctionRecord',
+    //         //去掉默认的添加时间和更新时间
+    //         timestamps: true
+    //     }
+    // )
     var result = await sequelize.sync()
     return result.models
 }

@@ -23,6 +23,7 @@ export default {
     box-sizing: border-box;
     padding: 0px;
     margin: 0px;
+    list-style: none;
 }
 #app,
 html,
