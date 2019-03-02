@@ -75,8 +75,8 @@ async function createModel() {
         }
     )
 
-    const numerRecord = sequelize.define(
-        'numerRecord',
+    const numberRecord = sequelize.define(
+        'numberRecord',
         {
             //自增id
             id: {
@@ -116,12 +116,12 @@ async function createModel() {
         },
         {
             //使用自定义表名
-            freezeTableName: 'numerRecord',
+            freezeTableName: 'numberRecord',
             //去掉默认的添加时间和更新时间
             timestamps: false
         }
     )
-    const numerRecord = sequelize.define(
+    const auctionRecord = sequelize.define(
         'auctionRecord',
         {
             //自增id
@@ -149,7 +149,7 @@ async function createModel() {
         },
         {
             //使用自定义表名
-            freezeTableName: 'numerRecord',
+            freezeTableName: 'auctionRecord',
             //去掉默认的添加时间和更新时间
             timestamps: true
         }
