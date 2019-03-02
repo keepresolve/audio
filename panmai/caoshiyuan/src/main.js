@@ -10,8 +10,8 @@ import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
 window.Vue = Vue
 Vue.use(ElementUI)
-import './vconsole'
-new VConsole()
+// import './vconsole'
+// new VConsole()
 // import VueSocketio from 'vue-socket.io'
 // Vue.use(new VueSocketio({ debug: true, connection: 'http://localhost:8000' }))
 import io from './socket'
