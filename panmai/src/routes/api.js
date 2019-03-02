@@ -2,9 +2,9 @@ const router = require('koa-router')()
 var api = require('../controller/api')
 // router.prefix(process.env.baseUri) //第一版
 //注册企业
-router.all('/register', async ctx => {
-    var result = await api.registerEp(ctx)
-    logger.debug(`register:${JSON.stringify(result)}`)
+router.all('/login', async ctx => {
+    var result = await api.login(ctx)
+    logger.debug(`login:${JSON.stringify(result)}`)
     ctx.response.body = result
 })
 //修改企业

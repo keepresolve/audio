@@ -1,5 +1,4 @@
 const o_token = require('../../util/token')
-const { connectDB, createDB } = require('../../database')
 let debug = require('debug')('koa:DB')
 /**
  * 总企业表
@@ -18,46 +17,58 @@ let debug = require('debug')('koa:DB')
  *  @param record_auth
  */
 class enterprise {
-    constructor() {
-        //有一些错误检查是不必要的，如果update数是0，一定是给的查询条件不正确
-        //insert如果没有外键限制，也不会不成功，而且外键限制是以异常形式丢出
+    constructor() {}
+    getUserIp(ctx) {
+        return (
+            ctx.req.headers['x-forwarded-for'] ||
+            ctx.req.connection.remoteAddress ||
+            ctx.req.socket.remoteAddress ||
+            ctx.req.connection.socket.remoteAddress
+        )
     }
-    async storeToken(data) {
-        // let token = o_token.create(
-        //     data.ep_id,
-        //     data.ep_name,
-        //     data.es_domain,
-        //     data.maintenance
-        // )
-        // let ent = data.db_name //只要能唯一标识这家企业
-        // await app.redisClient.setAsync(`yimi:token:${ent}`, token.token)
-        // await app.redisClient.expireAsync(
-        //     `yimi:token:${ent}`,
-        //     token.expires_redis_time
-        // )
-        // return token
-    }
-    async storeInfo(data) {
-        // //就明确只存这两个值
-        // await app.redisClient.hsetAsync(
-        //     `yimi:info:${data.es_domain}:${data.ep_id}`,
-        //     'status',
-        //     data.status
-        // )
-        // await app.redisClient.hsetAsync(
-        //     `yimi:info:${data.es_domain}:${data.ep_id}`,
-        //     'db_name',
-        //     data.db_name
-        // )
-    }
-    async registerEp(ctx) {
-        let reqData = ctx.request.input_data
-        // 企业参数
-        console.log(reqData)
-        let data = {}
-        debug(`开始创建企业 ${data.es_domain}`)
+    async login(ctx) {
+        let reqData = ctx.input_params
+        let islogin = reqData.type == 1
 
-        return { status: 0, info: 'success' }
+        let user = app.db.user
+        let ishas = await user.findAll({
+            where: {
+                userName: reqData.userName,
+                passWord: reqData.passWord
+            }
+        })
+        let ip = this.getUserIp(ctx)
+        let { token } = o_token.create(ip)
+        if (ishas.length > 0) {
+            if (islogin) {
+                let result = await user.update(
+                    {
+                        token
+                    },
+                    {
+                        where: {
+                            userName: reqData.userName,
+                            passWord: reqData.passWord
+                        }
+                    }
+                )
+                return { status: 0, info: '登陆成功', result }
+            } else {
+                return { status: 301, info: '用户名已存在' }
+            }
+        } else {
+            if (islogin) {
+                return { status: 404, info: '用户名不存在' }
+            } else {
+                let result = await user.create({
+                    userName: reqData.userName,
+                    passWord: reqData.passWord,
+                    unit: reqData.unit,
+                    token
+                })
+                return { status: 0, info: '注册成功', result }
+            }
+        }
     }
 
     // 修改企业

@@ -1,7 +1,6 @@
 let debug = require('debug')('koa:router')
 const router = require('koa-router')()
 let api = require('./api')
-// let inspection = require('./inspection')
 let token = require('../util/token')
 let errorInfo = require('../config/errorcode')
 // let inputVerify = require('./inputVerify')
@@ -32,23 +31,19 @@ const errHandler = async (ctx, next) => {
 
 const tokenVerify = async (ctx, next) => {
     let url = ctx.request.path
+    ctx.input_params =
+        ctx.method.toLowerCase() == 'get' ? ctx.request.query : ctx.request.body
     switch (url) {
-        case `${process.env.baseUri}/registerEp`:
-        case `${process.env.baseUri}/getToken`:
-            await next()
-            break
         default:
-            let isTokenVerify = process.env.tokenVerify == 'true'
-            debug(`isTokenVerify:${isTokenVerify}`)
-            let result = await token.autheration(ctx, isTokenVerify)
+            let result = await token.autheration(ctx)
             if (result.status == 0) return await next()
             // ctx.response.body = result
             break
     }
 }
 // middleware
-// router.use(errHandler) //错误处理
-// router.use(tokenVerify) //验证token 企业
+router.use(errHandler) //错误处理
+router.use(tokenVerify) //验证token 企业
 router.use(api.routes()) //企业接口
 
 module.exports = router

@@ -3,16 +3,18 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import VueSocketio from 'vue-socket.io'
+
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
-import './rem'
+// import './rem'
+import axios from 'axios'
+window.Vue = Vue
 Vue.use(ElementUI)
+import VueSocketio from 'vue-socket.io'
+Vue.use(new VueSocketio({ debug: true, connection: 'http://localhost:8000' }))
 
-// Vue.use(VueSocketio, socketio('http://localhost:8000'))
-Vue.use(new VueSocketio({ debug: false, connection: 'http://localhost:8000' }))
 Vue.config.productionTip = false
-
+Vue.prototype.$api = axios
 /* eslint-disable no-new */
 new Vue({
     el: '#app',

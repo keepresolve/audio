@@ -1,16 +1,22 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import login from '@/components/login'
-
 Vue.use(Router)
 
 export default new Router({
-    mode: 'history',
+    mode: 'hash',
     routes: [
         {
             path: '/',
             name: 'login',
-            component: login
+            component: resolve => require(['@/components/login.vue'], resolve),
+            children: [
+                {
+                    path: 'index',
+                    name: 'index',
+                    component: resolve =>
+                        require(['@/components/index.vue'], resolve)
+                }
+            ]
         }
     ]
 })

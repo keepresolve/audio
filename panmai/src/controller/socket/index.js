@@ -29,7 +29,7 @@ io.on('connection', socket => {
     })
 })
 
-// setInterval(() => {
-//     io.emit('broadcast', '广播')
-//     logger.info('broadcast')
-// }, 3000)
+setInterval(() => {
+    io.emit('broadcast', '广播')
+    logger.info('broadcast')
+}, 3000)

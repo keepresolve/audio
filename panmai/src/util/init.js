@@ -5,7 +5,7 @@ require('dotenv-flow').config({
     default_node_env: 'development',
     cwd: path.resolve(__dirname, '../node_env')
 })
-app.root = path.resolve(__dirname, process.env.distPath)
+app.root = path.resolve(__dirname, process.env.root)
 app.dbPath = path.resolve(app.root, process.env.dbPath)
 
 // const betterBody = require('koa-better-body') //https://www.npmjs.com/package/koa-better-body  这里有很好的解释

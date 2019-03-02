@@ -30,7 +30,7 @@ async function createModel() {
      * 企业总表，存储开户企业基本信息
      * */
 
-    const tb_allEnterprise = sequelize.define(
+    const user = sequelize.define(
         'user',
         {
             id: {
@@ -39,16 +39,33 @@ async function createModel() {
                 primaryKey: true,
                 autoIncrement: true
             }, //自增id
-            user_name: { type: Sequelize.TEXT, allowNull: false }, //企业名称
-            createTime: {
-                type: Sequelize.INTEGER,
-                allowNull: true
-            }, //企业创建时间
-            status: {
+            userName: { type: Sequelize.TEXT, allowNull: true }, //企业名称
+            passWord: {
+                type: Sequelize.TEXT,
+                allowNull: false
+            },
+            unit: {
+                type: Sequelize.TEXT,
+                allowNull: false
+            }, //所属单位
+            rules: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 defaultValue: 1
-            } //企业状态 1 启用 2 停用
+            }, //企业状态 1 普通用户 0 admin
+            token: {
+                type: Sequelize.TEXT,
+                allowNull: false
+            }, //企业状态 1 普通用户 0 admin
+            status: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+                defaultValue: 0
+            }, //企业状态 1 启用 2 停用
+            createTime: {
+                type: Sequelize.INTEGER,
+                allowNull: true
+            } //企业创建时间
         },
         {
             //使用自定义表名
@@ -58,30 +75,40 @@ async function createModel() {
         }
     )
 
-    /**
-     *服务器表 用于存储运维地址，做白名单鉴权
-     * */
-
-    const tb_maintenance = sequelize.define(
-        'tb_maintenance',
+    const numerRecord = sequelize.define(
+        'numerRecord',
         {
+            //自增id
             id: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 primaryKey: true,
                 autoIncrement: true
-            }, //自增id
-            ip: { type: Sequelize.TEXT, allowNull: true }, //ip地址
-            domain: { type: Sequelize.TEXT, allowNull: false }, //域名
-            province: { type: Sequelize.TEXT, allowNull: false }, //省份
-            http_port: {
+            },
+            // 手机号
+            number: {
                 type: Sequelize.INTEGER,
                 allowNull: false
-            }, //http端口
-            https_port: {
+            },
+            //是否已经售出 0 未售出 1正在拍卖 2 已售出
+            bought: {
                 type: Sequelize.INTEGER,
-                allowNull: false
-            }, //https端口
+                allowNull: false,
+                defaultValue: 0
+            },
+            // 起拍价
+            startPrice: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+                defaultValue: 0
+            },
+            // 拍卖人
+            Auctioneer: { type: Sequelize.TEXT, allowNull: true },
+            //最大拍卖价格
+            maxPrice: {
+                type: Sequelize.INTEGER,
+                allowNull: true
+            },
             createTime: {
                 type: Sequelize.INTEGER,
                 allowNull: true
@@ -89,17 +116,11 @@ async function createModel() {
         },
         {
             //使用自定义表名
-            freezeTableName: true,
+            freezeTableName: 'numerRecord',
             //去掉默认的添加时间和更新时间
             timestamps: false
         }
     )
-    // tb_maintenance.hasOne(tb_allEnterprise, {
-    //     foreignKey: 'm_id',
-    //     sourceKey: 'id',
-    //     onDelete: 'SET NULL',
-    //     onUpdate: 'CASCADE'
-    // })
     var result = await sequelize.sync()
     return result.models
 }

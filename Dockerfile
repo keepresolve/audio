@@ -8,6 +8,8 @@ COPY package.json /app
 RUN npm install --registry=https://registry.npm.taobao.org && mv node_modules ../
 #RUN npm install --production --silent && mv node_modules ../
 COPY . /app
+EXPOSE 8000
+EXPOSE 3001
 EXPOSE 3000
 CMD ["npm", "start"]
 # CMD ["pm2-docker", "bin/www"]
