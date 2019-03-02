@@ -33,13 +33,15 @@ const tokenVerify = async (ctx, next) => {
     let url = ctx.request.path
     ctx.input_params =
         ctx.method.toLowerCase() == 'get' ? ctx.request.query : ctx.request.body
-    switch (url) {
-        default:
-            let result = await token.autheration(ctx)
-            if (result.status == 0) return await next()
-            // ctx.response.body = result
-            break
-    }
+    await next()
+    // switch (url) {
+
+    //     default:
+    //         let result = await token.autheration(ctx)
+    //         if (result.status == 0) return await next()
+    //         // ctx.response.body = result
+    //         break
+    // }
 }
 // middleware
 router.use(errHandler) //错误处理

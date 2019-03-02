@@ -8,15 +8,12 @@ export default new Router({
         {
             path: '/',
             name: 'login',
-            component: resolve => require(['@/components/login.vue'], resolve),
-            children: [
-                {
-                    path: 'index',
-                    name: 'index',
-                    component: resolve =>
-                        require(['@/components/index.vue'], resolve)
-                }
-            ]
+            component: resolve => require(['@/components/login.vue'], resolve)
+        },
+        {
+            path: '/index',
+            name: 'index',
+            component: resolve => require(['@/components/index.vue'], resolve)
         }
     ]
 })

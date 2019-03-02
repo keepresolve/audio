@@ -38,7 +38,7 @@ class enterprise {
             }
         })
         let ip = this.getUserIp(ctx)
-        let { token } = o_token.create(ip)
+        let { token } = o_token.create(ip, reqData.userName, reqData.passWord)
         if (ishas.length > 0) {
             if (islogin) {
                 let result = await user.update(
@@ -47,12 +47,12 @@ class enterprise {
                     },
                     {
                         where: {
-                            userName: reqData.userName,
-                            passWord: reqData.passWord
+                            id: ishas[0].id
                         }
                     }
                 )
-                return { status: 0, info: '登陆成功', result }
+                let data = await user.findById(ishas[0].id)
+                return { status: 0, info: '登陆成功', data }
             } else {
                 return { status: 301, info: '用户名已存在' }
             }

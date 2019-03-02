@@ -9,6 +9,7 @@ io.on('connection', socket => {
         logger.info(`disconnect:${data}`)
     })
     socket.on('message', function(data) {
+        io.emit('chatMessage', data)
         logger.info(`message:${data}`)
     })
     socket.on('login', function(data) {
@@ -29,7 +30,7 @@ io.on('connection', socket => {
     })
 })
 
-setInterval(() => {
-    io.emit('broadcast', '广播')
-    logger.info('broadcast')
-}, 3000)
+// setInterval(() => {
+//     io.emit('broadcast', '广播')
+//     logger.info('broadcast')
+// }, 3000)
