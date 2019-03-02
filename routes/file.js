@@ -5,8 +5,6 @@ var fs = require("fs");
 let path = require("path");
 var join = require("path").join;
 var image = require("imageinfo");
-var video = require("weibo-video");
-var request = require("request");
 var router = express.Router();
 let { mp3 } = sequelize.models;
 let isFirst = true;
@@ -27,16 +25,28 @@ router.post("/upload", async function(req, res, next) {
   form.multiples = true;
   form.parse(req, async function(err, fields, files) {
     if (!err) {
-      let fileName = files["fileName"]["name"];
-      let sourcePath = files["fileName"]["path"];
-      let targetPath = path.resolve(__dirname + `/../public/mp3/${fileName}`);
-      fs.renameSync(sourcePath, targetPath);
       try {
+        let fileName = files["fileName"]["name"];
+
         let result = await mp3.create({
           fileName: fileName,
-          path: targetPath,
+          path: "0",
           remotePath: `https://localhost:3000/mp3/${fileName}`
         });
+        let sourcePath = files["fileName"]["path"];
+        let targetPath = path.resolve(
+          __dirname + `/../public/mp3/${result.id}.mp3`
+        );
+        fs.renameSync(sourcePath, targetPath);
+        let update = await mp3.update(
+          {
+            path: targetPath,
+            remotePath: `https://localhost:3000/mp3/${result.id}.mp3`
+          },
+          {
+            where: { id: result.id }
+          }
+        );
       } catch (error) {
         return res.send({
           code: 501,
@@ -85,30 +95,6 @@ router.get("/getfileSrc", function(req, res, next) {
     // 	res.send(result);
     // }
     res.send(result);
-  });
-});
-router.get("/download", function(req, res) {
-  // video(
-  //   "http://video.weibo.com/show?fid=1034:56cf9418a34dfb34292c0ede3a4ea9a5"
-  // ).pipe(fs.createWriteStream("ouput.mp4"));
-
-  /*
-   * url 网络文件地址
-   * filename 文件名
-   * callback 回调函数
-   */
-
-  var fileUrl =
-    "blob:http://www.iqiyi.com/bd53b69e-b63a-4028-a0e4-53ef5adf796e";
-  var filename = path.resolve(
-    __dirname,
-    "../public/download/" + path.basename(fileUrl)
-  );
-  console.log(filename);
-
-  downloadFile(fileUrl, filename, function() {
-    res.send({ data: "next" });
-    console.log(filename + "下载完毕");
   });
 });
 router.get("/removefile", async function(req, res, next) {
@@ -168,12 +154,6 @@ function deleteFolder(pathList, req, res) {
       }
     }
   });
-}
-function downloadFile(uri, filename, callback) {
-  var stream = fs.createWriteStream(filename);
-  request(uri)
-    .pipe(stream)
-    .on("close", callback);
 }
 
 module.exports = router;
