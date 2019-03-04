@@ -1,5 +1,6 @@
 var path = require('path')
 // let Promise = require('bluebird')
+const router = require('../routes')
 require('dotenv-flow').config({
     default_node_env: 'development',
     cwd: path.resolve(__dirname, '../node_env')
@@ -16,14 +17,15 @@ var debug = require('debug')('koa:init')
 
 init()
 
-function init() {
+async function init() {
     debug('set up logger')
     //logger要放在启动我们自己包的最前面，因为我们自己包都会记录logger
     require('./logger')
     // 挂载全局的db/redis
-    app.db = createModel
+    app.db = await createModel()
+    app.use(require('koa-static')(app.root))
     app.use(koaBody({ multipart: true }))
-    const router = require('../routes')
+    require('../controller/socket')
     app.use(router.routes()).use(router.allowedMethods())
     // error-handling
     app.on('error', (err, ctx) => {
