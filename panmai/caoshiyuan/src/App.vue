@@ -52,6 +52,7 @@ export default {
 #app,
 html,
 body {
+    font-size: 16px;
     height: 100%;
     width: 100%;
     background-color: #f8f8f8;

@@ -21,7 +21,9 @@ import {
     Autocomplete,
     Table,
     TableColumn,
-    Scrollbar
+    Scrollbar,
+    Tabs,
+    TabPane
 } from 'element-ui'
 Vue.use(store)
 Vue.use(Container)
@@ -38,8 +40,10 @@ Vue.use(Autocomplete)
 Vue.use(Table)
 Vue.use(TableColumn)
 Vue.use(Scrollbar)
+Vue.use(Tabs)
+Vue.use(TabPane)
 // import './Column)
-// import './rem'
+import './rem'
 import axios from 'axios'
 window.Vue = Vue
 Vue.prototype.$message = Message

@@ -11,18 +11,19 @@ module.exports = {
         assetsPublicPath: '/',
         proxyTable: {
             '*': {
-                target: 'http://localhost:8000' //目标接口域名
+                target: 'http://127.0.0.1:8001' //目标接口域名
+                // ws: true,
                 // changeOrigin: true //是否跨域
             }
         },
 
         // Various Dev Server settings
-        host: '0.0.0.0', // can be overwritten by process.env.HOST
-        port: 8080, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
-        autoOpenBrowser: false,
+        host: '127.0.0.1', // can be overwritten by process.env.HOST
+        port: 9000, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
+        autoOpenBrowser: true,
         errorOverlay: true,
         notifyOnErrors: true,
-        poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
+        poll: true, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
         /**
          * Source Maps
@@ -36,7 +37,7 @@ module.exports = {
         // https://vue-loader.vuejs.org/en/options.html#cachebusting
         cacheBusting: true,
 
-        cssSourceMap: true
+        cssSourceMap: false
     },
 
     build: {
@@ -52,7 +53,7 @@ module.exports = {
          * Source Maps
          */
 
-        productionSourceMap: true,
+        productionSourceMap: false,
         // https://webpack.js.org/configuration/devtool/#production
         // devtool: '#source-map',
         devtool: false,

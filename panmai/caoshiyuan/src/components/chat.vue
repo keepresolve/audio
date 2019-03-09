@@ -1,7 +1,17 @@
+
 <template>
-  <el-container class="index">
-    <el-main class="main" :span="12">
-      <el-scrollbar style="height:100%;padding-bottom: 30px;">
+  <div class="container">
+    <header>
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="聊天室" name="1"></el-tab-pane>
+        <el-tab-pane label="竞拍列表" name="2"></el-tab-pane>
+      </el-tabs>
+    </header>
+    <section class="body" :span="12">
+      <el-scrollbar
+        class="item"
+        :style="{transform:activeName=='2'?'translate(-120%)':'translate(0)'}"
+      >
         <ul ref="chatList">
           <li
             v-for="(item,index) in chatList"
@@ -15,6 +25,21 @@
           </li>
         </ul>
       </el-scrollbar>
+      <div class="item" :style="{transform:activeName=='1'?'translate(120%)':'translate(0)'}">
+        <el-table
+          :data="tableData6"
+          row-class-name="row"
+          :span-method="objectSpanMethod"
+          border
+          style="width: 100%;"
+        >
+          <el-table-column label-class-name="col" prop="number" label="号码"></el-table-column>
+          <el-table-column label-class-name="col" prop="startPrice" label="标准"></el-table-column>
+          <el-table-column label-class-name="col" prop="maxPrice" label="承诺" sortable></el-table-column>
+          <el-table-column label-class-name="col" prop="unit" label="单位" sortable></el-table-column>
+        </el-table>
+        <ul ref="chatList">asdasd</ul>
+      </div>
       <transition name="fade">
         <el-col class="logs" :span="6" v-if="isShowLog">
           <el-scrollbar style="height:100%;padding-bottom: 30px;">
@@ -33,18 +58,17 @@
           </el-scrollbar>
         </el-col>
       </transition>
-
       <div class="showNews" @click="isShowLog=!isShowLog">
         <span>{{showNews}}</span>
         <a>查看详情</a>
       </div>
-    </el-main>
-    <el-footer class="footer">
+    </section>
+    <footer class="footer">
       <el-input placeholder="请输入内容" ref="sendMessage" v-model="message" class="input-with-select">
         <el-button slot="append" @click="send">发送</el-button>
       </el-input>
-    </el-footer>
-  </el-container>
+    </footer>
+  </div>
 </template>
 <script>
 export default {
@@ -58,7 +82,17 @@ export default {
             chatList: [],
             logList: [{ userName: 13, log: '13123' }],
             isShowLog: false,
-            showNews: ''
+            showNews: '',
+            activeName: '1',
+            tableData6: [
+                {
+                    number: '12987122',
+                    startPrice: '王小虎', //标准起拍价
+                    maxPrice: '234',
+                    amount2: '3.2',
+                    amount3: 10
+                }
+            ]
         }
     },
     sockets: {
@@ -105,6 +139,7 @@ export default {
         chatList(n) {
             this.$nextTick(() => {
                 let list = this.$refs.chatList.children
+                if (list.length == 0) return
                 list[list.length - 1].scrollIntoView()
             })
         },
@@ -144,6 +179,22 @@ export default {
         )
     },
     methods: {
+        objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+            if (columnIndex === 0) {
+                if (rowIndex % 2 === 0) {
+                    return {
+                        rowspan: 2,
+                        colspan: 1
+                    }
+                } else {
+                    return {
+                        rowspan: 0,
+                        colspan: 0
+                    }
+                }
+            }
+        },
+        handleClick() {},
         send() {
             if (this.message == '') return
             if (!localStorage.token) {
@@ -176,52 +227,47 @@ export default {
     }
 }
 </script>
+<style>
+.el-tabs__header {
+    margin: 0px;
+}
+.col {
+    font-size: 0.1rem !important;
+}
+.row {
+    height: 0.25rem;
+}
+</style>
 
 <style scoped>
-.index {
+.container {
+    height: 100%;
+    width: 100%;
     background-color: #eee;
+    padding: 0 15px;
 }
-.status {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-}
-.left > span,
-.right > span {
-    padding: 3px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-}
-.left > span {
-    background: #fff;
-}
-.right > span {
-    background: #b2e281;
-}
-.left {
-    height: 40px;
-    line-height: 40px;
-    text-align: left;
-    color: #333;
-}
-.right {
-    height: 40px;
-    line-height: 40px;
-    text-align: right;
-    color: #333;
-}
+
 .header {
     text-align: center;
-    line-height: 60px;
+    line-height: 30px;
+    line-height: 30px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
 }
-.main {
-    left: 20px;
-    right: 20px;
+.body {
+    width: 100%;
+    padding: 20px 15px 50px 15px;
+    overflow: hidden;
+    position: relative;
+    height: calc(100% - 156px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+}
+.item {
     position: absolute;
-    top: 70px;
-    bottom: 100px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+    left: 0px;
+    right: 0px;
+    transition: all 0.5s ease 0s;
 }
+
 .showNews {
     left: 0px;
     width: 100%;
@@ -257,7 +303,35 @@ export default {
     height: 100px;
     position: absolute;
     bottom: 0px;
-    left: 20px;
-    right: 20px;
+    left: 10px;
+    right: 10px;
+}
+.status {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+.left > span,
+.right > span {
+    padding: 3px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+}
+.left > span {
+    background: #fff;
+}
+.right > span {
+    background: #b2e281;
+}
+.left {
+    height: 40px;
+    line-height: 40px;
+    text-align: left;
+    color: #333;
+}
+.right {
+    height: 40px;
+    line-height: 40px;
+    text-align: right;
+    color: #333;
 }
 </style>
