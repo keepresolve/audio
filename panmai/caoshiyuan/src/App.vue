@@ -40,6 +40,9 @@ export default {
 </script>
 
 <style>
+.el-scrollbar__wrap {
+    overflow-x: hidden;
+}
 * {
     box-sizing: border-box;
     padding: 0px;
@@ -50,6 +53,7 @@ export default {
 html,
 body {
     height: 100%;
+    width: 100%;
     background-color: #f8f8f8;
 }
 </style>

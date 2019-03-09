@@ -1,6 +1,7 @@
 let timer = null
 let beginTime = 0
 let room = {}
+io.onlineList = []
 io.on('connection', socket => {
     // listen to the event
     socket.on('reply', function(data) {
@@ -8,11 +9,12 @@ io.on('connection', socket => {
     })
     socket.join('room')
     socket.on('disconnect', function(data) {
-        logger.info(`disconnect:${data}`)
+        logger.info(`disconnect:${data}${socket}`)
     })
     socket.on('message', async function(data) {
         data = JSON.parse(data)
         try {
+            let time = null
             let result = await app.db.user.find({
                 where: { token: data.token }
             })
@@ -21,17 +23,52 @@ io.on('connection', socket => {
                 data.type = 'loginout'
                 return socket.emit('login', JSON.stringify(data))
             }
+            if (!io.onlineList[result.userName]) {
+                io.onlineList.push(result.userName)
+            }
             switch (data.type) {
                 case 'login':
+                    time = new Date().getTime()
+
+                    data.time = time
                     socket.emit('login', JSON.stringify(data))
+                    await app.db.log.create({
+                        userName: result.userName,
+                        log: '登陆系统',
+                        userid: result.id,
+                        createTime: time
+                    })
+                    io.to('room').emit(
+                        'message',
+                        JSON.stringify({
+                            type: 'log',
+                            userName: result.userName,
+                            log: '登陆系统',
+                            userid: result.id,
+                            createTime: time
+                        })
+                    )
+                    break
+                case 'log':
+                    time = new Date().getTime()
+                    await app.db.log.create({
+                        userName: result.userName,
+                        log: data.log,
+                        userid: result.id,
+                        createTime: time
+                    })
+                    data.time = time
+                    io.to('room').emit('message', JSON.stringify(data))
                     break
                 case 'chat':
+                    time = new Date().getTime()
                     await app.db.chat.create({
                         userName: result.userName,
                         message: data.msg,
                         userid: result.id,
-                        createTime: new Date().getTime()
+                        createTime: time
                     })
+                    data.time = time
                     io.to('room').emit('message', JSON.stringify(data))
                     break
 
@@ -48,21 +85,42 @@ io.on('connection', socket => {
                     if (userList.rows.length > 0) {
                         userList.rows.forEach(chat => {
                             let self = result.id == chat.userid
-                            list.push({
+                            list.unshift({
                                 msg: chat.message,
                                 self,
-                                userName: self ? '我' : data.userName
+                                userName: data.userName
                             })
                         })
                     }
 
                     data.type = 'getMessage'
                     data.list = list
-                    io.to('room').emit('message', JSON.stringify(data))
+                    socket.emit('message', JSON.stringify(data))
                     break
-                case '':
-                    break
-                case '':
+                case 'getlog':
+                    let loglimit = data.limit || 20
+                    let logcurrentPage = data.currentPage || 1
+                    let logoffset = (logcurrentPage - 1) * loglimit
+                    let logList = await app.db.log.findAndCountAll({
+                        limit: parseInt(loglimit),
+                        offset: logoffset,
+                        order: [['created_at', 'DESC']]
+                    })
+                    let logcopylist = []
+                    if (logList.rows.length > 0) {
+                        logList.rows.forEach(log => {
+                            let self = result.id == log.userid
+                            logcopylist.unshift({
+                                log: log.log,
+                                self,
+                                userName: log.userName
+                            })
+                        })
+                    }
+
+                    data.type = 'getlog'
+                    data.list = logcopylist
+                    socket.emit('message', JSON.stringify(data))
                     break
             }
         } catch (error) {

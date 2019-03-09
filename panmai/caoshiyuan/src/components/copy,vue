@@ -1,43 +1,38 @@
 <template>
   <el-container class="index">
-    <el-main class="main" :span="12">
-      <el-scrollbar style="height:100%;padding-bottom: 30px;">
-        <ul ref="chatList">
-          <li
-            v-for="(item,index) in chatList"
-            :key="index"
-            :class="{left:!item.self,right:item.self}"
-          >
-            <span>
-              <span>{{item.userName}}:</span>
-              <span>{{item.msg}}</span>
-            </span>
-          </li>
-        </ul>
-      </el-scrollbar>
-      <transition name="fade">
-        <el-col class="logs" :span="6" v-if="isShowLog">
-          <el-scrollbar style="height:100%;padding-bottom: 30px;">
-            <ul ref="logList">
-              <span
-                style="float:right;font-size:24px;margin-right:10px;"
-                @click="isShowLog=false"
-              >&times;</span>
-              <li v-for="(item,index) in logList" :key="index">
-                <span>
-                  <span>{{item.userName}}:</span>
-                  <span>{{item.log}}</span>
-                </span>
-              </li>
-            </ul>
-          </el-scrollbar>
-        </el-col>
-      </transition>
-
-      <div class="showNews" @click="isShowLog=!isShowLog">
-        <span>{{showNews}}</span>
-        <a>查看详情</a>
-      </div>
+    <!-- <div class="status" :style="{background:socketStatus?'blue':'red'}"></div>
+    <el-progress type="circle" :percentage="percentage" status="exception"></el-progress>
+    <button @click="setTime">asads</button>-->
+    <el-header class="header">
+      <el-table :data="numberList" style="width: 100%;height:200px;" max-height="250">
+        <el-table-column fixed prop="number" label="手机号"></el-table-column>
+        <el-table-column prop="startPrice" label="标准"></el-table-column>
+        <el-table-column prop="maxPrice" label="承诺费"></el-table-column>
+        <el-table-column prop="unit" label="单位"></el-table-column>
+        <el-table-column fixed="right" label="操作">
+          <template slot-scope="scope">
+            <el-button
+              @click.native.prevent="deleteRow(scope.$index, numberList)"
+              type="text"
+              size="small"
+            >移除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-header>
+    <el-main class="main">
+      <ul>
+        <li
+          v-for="(item,index) in chatList"
+          :key="index"
+          :class="{left:!item.self,right:item.self}"
+        >
+          <span>
+            <span>{{item.userName}}:</span>
+            <span>{{item.msg}}</span>
+          </span>
+        </li>
+      </ul>
     </el-main>
     <el-footer class="footer">
       <el-input placeholder="请输入内容" ref="sendMessage" v-model="message" class="input-with-select">
@@ -56,9 +51,7 @@ export default {
             socketStatus: 0,
             message: '',
             chatList: [],
-            logList: [{ userName: 13, log: '13123' }],
-            isShowLog: false,
-            showNews: ''
+            numberList: []
         }
     },
     sockets: {
@@ -71,23 +64,11 @@ export default {
                     this.chatList.push({
                         msg: data.msg,
                         self,
-                        userName: self ? '我' : data.userName,
-                        time: data.cre
+                        userName: self ? '我' : data.userName
                     })
                     break
                 case 'getMessage':
                     this.chatList = data.list
-                    break
-                case 'log':
-                    this.showNews = `${data.userName}: ${data.log}`
-                    this.logList.push({
-                        log: data.log,
-                        self,
-                        userName: data.userName
-                    })
-                    break
-                case 'getlog':
-                    this.logList = data.list
                     break
                 default:
                     break
@@ -100,15 +81,6 @@ export default {
         broadcast(data) {
             console.log('broadcast', data)
         }
-    },
-    watch: {
-        chatList(n) {
-            this.$nextTick(() => {
-                let list = this.$refs.chatList.children
-                list[list.length - 1].scrollIntoView()
-            })
-        },
-        logList() {}
     },
     mounted() {
         console.log(this.$refs.sendMessage)
@@ -123,17 +95,6 @@ export default {
         this.$socket.send(
             JSON.stringify({
                 type: 'getMessage',
-                limit: 20,
-                currentPage: 1,
-                userName: localStorage.userName,
-                passWord: localStorage.passWord,
-                unit: localStorage.unit,
-                token: localStorage.token
-            })
-        )
-        this.$socket.send(
-            JSON.stringify({
-                type: 'getlog',
                 limit: 20,
                 currentPage: 1,
                 userName: localStorage.userName,
@@ -178,9 +139,6 @@ export default {
 </script>
 
 <style scoped>
-.index {
-    background-color: #eee;
-}
 .status {
     width: 20px;
     height: 20px;
@@ -195,12 +153,13 @@ export default {
     background: #fff;
 }
 .right > span {
-    background: #b2e281;
+    background: #1989fa;
 }
 .left {
     height: 40px;
     line-height: 40px;
     text-align: left;
+
     color: #333;
 }
 .right {
@@ -210,48 +169,17 @@ export default {
     color: #333;
 }
 .header {
+    height: 200px;
     text-align: center;
-    line-height: 60px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 .main {
     left: 20px;
     right: 20px;
     position: absolute;
-    top: 70px;
+    top: 200px;
     bottom: 100px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-}
-.showNews {
-    left: 0px;
-    width: 100%;
-    height: 30px;
-    position: absolute;
-    bottom: 3px;
-    font-size: 12px;
-    color: #b2b2b2;
-    line-height: 30px;
-    padding: 0px 10px;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
-}
-.showNews a {
-    float: right;
-}
-.showNews:hover {
-    color: #f8f8f8;
-}
-.logs {
-    z-index: 999;
-    position: absolute;
-    top: 20%;
-    bottom: 0px;
-    overflow: auto;
-    right: 0px;
-    padding: 10px 5px;
-    font-size: 12px;
-    border-radius: 3px;
-    background-color: #ffffff;
 }
 .footer {
     height: 100px;

@@ -33,14 +33,15 @@ class enterprise {
         let user = app.db.user
         let ishas = await user.find({
             where: {
-                userName: reqData.userName,
-                passWord: reqData.passWord
+                userName: reqData.userName
             }
         })
         let ip = this.getUserIp(ctx)
         let { token } = o_token.create(ip, reqData.userName, reqData.passWord)
         if (ishas) {
             if (islogin) {
+                if (ishas.passWord != reqData.passWord)
+                    return { status: 301, info: '密码错误' }
                 let result = await user.update(
                     {
                         token
@@ -52,7 +53,6 @@ class enterprise {
                     }
                 )
                 let data = await user.findById(ishas.id)
-                ctx.session.token = data.userName
                 return { status: 0, info: '登陆成功', data }
             } else {
                 return { status: 301, info: '用户名已存在' }

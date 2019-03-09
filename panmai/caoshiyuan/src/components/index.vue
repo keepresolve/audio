@@ -33,5 +33,8 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+.index {
+    height: 100%;
+}
 </style>

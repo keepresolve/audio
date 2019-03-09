@@ -10,6 +10,7 @@ import {
     Message,
     Container,
     Header,
+    Aside,
     Main,
     Footer,
     Col,
@@ -19,11 +20,13 @@ import {
     Button,
     Autocomplete,
     Table,
-    TableColumn
+    TableColumn,
+    Scrollbar
 } from 'element-ui'
 Vue.use(store)
 Vue.use(Container)
 Vue.use(Header)
+Vue.use(Aside)
 Vue.use(Main)
 Vue.use(Footer)
 Vue.use(Col)
@@ -34,6 +37,7 @@ Vue.use(Button)
 Vue.use(Autocomplete)
 Vue.use(Table)
 Vue.use(TableColumn)
+Vue.use(Scrollbar)
 // import './Column)
 // import './rem'
 import axios from 'axios'

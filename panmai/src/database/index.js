@@ -125,6 +125,7 @@ async function createModel() {
             timestamps: false
         }
     )
+    // 操作日志
     const chat = sequelize.define(
         'chat',
         {
@@ -156,6 +157,42 @@ async function createModel() {
         {
             //使用自定义表名
             freezeTableName: 'chat',
+            //去掉默认的添加时间和更新时间
+            timestamps: true
+        }
+    )
+    // 操作日志
+    const log = sequelize.define(
+        'log',
+        {
+            //自增id
+            id: {
+                type: Sequelize.INTEGER,
+                allowNull: false,
+                primaryKey: true,
+                autoIncrement: true
+            },
+            // 手机号
+            userName: {
+                type: Sequelize.TEXT,
+                allowNull: true
+            },
+            //操作
+            log: {
+                type: Sequelize.TEXT,
+                allowNull: true
+            },
+            userid: {
+                type: Sequelize.INTEGER
+            },
+            createTime: {
+                type: Sequelize.INTEGER,
+                allowNull: true
+            } //企业创建时间
+        },
+        {
+            //使用自定义表名
+            freezeTableName: 'log',
             //去掉默认的添加时间和更新时间
             timestamps: true
         }
