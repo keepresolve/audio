@@ -65,11 +65,14 @@
 </style>
 <style scoped>
 #login {
-    height: 100%;
-    width: 100%;
-    background: url('../assets/3.jpg') no-repeat;
-    background-size: cover;
-    background-color: #111;
+    height: 444px;
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 50%;
+
+    margin-top: -280px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 .header {
     text-align: center;
@@ -81,14 +84,14 @@
     color: #7e7e7e;
     width: 100%;
     max-width: 600px;
-    min-width: 350px;
+    min-width: 320px;
     margin: 0 auto;
     padding: 20px 10px;
     text-align: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 </style>
 <script>
+import { mapState } from 'vuex'
 export default {
     data() {
         var checkAge = (rule, value, callback) => {
@@ -144,9 +147,12 @@ export default {
                     }
                 ]
             },
-            islogin: false,
+            islogin: true,
             saveLock: false
         }
+    },
+    computed: {
+        ...mapState(['status'])
     },
     watch: {
         islogin() {
@@ -173,10 +179,14 @@ export default {
                             })
 
                             if (type == 1) {
-                                sessionStorage.token = result.data.data.token
-                                sessionStorage.userName =
+                                localStorage.token = result.data.data.token
+                                localStorage.userName =
                                     result.data.data.userName
-                                this.$router.push('/index')
+                                localStorage.passWord =
+                                    result.data.data.passWord
+                                localStorage.unit = result.data.data.unit
+                                localStorage.rules = result.data.data.rules
+                                this.$router.push('chat')
                             }
                         } else {
                             this.$message({
@@ -202,6 +212,7 @@ export default {
         resetForm() {
             this.$refs.loginForm.resetFields()
         }
-    }
+    },
+    mounted() {}
 }
 </script>

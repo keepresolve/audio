@@ -1,5 +1,5 @@
 <template>
-  <div id="app">12313132
+  <div id="app">
     <router-view/>
   </div>
 </template>
@@ -8,10 +8,31 @@
 export default {
     name: 'App',
     sockets: {
-        connect() {
-            console.log('socket is connected')
+        connect(data) {
+            if (localStorage.token) {
+                this.$socket.send(
+                    JSON.stringify({ type: 'login', token: localStorage.token })
+                )
+            } else {
+                this.$router.push('/login')
+            }
+
+            console.log('socket is connected', data)
+        },
+        login(data) {
+            console.log('login', data)
+            data = JSON.parse(data)
+            let type = data.type
+            if (type == 'login') {
+                this.$router.push('/chat')
+            } else {
+                this.$router.push('/login')
+            }
         },
         disconnected() {
+            console.log('disconnected')
+        },
+        reconnect() {
             console.log('disconnected')
         }
     }
@@ -29,5 +50,6 @@ export default {
 html,
 body {
     height: 100%;
+    background-color: #f8f8f8;
 }
 </style>
