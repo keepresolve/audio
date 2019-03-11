@@ -18,26 +18,37 @@
       </div>
       <div class="showNews" @click="isShowLog=!isShowLog">
         <span>{{showNews}}</span>
-        <a>查看详情</a>
+        <a>查看日志详情</a>
       </div>
     </header>
     <section class="body" :span="12">
       <div class="item" v-show="activeName==1">
-        <el-table
-          :data="tableData6"
-          size="mini"
-          resizable
-          row-class-name="row"
-          :fit="true"
-          :span-method="objectSpanMethod"
-          border
-          style="width: 100%;"
-        >
-          <el-table-column label-class-name="col" prop="number" label="号码"></el-table-column>
-          <el-table-column label-class-name="col" prop="startPrice" label="标准" sortable></el-table-column>
-          <el-table-column label-class-name="col" prop="maxPrice" label="承诺" sortable></el-table-column>
-          <el-table-column label-class-name="col" prop="unit" label="单位"></el-table-column>
-        </el-table>
+        <div class="numberList">
+          <el-table
+            :data="numberData"
+            size="mini"
+            height="100%"
+            resizable
+            row-class-name="row"
+            :fit="true"
+            border
+            style="width: 100%;"
+          >
+            <el-table-column label-class-name="col" prop="number" min-width="100" label="号码"></el-table-column>
+            <el-table-column label-class-name="col" prop="startPrice" label="标准价" sortable></el-table-column>
+            <el-table-column label-class-name="col" prop="maxPrice" label="承诺价" sortable></el-table-column>
+            <el-table-column label-class-name="col" prop="unit" label="单位"></el-table-column>
+          </el-table>
+        </div>
+        <div class="pagination">
+          <el-pagination
+            align="center"
+            :current-page.sync="currentPage"
+            layout="prev, pager, next"
+            :total="50"
+            @current-change="currentChange"
+          ></el-pagination>
+        </div>
       </div>
 
       <div class="item chatpage" v-show="activeName==2">
@@ -73,12 +84,9 @@
 
       <transition name="fade">
         <el-col class="logs" :span="6" v-if="isShowLog">
-          <el-scrollbar style="height:100%;padding-bottom: 30px;">
+          <span id="closeLogs" @click="isShowLog=false">&times;</span>
+          <el-scrollbar style="height:100%">
             <ul ref="logList">
-              <span
-                style="float:right;font-size:24px;margin-right:10px;"
-                @click="isShowLog=false"
-              >&times;</span>
               <li v-for="(item,index) in logList" :key="index">
                 <span>
                   <span>{{item.userName}}:</span>
@@ -90,7 +98,6 @@
         </el-col>
       </transition>
     </section>
-    <!-- <footer class="footer"></footer> -->
   </div>
 </template>
 <script>
@@ -108,15 +115,51 @@ export default {
             showNews: '',
             activeName: '1',
             userName: localStorage.userName,
-            tableData6: [
+            numberData: [
                 {
-                    number: '12987122',
-                    startPrice: '王小虎', //标准起拍价
-                    maxPrice: '234',
-                    amount2: '3.2',
-                    amount3: 10
+                    number: '18330986136	',
+                    startPrice: '100', //标准起拍价
+                    maxPrice: '300',
+                    unit: '长沙'
+                },
+                {
+                    number: '18330986136	',
+                    startPrice: '100', //标准起拍价
+                    maxPrice: '300',
+                    unit: '长沙'
+                },
+                {
+                    number: '18330986136	',
+                    startPrice: '100', //标准起拍价
+                    maxPrice: '300',
+                    unit: '长沙'
+                },
+                {
+                    number: '18330986136	',
+                    startPrice: '100', //标准起拍价
+                    maxPrice: '300',
+                    unit: '长沙'
+                },
+                {
+                    number: '18330986136	',
+                    startPrice: '100', //标准起拍价
+                    maxPrice: '300',
+                    unit: '长沙'
+                },
+                {
+                    number: '18330986136	',
+                    startPrice: '100', //标准起拍价
+                    maxPrice: '300',
+                    unit: '长沙'
+                },
+                {
+                    number: '18330986136	',
+                    startPrice: '100', //标准起拍价
+                    maxPrice: '300',
+                    unit: '长沙'
                 }
-            ]
+            ],
+            currentPage: 5
         }
     },
     sockets: {
@@ -130,7 +173,7 @@ export default {
                         msg: data.msg,
                         self,
                         userName: self ? '我' : data.userName,
-                        time: data.cre
+                        time: data.createTime
                     })
                     break
                 case 'getMessage':
@@ -218,6 +261,9 @@ export default {
                 }
             }
         },
+        currentChange(val) {
+            // alert(this.currentPage)
+        },
         handleClick() {},
         send() {
             if (this.message == '') return
@@ -259,10 +305,12 @@ export default {
     margin: 0 auto;
 }
 .col {
+    text-align: center;
     font-size: 0.1rem !important;
 }
 .row {
-    height: 0.25rem;
+    /* height: 0.25rem; */
+    height: 4rem;
 }
 </style>
 
@@ -294,6 +342,14 @@ header > div {
     right: 0px;
     transition: all 0.5s ease 0s;
 }
+.numberList {
+    height: calc(100% - 70px);
+}
+.pagination {
+    background: #fff;
+    padding: 23px 0px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+}
 .chatpage .chatlist {
     height: calc(100% - 40px);
 }
@@ -302,6 +358,7 @@ header > div {
     width: 100%;
     font-size: 0.1rem;
     color: #b2b2b2;
+    height: 30px;
     line-height: 30px;
     padding: 0px 10px;
     cursor: pointer;
@@ -314,16 +371,26 @@ header > div {
     color: #f8f8f8;
 }
 .logs {
-    z-index: 999;
+    z-index: 20;
     position: absolute;
-    top: 20%;
-    bottom: 0px;
+    width: 100%;
+    top: 0px;
+    height: 200px;
     overflow: auto;
-    right: 0px;
-    padding: 10px 5px;
+    padding: 5px;
     font-size: 12px;
     border-radius: 3px;
     background-color: #ffffff;
+}
+.logs #closeLogs {
+    z-index: 30;
+    font-size: 24px;
+    position: absolute;
+    right: 10px;
+    top: 0px;
+}
+#closeLogs:active {
+    color: #409eff;
 }
 .footer {
     height: 100px;

@@ -32,7 +32,7 @@ io.on('connection', socket => {
 
                     data.time = time
                     socket.emit('login', JSON.stringify(data))
-                    await app.db.log.create({
+                    let createLog = await app.db.log.create({
                         userName: result.userName,
                         log: '登陆系统',
                         userid: result.id,
@@ -42,23 +42,13 @@ io.on('connection', socket => {
                         'message',
                         JSON.stringify({
                             type: 'log',
-                            userName: result.userName,
+                            self: result.id == createLog.userid,
+                            userName: createLog.userName,
                             log: '登陆系统',
-                            userid: result.id,
-                            createTime: time
+                            userid: createLog.userid,
+                            time: createLog.created_at
                         })
                     )
-                    break
-                case 'log':
-                    time = new Date().getTime()
-                    await app.db.log.create({
-                        userName: result.userName,
-                        log: data.log,
-                        userid: result.id,
-                        createTime: time
-                    })
-                    data.time = time
-                    io.to('room').emit('message', JSON.stringify(data))
                     break
                 case 'chat':
                     time = new Date().getTime()
@@ -113,6 +103,8 @@ io.on('connection', socket => {
                             logcopylist.unshift({
                                 log: log.log,
                                 self,
+                                userid: log.userid,
+                                time: log.created_at,
                                 userName: log.userName
                             })
                         })

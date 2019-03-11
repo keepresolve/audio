@@ -9,39 +9,37 @@ import 'element-ui/lib/theme-chalk/index.css'
 import {
     Message,
     Container,
-    Header,
-    Aside,
     Main,
-    Footer,
     Col,
     Form,
     FormItem,
     Input,
     Button,
-    Autocomplete,
     Table,
     TableColumn,
     Scrollbar,
     Tabs,
-    TabPane
+    TabPane,
+    Pagination
 } from 'element-ui'
 Vue.use(store)
 Vue.use(Container)
-Vue.use(Header)
-Vue.use(Aside)
+// Vue.use(Header)
+// Vue.use(Aside)
 Vue.use(Main)
-Vue.use(Footer)
+// Vue.use(Footer)
 Vue.use(Col)
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
 Vue.use(Button)
-Vue.use(Autocomplete)
+// Vue.use(Autocomplete)
 Vue.use(Table)
 Vue.use(TableColumn)
 Vue.use(Scrollbar)
 Vue.use(Tabs)
 Vue.use(TabPane)
+Vue.use(Pagination)
 // import './Column)
 import './rem'
 import axios from 'axios'

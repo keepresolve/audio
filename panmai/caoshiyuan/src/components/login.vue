@@ -1,7 +1,7 @@
 <template>
   <el-container id="login">
     <el-main class="form">
-      <el-header class="header">手机号拍卖网站</el-header>
+      <header class="header">手机号拍卖网站</header>
       <el-form :model="loginForm" status-icon :rules="rules2" ref="loginForm">
         <el-form-item prop="user">
           <el-input v-model.number="loginForm.user" placeholder="请输入用户名">
@@ -65,13 +65,8 @@
 </style>
 <style scoped>
 #login {
-    height: 444px;
-    position: absolute;
-    left: 0px;
-    right: 0px;
-    top: 50%;
-
-    margin-top: -280px;
+    width: 100%;
+    height: 100%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 .header {
@@ -82,10 +77,10 @@
 }
 .form {
     color: #7e7e7e;
-    width: 100%;
     max-width: 600px;
     min-width: 320px;
     margin: 0 auto;
+    margin-top: 100px;
     padding: 20px 10px;
     text-align: center;
 }
@@ -177,7 +172,7 @@ export default {
                                 type: 'success',
                                 message: result.data.info
                             })
-
+                            this.islogin = true
                             if (type == 1) {
                                 localStorage.token = result.data.data.token
                                 localStorage.userName =
