@@ -8,6 +8,6 @@ global.app = app
 require('./util/init')
 const PORT = process.env.port || 3001
 app.listen(PORT)
-server.listen(8001)
+server.listen(8000)
 // logger.debug(`app starts at ${PORT}`)
 module.exports = app
