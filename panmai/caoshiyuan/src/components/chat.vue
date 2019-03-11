@@ -1,45 +1,76 @@
+<style>
+.user {
+    display: inline-block;
+    font-size: 0.1rem;
+}
+</style>
 
 <template>
-  <div class="container">
+  <div id="chat">
     <header>
-      <el-tabs v-model="activeName" @tab-click="handleClick">
-        <el-tab-pane label="聊天室" name="1"></el-tab-pane>
-        <el-tab-pane label="竞拍列表" name="2"></el-tab-pane>
-      </el-tabs>
+      <div>
+        <el-tabs :span="20" v-model="activeName" @tab-click="handleClick">
+          <el-tab-pane label="竞拍列表" name="1"></el-tab-pane>
+          <el-tab-pane label="聊天室" name="2"></el-tab-pane>
+          <el-tab-pane label="个人中心" name="3"></el-tab-pane>
+          <el-tab-pane label="管理员" name="4"></el-tab-pane>
+        </el-tabs>
+      </div>
+      <div class="showNews" @click="isShowLog=!isShowLog">
+        <span>{{showNews}}</span>
+        <a>查看详情</a>
+      </div>
     </header>
     <section class="body" :span="12">
-      <el-scrollbar
-        class="item"
-        :style="{transform:activeName=='2'?'translate(-120%)':'translate(0)'}"
-      >
-        <ul ref="chatList">
-          <li
-            v-for="(item,index) in chatList"
-            :key="index"
-            :class="{left:!item.self,right:item.self}"
-          >
-            <span>
-              <span>{{item.userName}}:</span>
-              <span>{{item.msg}}</span>
-            </span>
-          </li>
-        </ul>
-      </el-scrollbar>
-      <div class="item" :style="{transform:activeName=='1'?'translate(120%)':'translate(0)'}">
+      <div class="item" v-show="activeName==1">
         <el-table
           :data="tableData6"
+          size="mini"
+          resizable
           row-class-name="row"
+          :fit="true"
           :span-method="objectSpanMethod"
           border
           style="width: 100%;"
         >
           <el-table-column label-class-name="col" prop="number" label="号码"></el-table-column>
-          <el-table-column label-class-name="col" prop="startPrice" label="标准"></el-table-column>
+          <el-table-column label-class-name="col" prop="startPrice" label="标准" sortable></el-table-column>
           <el-table-column label-class-name="col" prop="maxPrice" label="承诺" sortable></el-table-column>
-          <el-table-column label-class-name="col" prop="unit" label="单位" sortable></el-table-column>
+          <el-table-column label-class-name="col" prop="unit" label="单位"></el-table-column>
         </el-table>
-        <ul ref="chatList">asdasd</ul>
       </div>
+
+      <div class="item chatpage" v-show="activeName==2">
+        <el-scrollbar class="chatlist">
+          <ul ref="chatList">
+            <li
+              v-for="(item,index) in chatList"
+              :key="index"
+              :class="{left:!item.self,right:item.self}"
+            >
+              <span>
+                <span>{{item.userName}}:</span>
+                <span>{{item.msg}}</span>
+              </span>
+            </li>
+          </ul>
+        </el-scrollbar>
+        <div class="chatFooter">
+          <el-input
+            placeholder="请输入内容"
+            ref="sendMessage"
+            v-model="message"
+            class="input-with-select"
+          >
+            <el-button slot="append" @click="send">发送</el-button>
+          </el-input>
+        </div>
+      </div>
+
+      <div class="item" v-if="activeName==3"></div>
+
+      <div class="item" v-if="activeName==4"></div>
+
       <transition name="fade">
         <el-col class="logs" :span="6" v-if="isShowLog">
           <el-scrollbar style="height:100%;padding-bottom: 30px;">
@@ -58,21 +89,13 @@
           </el-scrollbar>
         </el-col>
       </transition>
-      <div class="showNews" @click="isShowLog=!isShowLog">
-        <span>{{showNews}}</span>
-        <a>查看详情</a>
-      </div>
     </section>
-    <footer class="footer">
-      <el-input placeholder="请输入内容" ref="sendMessage" v-model="message" class="input-with-select">
-        <el-button slot="append" @click="send">发送</el-button>
-      </el-input>
-    </footer>
+    <!-- <footer class="footer"></footer> -->
   </div>
 </template>
 <script>
 export default {
-    name: 'HelloWorld',
+    name: 'chat',
     data() {
         return {
             percentage: 0,
@@ -84,6 +107,7 @@ export default {
             isShowLog: false,
             showNews: '',
             activeName: '1',
+            userName: localStorage.userName,
             tableData6: [
                 {
                     number: '12987122',
@@ -231,6 +255,9 @@ export default {
 .el-tabs__header {
     margin: 0px;
 }
+.el-tabs__nav-scroll > div {
+    margin: 0 auto;
+}
 .col {
     font-size: 0.1rem !important;
 }
@@ -240,41 +267,40 @@ export default {
 </style>
 
 <style scoped>
-.container {
+#chat {
     height: 100%;
     width: 100%;
     background-color: #eee;
     padding: 0 15px;
 }
-
-.header {
-    text-align: center;
-    line-height: 30px;
-    line-height: 30px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
+header > div {
+    width: 320px;
+    margin: 0 auto;
 }
 .body {
     width: 100%;
-    padding: 20px 15px 50px 15px;
+    /* padding: 0px 15px 50px 15px; */
     overflow: hidden;
     position: relative;
-    height: calc(100% - 156px);
+    box-sizing: border-box;
+    height: calc(100% - 70px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 .item {
     position: absolute;
     left: 0px;
+    bottom: 0px;
+    top: 0px;
     right: 0px;
     transition: all 0.5s ease 0s;
 }
+.chatpage .chatlist {
+    height: calc(100% - 40px);
+}
 
 .showNews {
-    left: 0px;
     width: 100%;
-    height: 30px;
-    position: absolute;
-    bottom: 3px;
-    font-size: 12px;
+    font-size: 0.1rem;
     color: #b2b2b2;
     line-height: 30px;
     padding: 0px 10px;
