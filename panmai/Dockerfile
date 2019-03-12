@@ -1,6 +1,5 @@
 FROM node
 # RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
-ENV NODE_ENV production
 # RUN npm install pm2 -g --registry=https://registry.npm.taobao.org
 RUN mkdir /app
 WORKDIR /app
