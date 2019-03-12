@@ -130,10 +130,6 @@
         "1. --inspect-brk必须是在vscode启动，--inspect可以在shell",
         "2. 为了保证扩平台，初始化脚本不一定shell script也可以是nodejs代码，但mount检查只能shell脚本"
     ],
-    "engines": {
-        "node": ">= 6.0.0",
-        "npm": ">= 3.0.0"
-    },
     "browserslist": [
         "> 1%",
         "last 2 versions",
