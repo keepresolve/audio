@@ -34,7 +34,7 @@
             "type": "node",
             "request": "launch",
             "name": "node 启动",
-            "program": "${workspaceFolder}/src/app.js",
+            "program": "${workspaceFolder}/server/app.js",
             "outputCapture": "std",
             "env": {
                 "port": "3001"
