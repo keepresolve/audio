@@ -352,17 +352,18 @@ export default {
 .el-tabs__nav-scroll > div {
     margin: 0 auto;
 }
-/* .col {
+.col {
     text-align: center;
-    font-size: 0.2rem !important;
-} */
+    font-size: 0.2rem;
+}
 .row {
     height: 0.75rem;
+    font-size: 0.2rem;
     /* height: 4rem; */
 }
 .row .cell {
     text-align: center;
-    font-size: 0.8rem !important;
+    font-size: 0.2rem;
 }
 </style>
 
