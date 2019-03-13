@@ -309,8 +309,8 @@ export default {
     font-size: 0.1rem !important;
 }
 .row {
-    /* height: 0.25rem; */
-    height: 4rem;
+    height: 0.75rem;
+    /* height: 4rem; */
 }
 </style>
 
