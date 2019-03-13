@@ -27,12 +27,11 @@
           <el-table
             :data="numberData"
             size="mini"
+            width="100%"
             height="100%"
             resizable
             row-class-name="row"
-            :fit="true"
             border
-            style="width: 100%;"
           >
             <el-table-column label-class-name="col" prop="number" min-width="100" label="号码"></el-table-column>
             <el-table-column label-class-name="col" prop="startPrice" label="标准价" sortable></el-table-column>
@@ -80,7 +79,38 @@
 
       <div class="item" v-if="activeName==3"></div>
 
-      <div class="item" v-if="activeName==4"></div>
+      <div class="item" v-if="activeName==4">
+        <div class="numberList">
+          <el-table
+            ref="multipleTable"
+            size="mini"
+            width="100%"
+            height="100%"
+            resizable
+            row-class-name="row"
+            border
+            :data="numberData"
+            tooltip-effect="dark"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column type="selection"></el-table-column>
+            <el-table-column label="号码">
+              <template slot-scope="scope">{{ scope.row.number }}</template>
+            </el-table-column>
+            <el-table-column prop="startPrice" label="标准价"></el-table-column>
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <el-button size="mini" @click="edit(scope.$index, scope.row)">编辑</el-button>
+                <el-button size="mini" type="danger" @click="remove(scope.$index, scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div>
+          <el-button size="mini" @click="add()">添加</el-button>
+          <el-button size="mini"  @click="remove()">批量删除</el-button>
+        </div>
+      </div>
 
       <transition name="fade">
         <el-col class="logs" :span="6" v-if="isShowLog">
@@ -120,7 +150,7 @@ export default {
                     number: '18330986136	',
                     startPrice: '100', //标准起拍价
                     maxPrice: '300',
-                    unit: '长沙'
+                    unit: '长沙aaaaaaaaaaaaaaaaaaaaaa'
                 },
                 {
                     number: '18330986136	',
@@ -246,6 +276,12 @@ export default {
         )
     },
     methods: {
+        edit() {},
+        add() {},
+        remove() {},
+        handleSelectionChange() {
+            return false
+        },
         objectSpanMethod({ row, column, rowIndex, columnIndex }) {
             if (columnIndex === 0) {
                 if (rowIndex % 2 === 0) {
@@ -304,13 +340,17 @@ export default {
 .el-tabs__nav-scroll > div {
     margin: 0 auto;
 }
-.col {
+/* .col {
     text-align: center;
-    font-size: 0.1rem !important;
-}
+    font-size: 0.2rem !important;
+} */
 .row {
     height: 0.75rem;
     /* height: 4rem; */
+}
+.row .cell {
+    text-align: center;
+    font-size: 0.8rem !important;
 }
 </style>
 
@@ -343,6 +383,7 @@ header > div {
     transition: all 0.5s ease 0s;
 }
 .numberList {
+    width: 100%;
     height: calc(100% - 70px);
 }
 .pagination {

@@ -3,6 +3,8 @@ FROM node
 # RUN npm install pm2 -g --registry=https://registry.npm.taobao.org
 RUN mkdir /app
 WORKDIR /app
+RUN  apt-get update
+RUN  apt-get  install openjdk-6-jdk
 COPY package.json /app
 RUN  npm install  && mv node_modules ../
 #RUN npm install --production --silent && mv node_modules ../
