@@ -71,6 +71,7 @@
             ref="sendMessage"
             v-model="message"
             class="input-with-select"
+            @focus="scrollTop"
           >
             <el-button slot="append" @click="send">发送</el-button>
           </el-input>
@@ -108,7 +109,7 @@
         </div>
         <div>
           <el-button size="mini" @click="add()">添加</el-button>
-          <el-button size="mini"  @click="remove()">批量删除</el-button>
+          <el-button size="mini" @click="remove()">批量删除</el-button>
         </div>
       </div>
 
@@ -189,7 +190,8 @@ export default {
                     unit: '长沙'
                 }
             ],
-            currentPage: 5
+            currentPage: 5,
+            timer: null
         }
     },
     sockets: {
@@ -235,9 +237,7 @@ export default {
     watch: {
         chatList(n) {
             this.$nextTick(() => {
-                let list = this.$refs.chatList.children
-                if (list.length == 0) return
-                list[list.length - 1].scrollIntoView()
+                this.scrollTop(true)
             })
         },
         logList() {}
@@ -281,6 +281,18 @@ export default {
         remove() {},
         handleSelectionChange() {
             return false
+        },
+        scrollTop(fast) {
+            let list = this.$refs.chatList.children
+            if (list.length == 0) return
+            if (fast) {
+                list[list.length - 1].scrollIntoView()
+            } else {
+                clearTimeout(this.timer)
+                this.timer = setTimeout(() => {
+                    list[list.length - 1].scrollIntoView()
+                }, 300)
+            }
         },
         objectSpanMethod({ row, column, rowIndex, columnIndex }) {
             if (columnIndex === 0) {
