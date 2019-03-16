@@ -18,14 +18,14 @@ async function createModel() {
             charset: 'utf8mb4'
         }
     })
-    sequelize
-        .authenticate()
-        .then(() => {
-            console.log('Connection has been established successfully.')
-        })
-        .catch(err => {
-            console.error('Unable to connect to the database:', err)
-        })
+    // sequelize
+    //     .authenticate()
+    //     .then(() => {
+    //         console.log('Connection has been established successfully.')
+    //     })
+    //     .catch(err => {
+    //         console.error('Unable to connect to the database:', err)
+    //     })
     /**
      * 企业总表，存储开户企业基本信息
      * */
@@ -90,8 +90,8 @@ async function createModel() {
                 type: Sequelize.INTEGER,
                 allowNull: false
             },
-            //是否已经售出 0 未售出 1正在拍卖 2 已售出
-            bought: {
+            //是否已经售出 0 未售出 1 正在拍卖 2 已售出
+            status: {
                 type: Sequelize.INTEGER,
                 allowNull: false,
                 defaultValue: 0
@@ -122,7 +122,7 @@ async function createModel() {
             //使用自定义表名
             freezeTableName: 'numberRecord',
             //去掉默认的添加时间和更新时间
-            timestamps: false
+            timestamps: true
         }
     )
     // 操作日志

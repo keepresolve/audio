@@ -75,6 +75,12 @@ class enterprise {
     // 修改企业
     //ep_id es_domain mt_domain（maintenance） 不可修改
     async modifyEp(ctx) {
+        await new Promise(resolve => {
+            setTimeout(() => {
+                resolve()
+            }, 1000)
+        })
+
         return { status: 0, info: 'success' }
     }
     // 获取token如果过去生成新的token并update
@@ -88,22 +94,41 @@ class enterprise {
     async getToken(ctx) {
         return { status: 0, info: 'success' }
     }
-    /**
-     *  req参数
-     * @param {*} ep_id
-     * @param {*} ep_name
-     * @param {*} token
-     * @param {*} mt_domain
-     *
-     */
-    async unregister(ctx) {
-        //成功返回
-        return { status: 0, info: 'success', data: {} }
-    }
-    //企业名字前六位+_+max(id)+1
-    createDbName(id) {
-        id = id ? Number(id) + 1 : 1
-        return 'emic' + ('00000000' + id).slice(-8) + '.db'
+    async number(ctx) {
+        let data = ctx.input_params
+        let type = data.type
+        switch (type) {
+            case '0':
+                let limit = data.limit || 20
+                let currentPage = data.currentPage || 1
+                let offset = (currentPage - 1) * limit
+                let list = await app.db.numberRecord.findAndCountAll({
+                    limit: parseInt(limit),
+                    offset: offset,
+                    order: data.status
+                        ? [['status', data.status]]
+                        : [['id', 'DESC']]
+                })
+                return { status: 0, info: 'success', data: list }
+                break
+            case '1':
+                let addResult = await app.db.numberRecord.create({
+                    number: data.number,
+                    startPrice: data.startPrice || 0,
+                    status: data.status || 0,
+                    createTime: new Date().getTime()
+                })
+                return { status: 0, info: '添加成功', data: addResult }
+                break
+            case '0':
+                break
+            case '0':
+                break
+            case '0':
+                break
+            case '0':
+                break
+        }
     }
 }
 module.exports = new enterprise()

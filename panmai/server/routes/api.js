@@ -13,17 +13,10 @@ router.all('/modifyEp', async ctx => {
     logger.debug(`modifyEp:${JSON.stringify(result)}`)
     ctx.response.body = result
 })
-// 获取更新token
-router.all('/getToken', async ctx => {
-    var result = await api.getToken(ctx)
-    logger.debug(`getToken:${JSON.stringify(result)}`)
+//修改添加number
+router.all('/number', async ctx => {
+    var result = await api.number(ctx)
+    logger.debug(`number:${JSON.stringify(result)}`)
     ctx.response.body = result
 })
-//  取消注册
-router.all('/unregister', async ctx => {
-    var result = await api.unregister(ctx)
-    logger.debug(`unregister:${JSON.stringify(result)}`)
-    ctx.response.body = result
-})
-
 module.exports = router

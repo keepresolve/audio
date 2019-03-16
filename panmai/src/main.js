@@ -20,7 +20,8 @@ import {
     Scrollbar,
     Tabs,
     TabPane,
-    Pagination
+    Pagination,
+    Dialog
 } from 'element-ui'
 Vue.use(store)
 Vue.use(Container)
@@ -40,6 +41,7 @@ Vue.use(Scrollbar)
 Vue.use(Tabs)
 Vue.use(TabPane)
 Vue.use(Pagination)
+Vue.use(Dialog)
 // import './Column)
 import './rem'
 import axios from 'axios'

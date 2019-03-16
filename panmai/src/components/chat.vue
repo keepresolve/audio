@@ -44,7 +44,7 @@
             align="center"
             :current-page.sync="currentPage"
             layout="prev, pager, next"
-            :total="50"
+            :total="total"
             @current-change="currentChange"
           ></el-pagination>
         </div>
@@ -90,7 +90,7 @@
             resizable
             row-class-name="row"
             border
-            :data="numberData"
+            :data="AllnumberData"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
           >
@@ -108,7 +108,7 @@
           </el-table>
         </div>
         <div>
-          <el-button size="mini" @click="add()">添加</el-button>
+          <el-button size="mini" @click="dialog=0;dialogVisible=true;">添加</el-button>
           <el-button size="mini" @click="remove()">批量删除</el-button>
         </div>
       </div>
@@ -129,6 +129,20 @@
         </el-col>
       </transition>
     </section>
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+      <el-form label-width="80px">
+        <el-form-item label="手机号">
+          <el-input v-model="number" placeholder="手机号"></el-input>
+        </el-form-item>
+        <el-form-item label="起拍价">
+          <el-input v-model="startPrice" type="number" placeholder="手机号"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button v-if="dialog==0" type="primary" @click="add()">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -148,50 +162,21 @@ export default {
             userName: localStorage.userName,
             numberData: [
                 {
-                    number: '18330986136	',
+                    id: 0,
+                    number: '18330986137',
                     startPrice: '100', //标准起拍价
                     maxPrice: '300',
                     unit: '长沙aaaaaaaaaaaaaaaaaaaaaa'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
                 }
             ],
+            AllnumberData: {},
+            total: 0,
             currentPage: 5,
-            timer: null
+            timer: null,
+            number: '',
+            startPrice: 0,
+            dialogVisible: false,
+            dialog: 0
         }
     },
     sockets: {
@@ -274,11 +259,31 @@ export default {
                 token: localStorage.token
             })
         )
+        let params = {
+            type: '0',
+            currentPage: this.currentPage,
+            limit: 20,
+            status: '1'
+        }
+        this.$api.get('/number', { params }).then(res => {
+            if (res.code == 0) {
+                this.numberData = res.data
+            }
+        })
     },
     methods: {
         edit() {},
-        add() {},
+        add() {
+            let params = {
+                type: '1',
+                number: this.number,
+                startPrice: this.startPrice,
+                status: 0
+            }
+            this.$api.post('/number', params).then(res => {})
+        },
         remove() {},
+
         handleSelectionChange() {
             return false
         },
