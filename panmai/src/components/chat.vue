@@ -44,7 +44,7 @@
             align="center"
             :current-page.sync="currentPage"
             layout="prev, pager, next"
-            :total="50"
+            :total="total"
             @current-change="currentChange"
           ></el-pagination>
         </div>
@@ -90,7 +90,7 @@
             resizable
             row-class-name="row"
             border
-            :data="numberData"
+            :data="AllnumberData"
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
           >
@@ -102,14 +102,14 @@
             <el-table-column label="操作">
               <template slot-scope="scope">
                 <el-button size="mini" @click="edit(scope.$index, scope.row)">编辑</el-button>
-                <el-button size="mini" type="danger" @click="remove(scope.$index, scope.row)">删除</el-button>
+                <el-button size="mini" type="danger" @click="remove(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
         <div>
-          <el-button size="mini" @click="add()">添加</el-button>
-          <el-button size="mini" @click="remove()">批量删除</el-button>
+          <el-button size="mini" @click="dialog=0;dialogVisible=true;">添加</el-button>
+          <el-button size="mini" @click="remove(selectData.map(v=>v.id).join(','))">批量删除</el-button>
         </div>
       </div>
 
@@ -129,6 +129,20 @@
         </el-col>
       </transition>
     </section>
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="80%">
+      <el-form label-width="80px">
+        <el-form-item label="手机号">
+          <el-input v-model="number" placeholder="手机号"></el-input>
+        </el-form-item>
+        <el-form-item label="起拍价">
+          <el-input v-model="startPrice" type="number" placeholder="手机号"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogVisible = false">取 消</el-button>
+        <el-button v-if="dialog==0" type="primary" @click="add()">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -148,50 +162,22 @@ export default {
             userName: localStorage.userName,
             numberData: [
                 {
-                    number: '18330986136	',
+                    id: 0,
+                    number: '18330986137',
                     startPrice: '100', //标准起拍价
                     maxPrice: '300',
                     unit: '长沙aaaaaaaaaaaaaaaaaaaaaa'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
-                },
-                {
-                    number: '18330986136	',
-                    startPrice: '100', //标准起拍价
-                    maxPrice: '300',
-                    unit: '长沙'
                 }
             ],
-            currentPage: 5,
-            timer: null
+            AllnumberData: {},
+            selectData: [],
+            total: 0,
+            currentPage: 1,
+            timer: null,
+            number: '',
+            startPrice: 0,
+            dialogVisible: false,
+            dialog: 0
         }
     },
     sockets: {
@@ -274,13 +260,57 @@ export default {
                 token: localStorage.token
             })
         )
+        this.getList(1)
     },
     methods: {
-        edit() {},
-        add() {},
-        remove() {},
-        handleSelectionChange() {
-            return false
+        edit() {
+            
+        },
+        add() {
+            let params = {
+                type: '0',
+                number: this.number,
+                startPrice: this.startPrice,
+                status: 0
+            }
+            this.$api
+                .post('/number', params)
+                .then(res => {
+                    if (res.data.status == 0) {
+                        this.getList(1)
+                    }
+                    this.dialogVisible = false
+                })
+                .catch(err => {
+                    if (err) this.dialogVisible = false
+                })
+        },
+        getList(type) {
+            let params = {
+                type: type,
+                currentPage: this.currentPage,
+                limit: 20,
+                status: '0'
+            }
+            this.$api.get('/number', { params }).then(res => {
+                if (res.data.status == 0) {
+                    if (type == 1 || type == 4) {
+                        this.numberData = res.data.data.rows
+                        this.AllnumberData = res.data.data.rows
+                    }
+                }
+            })
+        },
+        remove(id) {
+            this.$api.post('/number', { id: id, type: '9' }).then(res => {
+                if (res.data.status == 0) {
+                    this.getList(1)
+                }
+            })
+        },
+
+        handleSelectionChange(arr) {
+            this.selectData = arr
         },
         scrollTop(fast) {
             let list = this.$refs.chatList.children
@@ -312,7 +342,25 @@ export default {
         currentChange(val) {
             // alert(this.currentPage)
         },
-        handleClick() {},
+        handleClick(value) {
+            switch (value) {
+                case '1':
+                    let params = {
+                        type: '1',
+                        number: this.number,
+                        startPrice: this.startPrice,
+                        status: 1
+                    }
+                    this.getList(value, paramms)
+                    break
+                case '2':
+                    break
+                case '3':
+                    break
+                case '4':
+                    break
+            }
+        },
         send() {
             if (this.message == '') return
             if (!localStorage.token) {
@@ -384,7 +432,7 @@ header > div {
     overflow: hidden;
     position: relative;
     box-sizing: border-box;
-    height: calc(100% - 70px);
+    height: calc(100% - 100px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04);
 }
 .item {
