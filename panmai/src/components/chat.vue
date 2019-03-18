@@ -101,14 +101,17 @@
             <el-table-column prop="startPrice" label="标准价"></el-table-column>
             <el-table-column label="操作">
               <template slot-scope="scope">
-                <el-button size="mini" @click="edit(scope.$index, scope.row)">编辑</el-button>
+                <!-- <el-button
+                  size="mini"
+                  @click="dialog=1;dialogVisible=true;row=row;number=row.number;startPrice=row.startPrice;"
+                >编辑</el-button>-->
                 <el-button size="mini" type="danger" @click="remove(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
         <div>
-          <el-button size="mini" @click="dialog=0;dialogVisible=true;">添加</el-button>
+          <el-button size="mini" @click="dialog=0;number='';startPrice='';dialogVisible=true;">添加</el-button>
           <el-button size="mini" @click="remove(selectData.map(v=>v.id).join(','))">批量删除</el-button>
         </div>
       </div>
@@ -135,12 +138,13 @@
           <el-input v-model="number" placeholder="手机号"></el-input>
         </el-form-item>
         <el-form-item label="起拍价">
-          <el-input v-model="startPrice" type="number" placeholder="手机号"></el-input>
+          <el-input v-model="startPrice" type="number" placeholder="起拍价"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button v-if="dialog==0" type="primary" @click="add()">确 定</el-button>
+        <el-button v-if="dialog==1" type="primary" @click="edit()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -177,7 +181,8 @@ export default {
             number: '',
             startPrice: 0,
             dialogVisible: false,
-            dialog: 0
+            dialog: 0,
+            row: null
         }
     },
     sockets: {
@@ -263,9 +268,7 @@ export default {
         this.getList(1)
     },
     methods: {
-        edit() {
-            
-        },
+        edit() {},
         add() {
             let params = {
                 type: '0',
@@ -280,9 +283,15 @@ export default {
                         this.getList(1)
                     }
                     this.dialogVisible = false
+                    this.number = ''
+                    this.startPrice = ''
                 })
                 .catch(err => {
-                    if (err) this.dialogVisible = false
+                    if (err) {
+                        this.number = ''
+                        this.startPrice = ''
+                        this.dialogVisible = false
+                    }
                 })
         },
         getList(type) {
@@ -297,16 +306,19 @@ export default {
                     if (type == 1 || type == 4) {
                         this.numberData = res.data.data.rows
                         this.AllnumberData = res.data.data.rows
+                        this.total = res.data.data.count
                     }
                 }
             })
         },
         remove(id) {
-            this.$api.post('/number', { id: id, type: '9' }).then(res => {
-                if (res.data.status == 0) {
-                    this.getList(1)
-                }
-            })
+            this.$api
+                .post('/number', { id: String(id), type: '9' })
+                .then(res => {
+                    if (res.data.status == 0) {
+                        this.getList(1)
+                    }
+                })
         },
 
         handleSelectionChange(arr) {
