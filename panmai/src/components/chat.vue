@@ -33,10 +33,24 @@
             row-class-name="row"
             border
           >
-            <el-table-column label-class-name="col" prop="number" min-width="100" label="号码"></el-table-column>
-            <el-table-column label-class-name="col" prop="startPrice" label="标准价" sortable></el-table-column>
-            <el-table-column label-class-name="col" prop="maxPrice" label="承诺价" sortable></el-table-column>
-            <el-table-column label-class-name="col" prop="unit" label="单位"></el-table-column>
+            <el-table-column label-class-name="col" min-width="150" label="号码(标准价)">
+              <template slot-scope="scope">
+                <span>{{scope.row.number}}</span>
+                <sub>{{scope.row.startPrice}}元</sub>
+              </template>
+            </el-table-column>
+            <el-table-column label-class-name="col" prop="maxPrice" label="承诺价" sortable>
+              <template slot-scope="scope">
+                <span>{{scope.row.maxPrice}}元</span>
+                <span class="el-icon-plus" @click="addPrice(scope.row.id)">&nbsp;</span>
+              </template>
+            </el-table-column>
+            <el-table-column label-class-name="col" label="竞拍单位">
+              <template slot-scope="scope">
+                <span>{{scope.row.Auctioneer}}</span>
+                <sub>{{scope.row.unit}}</sub>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
         <div class="pagination">
@@ -94,21 +108,24 @@
             tooltip-effect="dark"
             @selection-change="handleSelectionChange"
           >
-            <el-table-column type="selection"></el-table-column>
-            <el-table-column label="号码">
+            <el-table-column type="selection" align="center"></el-table-column>
+            <el-table-column label="号码" align="center">
               <template slot-scope="scope">{{ scope.row.number }}</template>
             </el-table-column>
-            <el-table-column prop="startPrice" label="标准价"></el-table-column>
-            <el-table-column label="操作">
+            <el-table-column label="标准价" align="center" prop="startPrice"></el-table-column>
+            <el-table-column label="操作" align="center">
               <template slot-scope="scope">
-                <el-button size="mini" @click="edit(scope.$index, scope.row)">编辑</el-button>
+                <!-- <el-button
+                  size="mini"
+                  @click="dialog=1;dialogVisible=true;row=row;number=row.number;startPrice=row.startPrice;"
+                >编辑</el-button>-->
                 <el-button size="mini" type="danger" @click="remove(scope.row.id)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
         </div>
         <div>
-          <el-button size="mini" @click="dialog=0;dialogVisible=true;">添加</el-button>
+          <el-button size="mini" @click="dialog=0;number='';startPrice='';dialogVisible=true;">添加</el-button>
           <el-button size="mini" @click="remove(selectData.map(v=>v.id).join(','))">批量删除</el-button>
         </div>
       </div>
@@ -135,12 +152,13 @@
           <el-input v-model="number" placeholder="手机号"></el-input>
         </el-form-item>
         <el-form-item label="起拍价">
-          <el-input v-model="startPrice" type="number" placeholder="手机号"></el-input>
+          <el-input v-model="startPrice" type="number" placeholder="起拍价"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button v-if="dialog==0" type="primary" @click="add()">确 定</el-button>
+        <el-button v-if="dialog==1" type="primary" @click="edit()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -177,7 +195,8 @@ export default {
             number: '',
             startPrice: 0,
             dialogVisible: false,
-            dialog: 0
+            dialog: 0,
+            row: null
         }
     },
     sockets: {
@@ -263,9 +282,10 @@ export default {
         this.getList(1)
     },
     methods: {
-        edit() {
-            
+        addPrice() {
+            alert('点击弹框')
         },
+        edit() {},
         add() {
             let params = {
                 type: '0',
@@ -280,9 +300,15 @@ export default {
                         this.getList(1)
                     }
                     this.dialogVisible = false
+                    this.number = ''
+                    this.startPrice = ''
                 })
                 .catch(err => {
-                    if (err) this.dialogVisible = false
+                    if (err) {
+                        this.number = ''
+                        this.startPrice = ''
+                        this.dialogVisible = false
+                    }
                 })
         },
         getList(type) {
@@ -296,17 +322,21 @@ export default {
                 if (res.data.status == 0) {
                     if (type == 1 || type == 4) {
                         this.numberData = res.data.data.rows
+                        console.log(this.numberData)
                         this.AllnumberData = res.data.data.rows
+                        this.total = res.data.data.count
                     }
                 }
             })
         },
         remove(id) {
-            this.$api.post('/number', { id: id, type: '9' }).then(res => {
-                if (res.data.status == 0) {
-                    this.getList(1)
-                }
-            })
+            this.$api
+                .post('/number', { id: String(id), type: '9' })
+                .then(res => {
+                    if (res.data.status == 0) {
+                        this.getList(1)
+                    }
+                })
         },
 
         handleSelectionChange(arr) {

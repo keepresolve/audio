@@ -88,7 +88,8 @@ async function createModel() {
             // 手机号
             number: {
                 type: Sequelize.INTEGER,
-                allowNull: false
+                allowNull: false,
+                defaultValue: 0
             },
             //是否已经售出 0 未售出 1 正在拍卖 2 已售出
             status: {
@@ -103,11 +104,16 @@ async function createModel() {
                 defaultValue: 0
             },
             // 拍卖人
-            Auctioneer: { type: Sequelize.TEXT, allowNull: true },
+            Auctioneer: {
+                type: Sequelize.TEXT,
+                allowNull: true,
+                defaultValue: '--'
+            },
             //最大拍卖价格
             maxPrice: {
                 type: Sequelize.INTEGER,
-                allowNull: true
+                allowNull: true,
+                defaultValue: 0
             },
             room: {
                 type: Sequelize.INTEGER,
