@@ -42,7 +42,7 @@
             <el-table-column label-class-name="col" prop="maxPrice" label="承诺价" sortable>
               <template slot-scope="scope">
                 <span>{{scope.row.maxPrice}}元</span>
-                <span class="el-icon-plus" @click="addPrice(scope.row.id)">&nbsp;</span>
+                <span class="el-icon-plus" @click="addPrice(scope.row)">&nbsp;</span>
               </template>
             </el-table-column>
             <el-table-column label-class-name="col" label="竞拍单位">
@@ -161,6 +161,22 @@
         <el-button v-if="dialog==1" type="primary" @click="edit()">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="请输入金额" :visible.sync="addPriceShow" center>
+      <div>
+        <el-input-number
+          style="width:100%"
+          @change="priceChange"
+          v-model="addItem.maxPrice"
+          :step="1"
+          :min="indexItem.maxPrice"
+          label="请输入金额"
+        ></el-input-number>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addPriceShow = false">取 消</el-button>
+        <el-button type="primary" @click="addPriceShow = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -196,7 +212,22 @@ export default {
             startPrice: 0,
             dialogVisible: false,
             dialog: 0,
-            row: null
+            row: null,
+            addPriceShow: false,
+            indexItem: {
+                id: 0,
+                number: '1001',
+                startPrice: '0', //标准起拍价
+                maxPrice: '0',
+                unit: '北京'
+            },
+            addItem: {
+                id: 0,
+                number: '1001',
+                startPrice: '0', //标准起拍价
+                maxPrice: '0',
+                unit: '北京'
+            }
         }
     },
     sockets: {
@@ -282,8 +313,24 @@ export default {
         this.getList(1)
     },
     methods: {
-        addPrice() {
-            alert('点击弹框')
+        priceChange(num) {
+            // if (
+            //     /^((-\d+)|(0+))$/.test(num) ||
+            //     num < this.indexItem.maxPrice ||
+            //     !num ||
+            //     num == undefined
+            // ) {
+            //     this.addItem.maxPrice = Number(this.indexItem.maxPrice) + 1
+            //     return this.$message({
+            //         type: 'error',
+            //         message: `请输入大于${this.indexItem.maxPrice}的金额`
+            //     })
+            // }
+        },
+        addPrice(item) {
+            this.indexItem = item
+            this.addItem = JSON.parse(JSON.stringify(item))
+            this.addPriceShow = true
         },
         edit() {},
         add() {

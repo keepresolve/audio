@@ -101,6 +101,7 @@ class enterprise {
             case '0':
                 let addResult = await app.db.numberRecord.create({
                     number: data.number,
+                    maxPrice: data.maxPrice || data.startPrice || 0,
                     startPrice: data.startPrice || 0,
                     status: data.status || 0,
                     createTime: new Date().getTime()

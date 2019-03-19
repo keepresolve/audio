@@ -21,7 +21,8 @@ import {
     Tabs,
     TabPane,
     Pagination,
-    Dialog
+    Dialog,
+    InputNumber
 } from 'element-ui'
 Vue.use(store)
 Vue.use(Container)
@@ -33,6 +34,7 @@ Vue.use(Col)
 Vue.use(Form)
 Vue.use(FormItem)
 Vue.use(Input)
+Vue.use(InputNumber)
 Vue.use(Button)
 // Vue.use(Autocomplete)
 Vue.use(Table)
