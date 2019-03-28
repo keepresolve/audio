@@ -42,9 +42,8 @@ io.on('connection', socket => {
                         'message',
                         JSON.stringify({
                             type: 'log',
-                            self: result.id == createLog.userid,
                             userName: createLog.userName,
-                            log: '登陆系统',
+                            log: createLog.log,
                             userid: createLog.userid,
                             time: createLog.created_at
                         })

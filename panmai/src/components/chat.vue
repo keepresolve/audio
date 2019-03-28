@@ -253,15 +253,26 @@ export default {
                     break
                 case 'log':
                     this.showNews = `${data.userName}: ${data.log}`
-                    this.logList.push({
+                    this.logList.unshift({
                         log: data.log,
                         self,
-                        userName: data.userName
+                        userName: data.userName,
+                        time: data.time
                     })
                     break
                 case 'getlog':
                     this.logList = data.list
                     break
+                case 'updateNumber':
+                    let numberitem = this.numberData.find(v => v.id == data.id)
+                    if (numberitem) {
+                        numberitem.maxPrice = data.maxPrice
+                        numberitem.unit = data.unit
+                        numberitem.userName = data.userName
+                    } else {
+                        this.getList()
+                    }
+
                 default:
                     break
             }
@@ -337,23 +348,33 @@ export default {
             }
             let params = {
                 id: this.addItem.id,
-                price: parseInt(this.addItem.maxPrice),
+                maxPrice: parseInt(this.addItem.maxPrice),
                 userName: localStorage.userName,
                 passWord: localStorage.passWord,
                 unit: localStorage.unit,
                 token: localStorage.token
             }
             this.addPriceLoading = true
-            this.$api.post('/addPrice', params).then(res => {
-                if (res.code == 200) {
-                } else {
+            this.$api
+                .post('/updateNumber', params)
+                .then(res => {
+                    if (res.data.status == 0) {
+                        this.addPriceShow = false
+                    } else {
+                        this.$message({
+                            type: 'error',
+                            message: res.data.info
+                        })
+                    }
+                    this.addPriceLoading = false
+                })
+                .catch(err => {
                     this.$message({
                         type: 'error',
-                        message: res.info
+                        message: res.message
                     })
-                }
-                this.addPriceLoading = false
-            })
+                    this.addPriceLoading = false
+                })
         },
         edit() {},
         add() {
@@ -392,7 +413,7 @@ export default {
                 if (res.data.status == 0) {
                     if (type == 1 || type == 4) {
                         this.numberData = res.data.data.rows
-                        console.log(this.numberData)
+
                         this.AllnumberData = res.data.data.rows
                         this.total = res.data.data.count
                     }
@@ -558,7 +579,7 @@ header > div {
 
 .showNews {
     width: 100%;
-    font-size: 0.1rem;
+    font-size: 0.2rem;
     color: #b2b2b2;
     height: 30px;
     line-height: 30px;

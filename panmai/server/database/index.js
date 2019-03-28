@@ -87,7 +87,7 @@ async function createModel() {
             },
             // 手机号
             number: {
-                type: Sequelize.INTEGER,
+                type: Sequelize.BIGINT,
                 allowNull: false,
                 defaultValue: 0
             },
@@ -105,6 +105,11 @@ async function createModel() {
             },
             // 拍卖人
             Auctioneer: {
+                type: Sequelize.TEXT,
+                allowNull: true,
+                defaultValue: '--'
+            },
+            unit: {
                 type: Sequelize.TEXT,
                 allowNull: true,
                 defaultValue: '--'
