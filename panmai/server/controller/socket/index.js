@@ -94,7 +94,7 @@ io.on('connection', socket => {
                     let logList = await app.db.log.findAndCountAll({
                         limit: parseInt(loglimit),
                         offset: logoffset,
-                        order: [['created_at', 'DESC']]
+                        order: [['created_at', 'ASC']]
                     })
                     let logcopylist = []
                     if (logList.rows.length > 0) {
@@ -125,17 +125,17 @@ io.on('connection', socket => {
 
         logger.info(`message:${JSON.stringify(data)}`)
     })
-    socket.on('percentage', function(data) {
-        data = JSON.parse(data)
-        logger.info(`percentage:${data}`)
-        clearInterval(timer)
-        timer = setInterval(() => {
-            if (beginTime >= data.total) {
-                clearInterval(timer)
-                beginTime = 0
-            }
-            beginTime++
-            socket.emit('percentage', JSON.stringify({ percentage: beginTime }))
-        }, 1000)
-    })
+    // socket.on('percentage', function(data) {
+    //     data = JSON.parse(data)
+    //     logger.info(`percentage:${data}`)
+    //     clearInterval(timer)
+    //     timer = setInterval(() => {
+    //         if (beginTime >= data.total) {
+    //             clearInterval(timer)
+    //             beginTime = 0
+    //         }
+    //         beginTime++
+    //         socket.emit('percentage', JSON.stringify({ percentage: beginTime }))
+    //     }, 1000)
+    // })
 })

@@ -99,6 +99,13 @@ class enterprise {
         let type = data.type
         switch (type) {
             case '0':
+                let ishas = await app.db.numberRecord.find({
+                    where: {
+                        number: data.number
+                    }
+                })
+                if (ishas)
+                    return { status: 301, info: '号码已存在', data: ishas }
                 let addResult = await app.db.numberRecord.create({
                     number: data.number,
                     maxPrice: data.maxPrice || data.startPrice || 0,
@@ -120,12 +127,6 @@ class enterprise {
                 })
                 return { status: 0, info: 'success', data: list }
                 break
-            case '0':
-                break
-            case '0':
-                break
-            case '0':
-                break
             case '9':
                 let removeResult = await app.db.numberRecord.destroy({
                     where: {
@@ -139,6 +140,31 @@ class enterprise {
                 }
                 break
         }
+    }
+    async updateNumber() {
+        let data = ctx.input_params
+        let type = data.type
+        let ishas = await app.db.numberRecord.find({
+            where: {
+                id: data.id
+            }
+        })
+        if (!ishas)
+            return {
+                status: 400,
+                info: '号码不存在',
+                data: ishas
+            }
+        let addResult = await app.db.numberRecord.update(
+            {
+                maxPrice: data.maxPrice
+            },
+            {
+                where: {
+                    id: data.id
+                }
+            }
+        )
     }
     async remove() {}
 }

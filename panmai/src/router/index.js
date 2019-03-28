@@ -20,6 +20,12 @@ let router = new Router({
                     name: 'index',
                     component: resolve =>
                         require(['@/components/chat.vue'], resolve)
+                },
+                {
+                    path: '/echarts',
+                    name: 'echarts',
+                    component: resolve =>
+                        require(['@/components/echarts.vue'], resolve)
                 }
             ]
         }

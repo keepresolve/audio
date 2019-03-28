@@ -42,7 +42,12 @@
             <el-table-column label-class-name="col" prop="maxPrice" label="承诺价" sortable>
               <template slot-scope="scope">
                 <span>{{scope.row.maxPrice}}元</span>
-                <span class="el-icon-plus" @click="addPrice(scope.row)">&nbsp;</span>
+                <el-button
+                  size="mini"
+                  icon="el-icon-plus"
+                  @click="indexItem = scope.row;addItem = JSON.parse(JSON.stringify(scope.row));addPriceShow = true;"
+                  circle
+                ></el-button>
               </template>
             </el-table-column>
             <el-table-column label-class-name="col" label="竞拍单位">
@@ -136,10 +141,8 @@
           <el-scrollbar style="height:100%">
             <ul ref="logList">
               <li v-for="(item,index) in logList" :key="index">
-                <span>
-                  <span>{{item.userName}}:</span>
-                  <span>{{item.log}}</span>
-                </span>
+                <div>{{new Date(item.time).toLocaleString()}}</div>
+                <span>{{item.userName}}:{{item.log}}</span>
               </li>
             </ul>
           </el-scrollbar>
@@ -167,14 +170,14 @@
           style="width:100%"
           @change="priceChange"
           v-model="addItem.maxPrice"
-          :step="1"
+          :step="5"
           :min="indexItem.maxPrice"
           label="请输入金额"
         ></el-input-number>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button @click="addPriceShow = false">取 消</el-button>
-        <el-button type="primary" @click="addPriceShow = false">确 定</el-button>
+        <el-button type="primary" :loading="addPriceLoading" @click="addPrice()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -227,7 +230,8 @@ export default {
                 startPrice: '0', //标准起拍价
                 maxPrice: '0',
                 unit: '北京'
-            }
+            },
+            addPriceLoading: false
         }
     },
     sockets: {
@@ -262,9 +266,6 @@ export default {
                     break
             }
             console.log('message', data)
-        },
-        percentage(data) {
-            this.percentage = JSON.parse(data).percentage
         },
         broadcast(data) {
             console.log('broadcast', data)
@@ -327,10 +328,32 @@ export default {
             //     })
             // }
         },
-        addPrice(item) {
-            this.indexItem = item
-            this.addItem = JSON.parse(JSON.stringify(item))
-            this.addPriceShow = true
+        addPrice() {
+            if (this.addItem.maxPrice <= this.indexItem.maxPrice) {
+                return this.$message({
+                    type: 'error',
+                    message: `请输入大于${this.indexItem.maxPrice}的金额`
+                })
+            }
+            let params = {
+                id: this.addItem.id,
+                price: parseInt(this.addItem.maxPrice),
+                userName: localStorage.userName,
+                passWord: localStorage.passWord,
+                unit: localStorage.unit,
+                token: localStorage.token
+            }
+            this.addPriceLoading = true
+            this.$api.post('/addPrice', params).then(res => {
+                if (res.code == 200) {
+                } else {
+                    this.$message({
+                        type: 'error',
+                        message: res.info
+                    })
+                }
+                this.addPriceLoading = false
+            })
         },
         edit() {},
         add() {
