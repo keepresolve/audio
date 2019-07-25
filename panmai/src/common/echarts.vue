@@ -2,10 +2,14 @@
 <template>
   <div class="echarts">
     <div id="echarts" ref="echarts"></div>
+    <ul>
+      <navtive-test></navtive-test>
+    </ul>
   </div>
 </template>
 <script>
 // https://echarts.baidu.com/echarts2/doc/example.html
+import navtiveTest from './navtiveTest'
 import echarts from 'echarts'
 export default {
     name: 'echarts',
@@ -14,10 +18,17 @@ export default {
             echarts: null
         }
     },
+    components: {
+        'navtive-test': navtiveTest
+    },
     props: {
         options: {}
     },
-    methods: {},
+    methods: {
+        parent(val) {
+            alert(val)
+        }
+    },
     watch: {
         options: {
             handler(n) {
@@ -30,6 +41,8 @@ export default {
         this.echarts = echarts.init(this.$refs.echarts)
         // 使用刚指定的配置项和数据显示图表。
         this.echarts.setOption(this.options)
+        console.log({ parent: this.$parent.$parent, parents: this.$root })
+        this.$parent.$emit('changed', { message: 'i am echarts' })
     }
 }
 </script>

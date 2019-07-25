@@ -1,17 +1,27 @@
 <template>
   <div class="echartsPage">
     <ECharts :options="options"></ECharts>
+
+    <div class="erweima">
+      <vue-qr :bgSrc="src" :logoSrc="src2" text="Hello world!asdasdasdasdasdasd" :size="200"></vue-qr>
+      <vue-qr text="Hello world!" :callback="test" qid="testid"></vue-qr>
+    </div>
   </div>
 </template>
 <script>
 import ECharts from '../common/echarts'
+import VueQr from 'vue-qr'
+
 export default {
     name: 'echartsPage',
     components: {
-        ECharts
+        ECharts,
+        VueQr
     },
     data() {
         return {
+            src: '',
+            src2: '',
             options: {
                 title: {
                     text: 'ECharts 入门示例'
@@ -32,6 +42,11 @@ export default {
                     }
                 ]
             }
+        }
+    },
+    methods: {
+        test(dataUrl, id) {
+            console.log(dataUrl, id)
         }
     }
 }

@@ -10,7 +10,8 @@ async function createModel() {
         //     supportBigNumbers: true,
         //     bigNumberStrings: true
         // },
-        host: '106.13.52.142',
+        // host: '106.13.52.142',
+        host: 'localhost',
         port: 3306,
         //解决中文输入问题
         define: {

@@ -20,7 +20,7 @@ var sequelize = new Sequelize("caoshiyuan", "root", "123456", {
   //     supportBigNumbers: true,
   //     bigNumberStrings: true
   // },
-  host: "106.13.52.142",
+  host: "127.0.0.1",
   port: 3306,
   //解决中文输入问题
   define: {
