@@ -19,4 +19,9 @@ router.all('/number', async ctx => {
     logger.debug(`number:${JSON.stringify(result)}`)
     ctx.response.body = result
 })
+router.all('/updateNumber', async ctx => {
+    var result = await api.updateNumber(ctx)
+    logger.debug(`updateNumber:${JSON.stringify(result)}`)
+    ctx.response.body = result
+})
 module.exports = router

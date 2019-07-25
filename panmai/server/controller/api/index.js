@@ -141,9 +141,18 @@ class enterprise {
                 break
         }
     }
-    async updateNumber() {
+    async updateNumber(ctx) {
         let data = ctx.input_params
         let type = data.type
+        let result = await app.db.user.find({
+            where: { token: data.token }
+        })
+        if (!result)
+            return {
+                status: 400,
+                info: '用户不存在',
+                data: ishas
+            }
         let ishas = await app.db.numberRecord.find({
             where: {
                 id: data.id
@@ -155,8 +164,16 @@ class enterprise {
                 info: '号码不存在',
                 data: ishas
             }
+        if (ishas.maxPrice >= data.maxPrice)
+            return {
+                status: 400,
+                info: '不能小于当前承诺价',
+                data: ishas
+            }
         let addResult = await app.db.numberRecord.update(
             {
+                unit: data.unit,
+                Auctioneer: data.userName,
                 maxPrice: data.maxPrice
             },
             {
@@ -165,6 +182,33 @@ class enterprise {
                 }
             }
         )
+        let createLog = await app.db.log.create({
+            userName: result.userName,
+            log: `${ishas.number}号码${result.userName}加价到${data.maxPrice}`,
+            userid: result.id,
+            createTime: Date.now()
+        })
+        io.to('room').emit(
+            'message',
+            JSON.stringify({
+                type: 'log',
+                userName: createLog.userName,
+                log: createLog.log,
+                userid: createLog.userid,
+                time: createLog.created_at
+            })
+        )
+        io.to('room').emit(
+            'message',
+            JSON.stringify({
+                type: 'updateNumber',
+                id: data.id,
+                unit: data.unit,
+                Auctioneer: data.userName,
+                maxPrice: data.maxPrice
+            })
+        )
+        return { status: 0, info: 'success', addResult }
     }
     async remove() {}
 }
