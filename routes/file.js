@@ -31,7 +31,7 @@ router.post("/upload", async function(req, res, next) {
         let result = await mp3.create({
           fileName: fileName,
           path: "0",
-          remotePath: `https://localhost:3000/mp3/${fileName}`
+          remotePath: `./mp3/${fileName}`
         });
         let sourcePath = files["fileName"]["path"];
         let targetPath = path.resolve(
@@ -41,7 +41,7 @@ router.post("/upload", async function(req, res, next) {
         let update = await mp3.update(
           {
             path: targetPath,
-            remotePath: `https://localhost:3000/mp3/${result.id}.mp3`
+            remotePath: `./mp3/${result.id}.mp3`
           },
           {
             where: { id: result.id }

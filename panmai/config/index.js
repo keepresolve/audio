@@ -11,7 +11,7 @@ module.exports = {
         assetsPublicPath: '/',
         proxyTable: {
             '*': {
-                target: 'http://127.0.0.1:8000' //目标接口域名
+                target: 'http://127.0.0.1:3001' //目标接口域名
                 // ws: true,
                 // changeOrigin: true //是否跨域
             }
@@ -23,7 +23,7 @@ module.exports = {
         autoOpenBrowser: true,
         errorOverlay: true,
         notifyOnErrors: true,
-        poll: true, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
+        // poll: false, // https://webpack.js.org/configuration/dev-server/#devserver-watchoptions-
 
         /**
          * Source Maps
