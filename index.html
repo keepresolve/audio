@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      .m-toggle {
+        width: 28px;
+        height: 28px;
+        /* display: none; */
+      }
+      .m-toggle img {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <div class="m-toggle yinyu">
+      <img
+        src="https://www.bootcdn.cn/assets/img/react.svg?1554582874714"
+        alt=""
+      />
+    </div>
+    <script>
+      var audio = document.createElement("audio");
+      function play(doc, url, cb) {
+        return new Promise(res => {
+          audio.src = url;
+          //   audio.load && audio.load();
+          audio.addEventListener(
+            "canplaythrough",
+            function() {
+              audio.play();
+              cb && cb({ code: 200, info: "播放成功" });
+              res({ code: 200, info: "播放成功" });
+            },
+            false
+          );
+          audio.addEventListener("error", function(error) {
+            console.error(error);
+            cb && cb({ code: 500, info: "音频加载失败", error });
+            res({ code: 500, info: "音频加载失败", error });
+          });
+        });
+      }
+      document.querySelector(".m-toggle").onclick = function() {
+        play(
+          document,
+          "https://emic-cmb.emicloud.com/download?ticket=be8546ea9cf3cab31ae7f90bc9274021",
+          res => {
+            console.log(res);
+          }
+        );
+      };
+    </script>
+  </body>
+</html>

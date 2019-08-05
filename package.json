@@ -29,6 +29,7 @@
     "opn": "^5.3.0",
     "sequelize": "^4.42.0",
     "serve-favicon": "~2.4.5",
+    "sqlite3": "^4.0.9",
     "weibo-video": "^1.2.2"
   },
   "description": "个人demo练习",

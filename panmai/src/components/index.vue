@@ -1,6 +1,6 @@
 <template>
   <el-container class="index">
-    <router-view></router-view>
+    <router-view @changed="changed"></router-view>
   </el-container>
 </template>
 <script>
@@ -28,7 +28,10 @@ export default {
         // }
     },
     methods: {
-        ...mapMutations(['changeSocketStatus'])
+        ...mapMutations(['changeSocketStatus']),
+        changed(obj) {
+            alert(obj.message)
+        }
     }
 }
 </script>
