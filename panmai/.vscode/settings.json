@@ -2,5 +2,6 @@
     "editor.formatOnSave": true,
     "diffEditor.ignoreTrimWhitespace": false,
     "editor.tabSize": 4,
+    "search.followSymlinks": false,
     "editor.tabCompletion": "on"
 }
