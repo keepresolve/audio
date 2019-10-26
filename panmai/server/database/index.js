@@ -2,22 +2,29 @@ const Sequelize = require('sequelize')
 var path = require('path')
 
 async function createModel() {
-    const sequelize = new Sequelize('caoshiyuan', 'root', '123456', {
-        dialect: 'mysql',
-        // 'dialectOptions': {
-        //     charset: "utf8mb4",
-        //     collate: "utf8mb4_unicode_ci",
-        //     supportBigNumbers: true,
-        //     bigNumberStrings: true
-        // },
-        // host: '106.13.52.142',
-        host: 'localhost',
-        port: 3306,
-        //解决中文输入问题
-        define: {
-            underscored: true,
-            charset: 'utf8mb4'
-        }
+    // const sequelize = new Sequelize('caoshiyuan', 'root', '123456', {
+    //     dialect: 'mysql',
+    //     // 'dialectOptions': {
+    //     //     charset: "utf8mb4",
+    //     //     collate: "utf8mb4_unicode_ci",
+    //     //     supportBigNumbers: true,
+    //     //     bigNumberStrings: true
+    //     // },
+    //     // host: '106.13.52.142',
+    //     host: 'localhost',
+    //     port: 3306,
+    //     //解决中文输入问题
+    //     define: {
+    //         underscored: true,
+    //         charset: 'utf8mb4'
+    //     }
+    // })
+    const sequelize = new Sequelize({
+        dialect: 'sqlite',
+        operatorsAliases: false,
+        logging: false, //关闭打印输出
+        // 仅限 SQLite
+        storage: path.resolve(app.dbPath, 'sqlite.db')
     })
     // sequelize
     //     .authenticate()
